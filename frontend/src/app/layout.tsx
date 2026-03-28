@@ -6,7 +6,10 @@ import { NotificationProvider } from '@/context/NotificationContext'
 import { CurrencyProvider } from '@/context/CurrencyContext'
 import { AppConfigProvider } from '@/context/AppConfigContext'
 import { UserProfileProvider } from '@/context/UserProfileContext'
+import { PropertyProvider } from '@/context/PropertyContext'
+import { LogProvider } from '@/context/LogContext'
 import ToastContainer from '@/components/ToastContainer'
+import ImpersonationBanner from '@/components/ImpersonationBanner'
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' })
 
@@ -21,18 +24,23 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${outfit.variable} font-sans min-h-screen selection:bg-indigo-500/30`}>
+    <html lang="en" className="light" suppressHydrationWarning>
+      <body className={`${outfit.variable} font-sans min-h-screen selection:bg-indigo-500/30 overflow-x-hidden transition-colors duration-500`} suppressHydrationWarning>
         <AppConfigProvider>
           <UserProfileProvider>
-            <ThemeProvider>
-              <CurrencyProvider>
-                <NotificationProvider>
-                  {children}
-                  <ToastContainer />
-                </NotificationProvider>
-              </CurrencyProvider>
-            </ThemeProvider>
+            <PropertyProvider>
+              <ThemeProvider>
+                <CurrencyProvider>
+                  <NotificationProvider>
+                    <LogProvider>
+                      <ImpersonationBanner />
+                      {children}
+                      <ToastContainer />
+                    </LogProvider>
+                  </NotificationProvider>
+                </CurrencyProvider>
+              </ThemeProvider>
+            </PropertyProvider>
           </UserProfileProvider>
         </AppConfigProvider>
       </body>

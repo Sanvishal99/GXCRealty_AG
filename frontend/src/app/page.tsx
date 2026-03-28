@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight, Key, Shield, Building2, Wallet, X, TrendingUp, Calculator } from "lucide-react";
 import { useAppConfig } from '@/context/AppConfigContext';
 import Link from 'next/link';
@@ -20,36 +20,69 @@ export default function Home() {
   const [recruits, setRecruits] = useState(10);
   const [avgDealSize, setAvgDealSize] = useState(5000000); // 50L
 
-  // Basic calculation:
-  // Let's assume you get 1% override on your direct recruits
+  // 🧮 REALISTIC FINANCIAL ENGINE: 
+  // Derived from Global Commission Config (Prisma/Context)
+  // Total Deal -> Pool (2%) -> Network Split (15%) -> Tier 1 (40%)
+  const commissionPool = (config.deals.commissionPoolPct || 2) / 100;
+  const networkPoolFactor = (config.deals.networkPoolPct || 15) / 100;
+  const tier1Factor = (config.deals.tierSplits?.[0] || 40) / 100;
+
   const monthlyVolume = recruits * avgDealSize;
-  const passiveIncome = monthlyVolume * 0.01;
+  const passiveIncome = monthlyVolume * commissionPool * networkPoolFactor * tier1Factor;
 
   // For the marquee animation
   const [marqueePosition, setMarqueePosition] = useState(0);
 
+  // 🖱️ INTERACTIVE PHYSICS: Mouse tracking for orbs
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  
+  const springConfig = { damping: 30, stiffness: 100 };
+  const orb1X = useSpring(mouseX, springConfig);
+  const orb1Y = useSpring(mouseY, springConfig);
+  
+  const orb2X = useSpring(mouseX, springConfig);
+  const orb2Y = useSpring(mouseY, springConfig);
+
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      // Normalize cursor position to center of screen for natural parallax
+      mouseX.set(e.clientX - (window.innerWidth / 2));
+      mouseY.set(e.clientY - (window.innerHeight / 2));
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    
+    // Marquee logic
     const interval = setInterval(() => {
       setMarqueePosition((prev) => (prev <= -100 ? 0 : prev - 0.05));
     }, 20);
-    return () => clearInterval(interval);
-  }, []);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      clearInterval(interval);
+    };
+  }, [mouseX, mouseY]);
 
   return (
-    <main className="relative flex flex-col items-center justify-start min-h-screen overflow-x-hidden font-sans pb-32">
-      {/* Background */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 bg-[#09090b]">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.15, scale: 1 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-          className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600 rounded-full blur-[150px]"
+    <main className="relative flex flex-col items-center justify-start min-h-screen overflow-x-hidden font-sans pb-32 bg-[#f8fafc] text-[#0f172a]">
+      {/* Optimized Antigravity Layers */}
+      <div className="noise-overlay" />
+      <div className="fixed inset-0 aurora-glow-1 pointer-events-none z-[-1]" />
+      <div className="fixed inset-0 aurora-glow-2 pointer-events-none z-[-1]" />
+
+      {/* Hardware-Accelerated Kinetic Orbs */}
+      <div className="fixed inset-0 pointer-events-none z-[-2] overflow-hidden">
+        <motion.div 
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute w-[70vw] h-[70vw] opacity-30 rounded-full mesh-orb-1"
+          style={{ x: orb1X, y: orb1Y }} 
         />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 0.1, scale: 1 }}
-          transition={{ duration: 2, delay: 0.5, ease: "easeOut" }}
-          className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-blue-600 rounded-full blur-[150px]"
+        <motion.div 
+          className="absolute w-[60vw] h-[60vw] opacity-20 rounded-full mesh-orb-2"
+          style={{ x: orb2X, y: orb2Y }} 
+          animate={{ scale: [1.05, 1, 1.05] }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
         />
       </div>
 
@@ -57,18 +90,24 @@ export default function Home() {
       <nav className="w-full p-6 flex justify-between items-center max-w-7xl mx-auto glass-panel mt-4 rounded-2xl z-40 sticky top-4"
         style={{ backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-xl">{config.branding.logoEmoji}</span>
-          <span className="text-xl font-bold tracking-tight text-[var(--text-primary)]">{config.branding.appName}</span>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 overflow-hidden">
+            {config.branding.logoImage ? (
+              <img src={config.branding.logoImage} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-sm">{config.branding.logoEmoji}</span>
+            )}
+          </div>
+          <span className="text-xl font-bold tracking-tight text-[#0f172a]">{config.branding.appName}</span>
         </div>
         <div className="flex gap-4">
           <button
             onClick={() => setIsApplyModalOpen(true)}
-            className="px-6 py-2 text-sm font-medium transition-colors text-[var(--text-secondary)] hover:text-indigo-400 cursor-pointer"
+            className="px-6 py-2 text-sm font-medium transition-colors text-[#64748b] hover:text-indigo-600 cursor-pointer"
           >
             {config.landing.heroCta}
           </button>
-          <Link href="/login" className="px-6 py-2 text-sm font-medium bg-white text-black rounded-lg hover:bg-neutral-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] cursor-pointer">
+          <Link href="/login" className="px-6 py-2 text-sm font-medium bg-[#0f172a] text-white rounded-lg hover:bg-[#334155] transition-all shadow-lg cursor-pointer">
             {config.landing.heroSecondary}
           </Link>
         </div>
@@ -87,20 +126,20 @@ export default function Home() {
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-5xl md:text-7xl font-bold tracking-tighter mb-6 text-[var(--text-primary)]"
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-[#0f172a] leading-[1.05]"
         >
           {config.landing.heroTitle.split(' ').slice(0, -2).join(' ')} <br className="hidden md:block"/>
-          <span className="text-gradient">{config.landing.heroTitle.split(' ').slice(-2).join(' ')}</span>
+          <span className="text-indigo-600 block mt-2 opacity-90">{config.landing.heroTitle.split(' ').slice(-2).join(' ')}</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-[var(--text-secondary)] mb-10 max-w-2xl leading-relaxed"
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          className="text-xl md:text-2xl text-[#64748b] mb-12 max-w-2xl leading-relaxed tracking-tight"
         >
           {config.landing.heroSubtitle}
         </motion.p>
@@ -136,14 +175,14 @@ export default function Home() {
                   <Calculator className="w-8 h-8 text-indigo-400" />
                   Scale Your Wealth
                 </h2>
-                <p className="text-neutral-400">Calculate your potential monthly passive income based on your Level 1 downline.</p>
+                <p className="text-[#64748b]">Calculate your potential monthly passive income based on your Level 1 downline overrides ({((commissionPool * networkPoolFactor * tier1Factor) * 100).toFixed(4)}%).</p>
               </div>
 
               <div className="space-y-6">
                 <div>
                   <div className="flex justify-between mb-2">
                     <label className="text-sm font-medium text-neutral-300">Agents Recruited</label>
-                    <span className="text-indigo-400 font-bold">{recruits} Agents</span>
+                    <span className="text-indigo-600 font-bold">{recruits} Agents</span>
                   </div>
                   <input
                     type="range"
@@ -158,7 +197,7 @@ export default function Home() {
                 <div>
                   <div className="flex justify-between mb-2">
                     <label className="text-sm font-medium text-neutral-300">Avg. Deal Volume per Agent (Monthly)</label>
-                    <span className="text-indigo-400 font-bold">₹{(avgDealSize / 100000).toFixed(1)}L</span>
+                    <span className="text-indigo-600 font-bold">₹{(avgDealSize / 100000).toFixed(1)}L</span>
                   </div>
                   <input
                     type="range"
@@ -173,14 +212,14 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="w-full md:w-auto min-w-[300px] p-8 bg-black/40 rounded-2xl border border-white/5 flex flex-col items-center justify-center text-center">
-              <span className="text-sm tracking-widest text-neutral-400 uppercase font-semibold mb-2">Projected Passive Monthly</span>
-              <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 to-purple-500 mb-4 flex items-center gap-2">
-                ₹{passiveIncome.toLocaleString('en-IN')}
+            <div className="w-full md:w-auto min-w-[340px] p-10 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-3xl border border-indigo-400/30 flex flex-col items-center justify-center text-center shadow-2xl shadow-indigo-500/20">
+              <span className="text-xs tracking-widest text-indigo-100 uppercase font-bold mb-3">Projected Passive Monthly</span>
+              <div className="text-5xl font-extrabold text-white mb-6 flex items-center gap-2 drop-shadow-sm">
+                ₹{passiveIncome.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
               </div>
-              <div className="flex items-center gap-2 text-emerald-400 text-sm bg-emerald-400/10 px-3 py-1 rounded-full">
+              <div className="flex items-center gap-2 text-indigo-900 text-xs bg-white/90 px-4 py-2 rounded-full font-semibold shadow-sm">
                 <TrendingUp className="w-4 h-4" />
-                Completely Automated Sync
+                Automated Network Payout
               </div>
             </div>
           </div>
@@ -279,7 +318,6 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
-
     </main>
   );
 }

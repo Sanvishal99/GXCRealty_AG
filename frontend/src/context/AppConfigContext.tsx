@@ -7,6 +7,7 @@ export interface AppConfig {
     appName: string;
     tagline: string;
     logoEmoji: string;
+    logoImage: string; // Base64 or URL
     primaryColor: string;
     footerText: string;
   };
@@ -38,8 +39,11 @@ export interface AppConfig {
   deals: {
     pageTitle: string;
     pageSubtitle: string;
-    commissionPoolPct: number;
-    directSharePct: number;
+    commissionPoolPct: number; // This can be property-level, but here we set a global default
+    agentSplitPct: number; // e.g., 80%
+    networkPoolPct: number; // e.g., 15%
+    companySplitPct: number; // e.g., 5%
+    tierSplits: number[]; // Split of the networkPoolPct across 5 levels
   };
   wallet: {
     pageTitle: string;
@@ -78,6 +82,7 @@ const DEFAULT_CONFIG: AppConfig = {
     appName: 'GXCRealty',
     tagline: 'Exclusive Invite-Only Network',
     logoEmoji: '🏛️',
+    logoImage: '', 
     primaryColor: '#818cf8',
     footerText: '© 2026 GXCRealty. All rights reserved.',
   },
@@ -109,8 +114,11 @@ const DEFAULT_CONFIG: AppConfig = {
   deals: {
     pageTitle: 'Close a Deal & Verify Incentive',
     pageSubtitle: 'See your exact commission payout before finalizing the transaction.',
-    commissionPoolPct: 5,
-    directSharePct: 50,
+    commissionPoolPct: 2, // Default 2% pool
+    agentSplitPct: 80,
+    networkPoolPct: 15,
+    companySplitPct: 5,
+    tierSplits: [40, 25, 15, 10, 10], // Split of the 15% pool across levels
   },
   wallet: {
     pageTitle: 'Earnings & Wallet',

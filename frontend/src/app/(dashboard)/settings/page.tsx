@@ -5,10 +5,12 @@ import { useCurrency, CurrencyCode } from '@/context/CurrencyContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useUserProfile } from '@/context/UserProfileContext';
 
-type SettingsSection = 'profile' | 'appearance' | 'notifications' | 'security' | 'billing';
+type SettingsSection = 'profile' | 'bank' | 'kyc' | 'appearance' | 'notifications' | 'security' | 'billing';
 
 const SECTIONS: { id: SettingsSection; label: string; icon: string; color: string; grad: string }[] = [
   { id: 'profile',       label: 'Profile',       icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', color: 'text-indigo-500', grad: 'from-indigo-500 to-purple-600' },
+  { id: 'bank',          label: 'Banking',       icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z', color: 'text-emerald-500', grad: 'from-emerald-500 to-teal-500' },
+  { id: 'kyc',           label: 'KYC Docs',      icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', color: 'text-rose-500', grad: 'from-rose-500 to-orange-500' },
   { id: 'appearance',    label: 'Appearance',     icon: 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01', color: 'text-purple-500', grad: 'from-purple-500 to-pink-500' },
   { id: 'notifications', label: 'Notifications',  icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9', color: 'text-amber-500', grad: 'from-amber-500 to-orange-500' },
   { id: 'security',      label: 'Security',       icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', color: 'text-emerald-500', grad: 'from-emerald-500 to-teal-500' },
@@ -61,6 +63,12 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState(profile.phone);
   const [bio, setBio]     = useState(profile.bio);
 
+  // Bank Copy
+  const [bank, setBank] = useState(profile.bankDetails || { accountName: '', accountNumber: '', bankName: '', ifsc: '' });
+  
+  // KYC Copy (Base64 strings)
+  const [kyc, setKyc] = useState(profile.kycDocuments || { idFront: null, idBack: null, addressProof: null });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Notification prefs
@@ -78,7 +86,24 @@ export default function SettingsPage() {
 
   const handleSave = (section: string) => {
     if (section === 'profile') updateProfile({ name, email, phone, bio });
+    if (section === 'bank')    updateProfile({ bankDetails: bank });
+    if (section === 'kyc')     updateProfile({ kycDocuments: kyc });
     addNotification({ type: 'success', title: 'Settings Saved', message: `Your ${section} settings updated.`, category: 'system' });
+  };
+
+  const uploadKyc = (key: keyof typeof kyc) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,application/pdf';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = res => setKyc(prev => ({ ...prev, [key]: res.target?.result as string }));
+        reader.readAsDataURL(file);
+      }
+    };
+    input.click();
   };
 
   const processFile = useCallback((file: File) => {
@@ -278,6 +303,83 @@ export default function SettingsPage() {
                     <button onClick={() => handleSave('profile')}
                       className="px-8 py-3 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all">
                       Save Profile
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── BANKING ── */}
+              {active === 'bank' && (
+                <div className="space-y-6">
+                  <div className="glass-panel grad-emerald rounded-2xl p-4">
+                     <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">Settlement Details</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Your commissions will be credited to this account.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">Account Holder Name</label>
+                      <input value={bank.accountName} onChange={e => setBank({...bank, accountName: e.target.value})} className="w-full theme-input rounded-2xl px-4 py-3 text-sm" placeholder="As per bank record" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">Bank Name</label>
+                      <input value={bank.bankName} onChange={e => setBank({...bank, bankName: e.target.value})} className="w-full theme-input rounded-2xl px-4 py-3 text-sm" placeholder="e.g. HDFC Bank" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">Account Number</label>
+                      <input value={bank.accountNumber} onChange={e => setBank({...bank, accountNumber: e.target.value})} className="w-full theme-input rounded-2xl px-4 py-3 text-sm" placeholder="0000 0000 0000" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">IFSC Code</label>
+                      <input value={bank.ifsc} onChange={e => setBank({...bank, ifsc: e.target.value})} className="w-full theme-input rounded-2xl px-4 py-3 text-sm uppercase" placeholder="HDFC0001234" />
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-4">
+                    <button onClick={() => handleSave('bank')}
+                      className="px-8 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:-translate-y-0.5 transition-all">
+                      Save Bank Details
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── KYC ── */}
+              {active === 'kyc' && (
+                <div className="space-y-6">
+                  <div className="glass-panel grad-rose rounded-2xl p-4">
+                     <p className="text-xs font-bold text-rose-500 uppercase tracking-wider mb-1">Identity Verification</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Upload clear photos of your identity documents for compliance.</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {[
+                      { key: 'idFront', label: 'Govt. ID Front' },
+                      { key: 'idBack', label: 'Govt. ID Back' },
+                      { key: 'addressProof', label: 'Address Proof' },
+                    ].map((item) => (
+                      <div key={item.key} onClick={() => uploadKyc(item.key as any)} className="glass-panel rounded-3xl p-4 border-2 border-dashed border-white/5 hover:border-indigo-500/50 cursor-pointer transition-all text-center h-48 flex flex-col items-center justify-center">
+                        {kyc[item.key as keyof typeof kyc] ? (
+                          <div className="w-full h-full relative overflow-hidden rounded-xl">
+                             <img src={kyc[item.key as keyof typeof kyc]!} className="w-full h-full object-cover opacity-60" />
+                             <div className="absolute inset-0 flex items-center justify-center flex-col bg-black/40">
+                               <p className="text-[10px] font-black uppercase text-white shadow-sm">Click to Change</p>
+                               <span className="text-xl mt-1">✅</span>
+                             </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-3">📄</div>
+                            <p className="text-xs font-black uppercase tracking-widest text-[var(--text-primary)]">{item.label}</p>
+                            <p className="text-[10px] text-[var(--text-muted)] mt-1">Click to Upload</p>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <button onClick={() => handleSave('kyc')}
+                      className="px-8 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-orange-500 text-white font-black text-xs shadow-lg shadow-rose-500/25 hover:-translate-y-0.5 transition-all tracking-widest">
+                      SUBMIT FOR VERIFICATION
                     </button>
                   </div>
                 </div>

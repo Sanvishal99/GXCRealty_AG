@@ -9,6 +9,17 @@ interface UserProfile {
   role: string;
   agentId: string;
   avatarUrl: string | null; // base64 or null
+  bankDetails?: {
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    ifsc: string;
+  };
+  kycDocuments?: {
+    idFront: string | null; // base64
+    idBack: string | null; // base64
+    addressProof: string | null; // base64
+  };
 }
 
 interface UserProfileContextType {
@@ -16,6 +27,9 @@ interface UserProfileContextType {
   updateProfile: (patch: Partial<UserProfile>) => void;
   setAvatar: (base64: string) => void;
   clearAvatar: () => void;
+  impersonateUser: (user: UserProfile) => void;
+  stopImpersonating: () => void;
+  isImpersonating: boolean;
 }
 
 const DEFAULT_PROFILE: UserProfile = {
@@ -26,6 +40,17 @@ const DEFAULT_PROFILE: UserProfile = {
   role: 'Elite Agent',
   agentId: 'GXC-AG-00142',
   avatarUrl: null,
+  bankDetails: {
+    accountName: '',
+    accountNumber: '',
+    bankName: '',
+    ifsc: '',
+  },
+  kycDocuments: {
+    idFront: null,
+    idBack: null,
+    addressProof: null,
+  },
 };
 
 const UserProfileContext = createContext<UserProfileContextType>({
@@ -33,23 +58,61 @@ const UserProfileContext = createContext<UserProfileContextType>({
   updateProfile: () => {},
   setAvatar: () => {},
   clearAvatar: () => {},
+  impersonateUser: () => {},
+  stopImpersonating: () => {},
+  isImpersonating: false
 });
 
 const STORAGE_KEY = 'gxc-user-profile';
 
 export function UserProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(DEFAULT_PROFILE);
+  const [originalProfile, setOriginalProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(saved) });
+      const impersonated = localStorage.getItem('gxc-impersonation-active');
+      
+      if (impersonated) {
+        setProfile(JSON.parse(impersonated));
+        const orig = localStorage.getItem('gxc-admin-original');
+        if (orig) setOriginalProfile(JSON.parse(orig));
+      } else if (saved) {
+        setProfile({ ...DEFAULT_PROFILE, ...JSON.parse(saved) });
+      }
     } catch {}
   }, []);
 
   const persist = (next: UserProfile) => {
-    setProfile(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    if (!originalProfile) {
+      setProfile(next);
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+    } else {
+      // If impersonating, only update the temporary profile
+      setProfile(next);
+      try { localStorage.setItem('gxc-impersonation-active', JSON.stringify(next)); } catch {}
+    }
+  };
+
+  const impersonateUser = (user: UserProfile) => {
+    setOriginalProfile(profile);
+    setProfile(user);
+    try {
+      localStorage.setItem('gxc-admin-original', JSON.stringify(profile));
+      localStorage.setItem('gxc-impersonation-active', JSON.stringify(user));
+    } catch {}
+  };
+
+  const stopImpersonating = () => {
+    if (originalProfile) {
+      setProfile(originalProfile);
+      setOriginalProfile(null);
+      try {
+        localStorage.removeItem('gxc-admin-original');
+        localStorage.removeItem('gxc-impersonation-active');
+      } catch {}
+    }
   };
 
   const updateProfile = (patch: Partial<UserProfile>) =>
@@ -59,7 +122,15 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
   const clearAvatar = () => persist({ ...profile, avatarUrl: null });
 
   return (
-    <UserProfileContext.Provider value={{ profile, updateProfile, setAvatar, clearAvatar }}>
+    <UserProfileContext.Provider value={{ 
+      profile, 
+      updateProfile, 
+      setAvatar, 
+      clearAvatar,
+      impersonateUser,
+      stopImpersonating,
+      isImpersonating: !!originalProfile
+    }}>
       {children}
     </UserProfileContext.Provider>
   );

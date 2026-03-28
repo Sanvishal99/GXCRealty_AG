@@ -1,20 +1,17 @@
 "use client";
+import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useAppConfig } from '@/context/AppConfigContext';
-import Link from 'next/link';
-
-const PROPERTY_DATA = [
-  { id: 1, name: 'Luxury Villa', location: 'South Mumbai', beds: 5, baths: 4, area: '6,200 sqft', tag: 'Featured', tagColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30', gradient: 'from-amber-500/20 to-orange-500/10', emoji: '🌴' },
-  { id: 2, name: 'Sky Penthouse', location: 'BKC, Mumbai', beds: 4, baths: 3, area: '4,800 sqft', tag: 'New', tagColor: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30', gradient: 'from-indigo-500/20 to-purple-500/10', emoji: '🏙️' },
-  { id: 3, name: 'Modern Condo', location: 'Bandra West', beds: 3, baths: 2, area: '2,100 sqft', tag: 'Available', tagColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30', gradient: 'from-emerald-500/20 to-teal-500/10', emoji: '🏠' },
-  { id: 4, name: 'Garden Estate', location: 'Juhu Beach', beds: 6, baths: 5, area: '9,000 sqft', tag: 'Featured', tagColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30', gradient: 'from-rose-500/20 to-pink-500/10', emoji: '🌺' },
-  { id: 5, name: 'Office Tower', location: 'Nariman Point', beds: 0, baths: 4, area: '12,000 sqft', tag: 'Commercial', tagColor: 'text-cyan-500 bg-cyan-500/10 border-cyan-500/30', gradient: 'from-cyan-500/20 to-blue-500/10', emoji: '🏢' },
-  { id: 6, name: 'Sea View Flat', location: 'Marine Drive', beds: 3, baths: 2, area: '1,900 sqft', tag: 'Available', tagColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30', gradient: 'from-purple-500/20 to-indigo-500/10', emoji: '🌊' },
-];
+import { useProperties } from '@/context/PropertyContext';
 
 export default function PropertiesPage() {
+  const { properties } = useProperties();
   const { formatCurrency } = useCurrency();
   const { config } = useAppConfig();
+
+  const approvedProperties = properties.filter(p => p.status === 'approved');
+  const soldCount = properties.filter(p => p.status === 'rejected').length; // Mocking sold with rejected for now or just static
+  const totalVolume = approvedProperties.reduce((acc, p) => acc + p.price, 0);
 
   return (
     <div className="p-6 md:p-8 relative z-10 w-full text-[var(--text-primary)]">
@@ -55,10 +52,10 @@ export default function PropertiesPage() {
       {/* Stats strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Listed', value: '6', color: 'text-indigo-500', grad: 'grad-indigo', glow: 'stat-card-indigo' },
+          { label: 'Listed', value: approvedProperties.length.toString(), color: 'text-indigo-500', grad: 'grad-indigo', glow: 'stat-card-indigo' },
           { label: 'Sold YTD', value: '18', color: 'text-emerald-500', grad: 'grad-emerald', glow: 'stat-card-emerald' },
-          { label: 'Avg Price', value: formatCurrency(2400000), color: 'text-amber-500', grad: 'grad-amber', glow: '' },
-          { label: 'Pipeline', value: '₹42Cr', color: 'text-purple-500', grad: 'grad-indigo', glow: 'stat-card-purple' },
+          { label: 'Avg Price', value: formatCurrency(totalVolume / (approvedProperties.length || 1)), color: 'text-amber-500', grad: 'grad-amber', glow: '' },
+          { label: 'Portfolio Val', value: formatCurrency(totalVolume), color: 'text-purple-500', grad: 'grad-indigo', glow: 'stat-card-purple' },
         ].map((s, i) => (
           <div key={i} className={`glass-panel ${s.glow} ${s.grad} rounded-2xl p-4 transition-all`}>
             <p className="text-[var(--text-secondary)] text-xs font-semibold uppercase tracking-wider mb-1">{s.label}</p>
@@ -69,7 +66,7 @@ export default function PropertiesPage() {
 
       {/* Property Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {PROPERTY_DATA.map((prop) => (
+        {approvedProperties.map((prop) => (
           <Link href={`/properties/${prop.id}`} key={prop.id}
             className="glass-panel block rounded-3xl overflow-hidden group hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
           >
@@ -87,7 +84,7 @@ export default function PropertiesPage() {
               {/* Price on image */}
               <div className="absolute bottom-4 left-4 z-20">
                 <p className="text-2xl font-extrabold text-white font-mono drop-shadow-lg">
-                  {formatCurrency((1.2 * prop.id) * 1000000)}
+                  {formatCurrency(prop.price)}
                 </p>
               </div>
               {/* Heart icon */}

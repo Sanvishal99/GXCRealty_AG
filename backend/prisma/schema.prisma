@@ -60,16 +60,29 @@ model Kyc {
   user          User    @relation(fields: [userId], references: [id])
   aadhaarNumber String? @unique
   panNumber     String? @unique
+  idFrontUrl    String?
+  idBackUrl     String?
+  addressDocUrl String?
   selfieUrl     String?
   isVerified    Boolean @default(false)
+  verifiedAt    DateTime?
+  rejectionReason String?
+
+  // Bank Info stored with KYC context
+  bankName      String?
+  accountNumber String?
+  ifscCode      String?
+  accountName   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 enum PropertyStatus {
+  PENDING_APPROVAL
   AVAILABLE
   SOLD
+  REJECTED
   INACTIVE
 }
 
@@ -82,7 +95,9 @@ model Property {
 
   companyId String
   company   User           @relation(fields: [companyId], references: [id])
-  status    PropertyStatus @default(AVAILABLE)
+  status    PropertyStatus @default(PENDING_APPROVAL)
+  
+  commissionPoolPct Float @default(2.0) // Negotiated percentage
 
   visits Visit[]
   deals  Deal[]
@@ -176,4 +191,32 @@ model Message {
 
   sender   User @relation("SentMessages", fields: [senderId], references: [id])
   receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model GlobalConfig {
+  id           String @id @default("DEFAULT")
+  commissionPoolPct Float @default(2.0)
+  agentSplitPct    Float @default(80.0)
+  networkPoolPct   Float @default(15.0)
+  companySplitPct  Float @default(5.0)
+  
+  tierSplits Json // Array of percentages e.g. [40, 25, 15, 10, 10]
+  
+  brandingLogoUrl String?
+  brandingEmoji   String @default("🏢")
+  
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String   // e.g. "PROPERTY", "DEAL", "CONFIG"
+  entityId  String?
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  
+  createdAt DateTime @default(now())
 }
