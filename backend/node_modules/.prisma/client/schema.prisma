@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  COMPANY
+  AGENT
+}
+
+enum Status {
+  PENDING_KYC
+  PENDING_APPROVAL
+  ACTIVE
+  SUSPENDED
+}
+
+enum Currency {
+  INR
+  USD
+  EUR
+  GBP
+}
+
+model User {
+  id           String @id @default(uuid())
+  email        String @unique
+  phone        String @unique
+  passwordHash String
+  role         Role   @default(AGENT)
+  status       Status @default(PENDING_KYC)
+  inviteCode   String @unique
+
+  referredById String?
+  referredBy   User?   @relation("NetworkTree", fields: [referredById], references: [id])
+  upline       User[]  @relation("NetworkTree")
+
+  kyc    Kyc?
+  wallet Wallet?
+
+  properties  Property[]
+  agentVisits Visit[]    @relation("AgentVisits")
+  dealsClosed Deal[]     @relation("ClosingAgent")
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Kyc {
+  id            String  @id @default(uuid())
+  userId        String  @unique
+  user          User    @relation(fields: [userId], references: [id])
+  aadhaarNumber String? @unique
+  panNumber     String? @unique
+  selfieUrl     String?
+  isVerified    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  SOLD
+  INACTIVE
+}
+
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  currency    Currency @default(INR)
+
+  companyId String
+  company   User           @relation(fields: [companyId], references: [id])
+  status    PropertyStatus @default(AVAILABLE)
+
+  visits Visit[]
+  deals  Deal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum VisitStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model Visit {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  agentId String
+  agent   User   @relation("AgentVisits", fields: [agentId], references: [id])
+
+  clientName  String
+  clientPhone String
+  scheduledAt DateTime
+  status      VisitStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Deal {
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id])
+
+  agentId String
+  agent   User   @relation("ClosingAgent", fields: [agentId], references: [id])
+
+  salePrice       Float
+  totalCommission Float
+  currency        Currency @default(INR)
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Wallet {
+  id       String   @id @default(uuid())
+  userId   String   @unique
+  user     User     @relation(fields: [userId], references: [id])
+  balance  Float    @default(0.0)
+  currency Currency @default(INR)
+
+  transactions Transaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TxType {
+  CREDIT
+  DEBIT
+}
+
+model Transaction {
+  id       String @id @default(uuid())
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+
+  dealId String?
+  deal   Deal?   @relation(fields: [dealId], references: [id])
+
+  amount      Float
+  currency    Currency @default(INR)
+  type        TxType
+  description String
+
+  createdAt DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
