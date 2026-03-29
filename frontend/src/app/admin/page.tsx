@@ -11,7 +11,7 @@ export default function AdminDashboard() {
     { label: 'Total Users',       value: '1,842',  sub: '+24 this week',  color: 'from-rose-500 to-orange-500', href: '/admin/users' },
     { label: 'Pending KYC',       value: '37',     sub: 'Needs review',   color: 'from-amber-500 to-yellow-500', href: '/admin/kyc' },
     { label: 'Total Commissions', value: formatCurrency(2400000),  sub: 'Distributed',    color: 'from-emerald-500 to-teal-500', href: '/admin/commissions' },
-    { label: 'Active Agents',     value: '1,204',  sub: 'Network nodes',  color: 'from-indigo-500 to-purple-500', href: '/admin/users' },
+    { label: 'Active Advisors',    value: '1,204',  sub: 'Network nodes',  color: 'from-indigo-500 to-purple-500', href: '/admin/users' },
   ];
 
   const [pendingKyc, setPendingKyc] = useState([
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
     <div className="p-8 relative z-10 w-full">
       <header className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight mb-1">Platform Overview</h1>
-        <p style={{ color: 'var(--text-secondary)' }}>Manage users, KYC, commissions, and system health.</p>
+        <p style={{ color: 'var(--text-secondary)' }}>Manage users, KYC, incentives, and system health.</p>
       </header>
 
       {/* Stats */}

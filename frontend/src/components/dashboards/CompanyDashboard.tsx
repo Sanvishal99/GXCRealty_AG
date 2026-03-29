@@ -12,13 +12,13 @@ export default function CompanyDashboard() {
   const { formatCurrency } = useCurrency();
 
   const myProps = properties.filter(p => p.companyEmail === profile.email);
-  const totalVal = myProps.reduce((sum, p) => sum + p.price, 0);
+  const totalVal = myProps.reduce((sum, p) => sum + (Number(p.pricing?.minPrice) || 0), 0);
 
   return (
     <div className="p-6 md:p-8 animate-in slide-in-from-bottom-6 duration-700">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black mb-2 tracking-tight">Developer <span className="text-gradient">Portal</span></h1>
+          <h1 className="text-2xl md:text-4xl font-black mb-2 tracking-tight">Developer <span className="text-gradient">Portal</span></h1>
           <p className="text-[var(--text-secondary)] font-medium">Managing project logistics and portfolio growth.</p>
         </div>
         <Link href="/portfolio" className="px-6 py-3 rounded-2xl bg-indigo-600 text-white font-bold shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2">
@@ -44,7 +44,7 @@ export default function CompanyDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
         {/* Visitor Intel Section */}
         <div className="lg:col-span-2 glass-panel rounded-[42px] p-8 border border-white/5 min-h-[500px] flex flex-col">
            <div className="flex items-center justify-between mb-8">

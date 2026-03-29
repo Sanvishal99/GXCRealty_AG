@@ -67,7 +67,7 @@ export default function AdminDashboard() {
            
            <div className="mt-12 flex gap-8 relative z-10">
               <div className="p-5 rounded-3xl bg-white/5 border border-white/10 flex-1">
-                 <p className="text-[10px] font-black uppercase opacity-40 mb-1">Avg Commission Velocity</p>
+                 <p className="text-[10px] font-black uppercase opacity-40 mb-1">Avg Incentive Velocity</p>
                  <p className="text-xl font-bold text-emerald-500">₹8,40,000 / Day</p>
               </div>
               <div className="p-5 rounded-3xl bg-white/5 border border-white/10 flex-1">

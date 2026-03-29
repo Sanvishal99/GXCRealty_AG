@@ -11,7 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { JwtService } from '@nestjs/jwt';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({ cors: { origin: process.env.FRONTEND_URL || 'http://localhost:3001', credentials: true } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -32,7 +32,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
       
-      const payload = this.jwtService.verify(token, { secret: 'super-secret-key-123' });
+      const payload = this.jwtService.verify(token, { secret: process.env.JWT_SECRET });
       const userId = payload.sub;
       
       this.connectedUsers.set(userId, socket.id);

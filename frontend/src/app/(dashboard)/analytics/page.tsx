@@ -151,13 +151,13 @@ export default function PropertyAnalyticsPage() {
               </div>
               <h3 className="text-2xl font-black mb-2">{currentProperty?.name}</h3>
               <p className="text-sm font-bold opacity-40 mb-6 flex items-center gap-1 uppercase tracking-widest leading-none">
-                 <MapPin className="w-3.5 h-3.5" /> {currentProperty?.location}
+                 <MapPin className="w-3.5 h-3.5" /> {typeof currentProperty?.location === 'string' ? currentProperty.location : `${currentProperty?.location?.area || ''}, ${currentProperty?.location?.city || ''}`}
               </p>
               
               <div className="space-y-4 pt-6 border-t border-white/5">
                  <div className="flex justify-between items-center text-sm">
                     <span className="opacity-40">Asking Price</span>
-                    <span className="font-bold text-indigo-500">{formatCurrency(currentProperty?.price || 0)}</span>
+                    <span className="font-bold text-indigo-500">{formatCurrency(currentProperty?.pricing?.minPrice || 0)}</span>
                  </div>
                  <div className="flex justify-between items-center text-sm">
                     <span className="opacity-40">Active Leads</span>

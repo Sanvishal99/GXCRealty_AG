@@ -1,14 +1,17 @@
 import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { CompanyInviteService } from '../company-invite/company-invite.service';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { Role, Status } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private companyInviteService: CompanyInviteService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -50,6 +53,26 @@ export class AuthService {
       inviteCode,
       referredBy: referredById ? { connect: { id: referredById } } : undefined,
     });
+
+    return this.login(newUser);
+  }
+
+  async registerCompany(token: string, data: { email: string; password: string; phone: string; companyName?: string }) {
+    await this.companyInviteService.validateInvite(token);
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+    const inviteCode = uuidv4().split('-')[0].toUpperCase();
+
+    const newUser = await this.usersService.create({
+      email: data.email,
+      phone: data.phone,
+      passwordHash: hashedPassword,
+      inviteCode,
+      role: Role.COMPANY,
+      status: Status.PENDING_APPROVAL,
+    });
+
+    await this.companyInviteService.markUsed(token, newUser.id);
 
     return this.login(newUser);
   }

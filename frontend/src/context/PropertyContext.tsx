@@ -1,102 +1,199 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { properties as propertiesApi } from '@/lib/api';
 import { useUserProfile } from './UserProfileContext';
+import { isCompany, isAdmin } from '@/lib/constants';
+
+// ── Types (aligned with Prisma schema) ───────────────────────────────────────
+export interface UnitType {
+  id: string;
+  name: string;
+  beds: number;
+  baths: number;
+  balconies?: number;
+  superArea: number;
+  carpetArea: number;
+  minPrice: number;
+  maxPrice?: number;
+  totalUnits: number;
+  availableUnits: number;
+}
 
 export interface Property {
   id: string;
-  name: string;
-  location: string;
-  beds: number;
-  baths: number;
-  area: string;
+  title: string;
+  description?: string;
   price: number;
-  commissionPct: number;
-  tag: string;
-  tagColor: string;
-  gradient: string;
-  emoji: string;
-  companyEmail: string; // Ownership
-  status: 'pending' | 'approved' | 'rejected';
-  images: string[]; // Mock or real Cloud storage URLs
-  proximity: {
-    station: string;
-    airport: string;
-    metro: string;
-    school: string;
-  };
-  amenities: string[];
-  createdAt: number;
+  maxPrice?: number;
+  currency: string;
+  projectType: string;
+  projectStage: string;
+  reraId?: string;
+  launchDate?: string;
+  possessionDate?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  locality?: string;
+  address?: string;
+  pincode?: string;
+  latitude?: number;
+  longitude?: number;
+  pricePerSqFt?: number;
+  bookingAmount?: number;
+  maintenanceCharge?: number;
+  builderName?: string;
+  builderContact?: string;
+  builderEmail?: string;
+  builderAddress?: string;
+  images?: string[];
+  amenities?: string[];
+  seoTags?: string[];
+  visitAvailability?: any;
+  approvalType?: string;
+  companyId: string;
+  company?: { id: string; email: string; phone: string };
+  status: string;
+  commissionPoolPct: number;
+  units: UnitType[];
+  documents?: { id: string; type: string; title?: string; url: string }[];
+  createdAt: string;
+  updatedAt: string;
+  // Legacy shape helpers (used in existing UI)
+  name?: string;
+  location?: any;
+  pricing?: any;
+  builder?: any;
+  settings?: any;
+  emoji?: string;
+  gradient?: string;
+  tag?: string;
+  tagColor?: string;
+  companyEmail?: string;
 }
 
 interface PropertyContextType {
   properties: Property[];
-  addProperty: (prop: Omit<Property, 'id' | 'companyEmail' | 'createdAt'>) => void;
-  updateProperty: (id: string, prop: Partial<Property>) => void;
+  isLoading: boolean;
+  error: string | null;
+  refresh: () => Promise<void>;
+  addProperty: (data: any) => Promise<Property>;
+  updateProperty: (id: string, data: Partial<Property>) => Promise<void>;
   deleteProperty: (id: string) => void;
 }
 
-const DEFAULT_PROPERTIES: Property[] = [
-  { id: '1', name: 'Luxury Villa', location: 'South Mumbai', beds: 5, baths: 4, area: '6,200', price: 120000000, commissionPct: 2, tag: 'Featured', tagColor: 'text-amber-500 bg-amber-500/10 border-amber-500/30', gradient: 'from-amber-500/20 to-orange-500/10', emoji: '🌴', companyEmail: 'company@gxcrealty.com', status: 'approved', images: [], proximity: { station: '0.5 km', airport: '12 km', metro: '1 km', school: '0.2 km' }, amenities: ['pool', 'gym', 'club'], createdAt: Date.now() - 10000 },
-  { id: '2', name: 'Sky Penthouse', location: 'BKC, Mumbai', beds: 4, baths: 3, area: '4,800', price: 85000000, commissionPct: 2, tag: 'New', tagColor: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30', gradient: 'from-indigo-500/20 to-purple-500/10', emoji: '🏙️', companyEmail: 'company@gxcrealty.com', status: 'approved', images: [], proximity: { station: '2 km', airport: '6 km', metro: '0.1 km', school: '1 km' }, amenities: ['security'], createdAt: Date.now() - 20000 },
-  { id: '3', name: 'Modern Condo', location: 'Bandra West', beds: 3, baths: 2, area: '2,100', price: 35000000, commissionPct: 2, tag: 'Available', tagColor: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/30', gradient: 'from-emerald-500/20 to-teal-500/10', emoji: '🏠', companyEmail: 'other@gxcrealty.com', status: 'pending', images: [], proximity: { station: '1 km', airport: '8 km', metro: '0.5 km', school: '0.4 km' }, amenities: ['parking', 'garden'], createdAt: Date.now() - 30000 },
-];
-
 const PropertyContext = createContext<PropertyContextType>({
   properties: [],
-  addProperty: () => {},
-  updateProperty: () => {},
+  isLoading: false,
+  error: null,
+  refresh: async () => {},
+  addProperty: async () => { throw new Error('Not initialised'); },
+  updateProperty: async () => {},
   deleteProperty: () => {},
 });
 
-const STORAGE_KEY = 'gxc-properties';
-
 export function PropertyProvider({ children }: { children: ReactNode }) {
-  const { profile } = useUserProfile();
+  const { profile, isAuthenticated } = useUserProfile();
   const [properties, setProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      let data: Property[];
+      if (isAuthenticated && isAdmin(profile?.role)) {
+        data = await propertiesApi.adminAll();
+      } else if (isAuthenticated && isCompany(profile?.role)) {
+        data = await propertiesApi.mine();
+      } else {
+        data = await propertiesApi.list();
+      }
+      setProperties(normaliseProperties(data));
+    } catch (err: any) {
+      setError(err.message || 'Failed to load properties');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated, profile?.role]);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setProperties(JSON.parse(saved));
-      } else {
-        setProperties(DEFAULT_PROPERTIES);
-      }
-    } catch {
-      setProperties(DEFAULT_PROPERTIES);
-    }
+    refresh();
+  }, [refresh]);
+
+  const addProperty = useCallback(async (data: any): Promise<Property> => {
+    const created = await propertiesApi.create(data);
+    const normalised = normaliseProperty(created);
+    setProperties(prev => [normalised, ...prev]);
+    return normalised;
   }, []);
 
-  const persist = (next: Property[]) => {
-    setProperties(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
-  };
+  const updateProperty = useCallback(async (id: string, data: Partial<Property>) => {
+    const updated = await propertiesApi.update(id, data);
+    const normalised = normaliseProperty(updated);
+    setProperties(prev => prev.map(p => p.id === id ? normalised : p));
+  }, []);
 
-  const addProperty = (prop: Omit<Property, 'id' | 'companyEmail' | 'createdAt'>) => {
-    const isAdmin = profile.role?.toUpperCase() === 'ADMIN';
-    const newProp: Property = {
-      ...prop,
-      id: Math.random().toString(36).substr(2, 9),
-      companyEmail: profile.email || '',
-      status: isAdmin ? 'approved' : 'pending',
-      createdAt: Date.now(),
-    };
-    persist([newProp, ...properties]);
-  };
-
-  const updateProperty = (id: string, updates: Partial<Property>) => {
-    persist(properties.map(p => p.id === id ? { ...p, ...updates } : p));
-  };
-
-  const deleteProperty = (id: string) => {
-    persist(properties.filter(p => p.id !== id));
-  };
+  const deleteProperty = useCallback((id: string) => {
+    // Soft delete: update status to INACTIVE via API
+    propertiesApi.update(id, { status: 'INACTIVE' }).then(() => {
+      setProperties(prev => prev.filter(p => p.id !== id));
+    });
+  }, []);
 
   return (
-    <PropertyContext.Provider value={{ properties, addProperty, updateProperty, deleteProperty }}>
+    <PropertyContext.Provider value={{ properties, isLoading, error, refresh, addProperty, updateProperty, deleteProperty }}>
       {children}
     </PropertyContext.Provider>
   );
 }
 
 export const useProperties = () => useContext(PropertyContext);
+
+// ── Normalise API response → unified shape consumed by existing UI ────────────
+function normaliseProperty(p: any): Property {
+  return {
+    ...p,
+    // Legacy UI expects `name` → map from `title`
+    name: p.name || p.title,
+    companyEmail: p.company?.email || p.companyEmail || '',
+    // Legacy nested shapes used in PropertyCard / portfolio
+    location: p.location || {
+      country: p.country, state: p.state, city: p.city,
+      area: p.locality, address: p.address, pincode: p.pincode,
+      lat: String(p.latitude || ''), lng: String(p.longitude || ''), mapUrl: '',
+    },
+    pricing: p.pricing || {
+      minPrice: p.price, maxPrice: p.maxPrice, pricePerSqFt: p.pricePerSqFt,
+      bookingAmount: p.bookingAmount, maintenance: p.maintenanceCharge,
+      commissionValue: p.commissionPoolPct, requiredApproval: p.approvalType !== 'AUTO',
+    },
+    builder: p.builder || {
+      name: p.builderName, contact: p.builderContact,
+      email: p.builderEmail, address: p.builderAddress,
+    },
+    units: (p.units || []).map((u: any) => ({
+      ...u,
+      price: u.price || u.minPrice,
+    })),
+    // UI decorators (generated locally, not stored)
+    emoji: p.emoji || PROJECT_TYPE_EMOJI[p.projectType] || '🏢',
+    gradient: p.gradient || PROJECT_TYPE_GRADIENT[p.projectType] || 'from-indigo-500 to-purple-600',
+  };
+}
+
+function normaliseProperties(data: any[]): Property[] {
+  return data.map(normaliseProperty);
+}
+
+const PROJECT_TYPE_EMOJI: Record<string, string> = {
+  APARTMENT: '🏢', VILLA: '🏡', PLOT: '🌿', COMMERCIAL: '🏬',
+};
+
+const PROJECT_TYPE_GRADIENT: Record<string, string> = {
+  APARTMENT: 'from-indigo-500 to-purple-600',
+  VILLA:     'from-emerald-500 to-teal-600',
+  PLOT:      'from-amber-500 to-orange-500',
+  COMMERCIAL:'from-rose-500 to-pink-600',
+};

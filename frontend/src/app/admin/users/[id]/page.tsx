@@ -90,11 +90,11 @@ export default function UserDetailPage() {
              <section className="glass-panel rounded-[40px] p-8 border border-white/5">
                 <h3 className="text-xl font-black mb-6 flex items-center gap-3">
                    <span className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-sm">👤</span>
-                   Agent Profile
+                   Advisor Profile
                 </h3>
                 <div className="grid grid-cols-2 gap-8">
                    <div>
-                      <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-widest block mb-1.5">Agent Unique ID</label>
+                      <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-widest block mb-1.5">Advisor Unique ID</label>
                       <p className="font-bold text-lg">{user.agentId}</p>
                    </div>
                    <div>
@@ -253,7 +253,7 @@ export default function UserDetailPage() {
                     <input type="number" value={limits.maxDeal} onChange={e => setLimits({...limits, maxDeal: parseInt(e.target.value)})} className="w-full theme-input rounded-2xl px-4 py-3 font-bold" />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black uppercase text-[var(--text-muted)] mb-2 block">Daily Commission Payout Cap</label>
+                    <label className="text-[10px] font-black uppercase text-[var(--text-muted)] mb-2 block">Daily Incentive Payout Cap</label>
                     <input type="number" value={limits.dailyCap} onChange={e => setLimits({...limits, dailyCap: parseInt(e.target.value)})} className="w-full theme-input rounded-2xl px-4 py-3 font-bold" />
                   </div>
 

@@ -279,7 +279,7 @@ export default function SettingsPage() {
                       <input value={phone} onChange={e => setPhone(e.target.value)} type="tel" className="w-full theme-input rounded-2xl px-4 py-3 text-sm" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">Agent ID</label>
+                      <label className="block text-xs font-bold text-[var(--text-secondary)] mb-2 uppercase tracking-wider">Advisor ID</label>
                       <input readOnly value={profile.agentId} className="w-full theme-input rounded-2xl px-4 py-3 text-sm opacity-60 cursor-not-allowed" />
                     </div>
                   </div>
@@ -294,7 +294,7 @@ export default function SettingsPage() {
                       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md text-lg">🏠</div>
                       <div>
                         <p className="font-bold text-[var(--text-primary)] text-sm">{profile.role}</p>
-                        <p className="text-xs text-[var(--text-secondary)]">Full commission access · Priority listings</p>
+                        <p className="text-xs text-[var(--text-secondary)]">Full incentive access · Priority listings</p>
                       </div>
                       <span className="ml-auto badge text-indigo-500 bg-indigo-500/10 border-indigo-500/30">Active</span>
                     </div>
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                 <div className="space-y-6">
                   <div className="glass-panel grad-emerald rounded-2xl p-4">
                      <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">Settlement Details</p>
-                     <p className="text-xs text-[var(--text-secondary)]">Your commissions will be credited to this account.</p>
+                     <p className="text-xs text-[var(--text-secondary)]">Your incentives will be credited to this account.</p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -529,7 +529,7 @@ export default function SettingsPage() {
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 text-[60px] opacity-10 select-none">💎</div>
                     <div className="relative z-10">
                       <span className="badge text-cyan-500 bg-cyan-500/10 border-cyan-500/30 mb-3 inline-flex">Current Plan</span>
-                      <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">Elite Agent Plan</h3>
+                      <h3 className="text-xl font-bold text-[var(--text-primary)] mb-1">Elite Advisor Plan</h3>
                       <p className="text-sm text-[var(--text-secondary)]">Full feature access · Priority support · 0% platform fee</p>
                       <p className="text-2xl font-extrabold text-cyan-500 font-mono mt-3">₹4,999 <span className="text-sm font-normal text-[var(--text-muted)]">/ month</span></p>
                     </div>
@@ -551,7 +551,7 @@ export default function SettingsPage() {
                       {['Mar 2026', 'Feb 2026', 'Jan 2026'].map((month, i) => (
                         <div key={i} className="flex items-center justify-between p-4 glass-panel rounded-2xl hover:bg-[var(--glass-bg-hover)] transition-colors">
                           <div>
-                            <p className="text-sm font-semibold text-[var(--text-primary)]">Elite Agent Plan</p>
+                            <p className="text-sm font-semibold text-[var(--text-primary)]">Elite Advisor Plan</p>
                             <p className="text-xs text-[var(--text-secondary)]">{month}</p>
                           </div>
                           <div className="text-right">

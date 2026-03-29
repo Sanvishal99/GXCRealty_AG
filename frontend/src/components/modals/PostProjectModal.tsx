@@ -112,7 +112,7 @@ export default function PostProjectModal({ isOpen, onClose }: PostProjectModalPr
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-indigo-500/60 ml-2 tracking-widest">Commission Pct (%)</label>
+              <label className="text-[10px] font-black uppercase text-indigo-500/60 ml-2 tracking-widest">Incentive Pct (%)</label>
               <div className="relative">
                  <Percent className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
                  <input 

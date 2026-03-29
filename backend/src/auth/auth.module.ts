@@ -5,15 +5,17 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
+import { CompanyInviteModule } from '../company-invite/company-invite.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: 'super-secret-key-123', // In production, move to env var
-      signOptions: { expiresIn: '60m' },
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '8h' },
     }),
+    CompanyInviteModule,
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

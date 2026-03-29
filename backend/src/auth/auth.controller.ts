@@ -19,4 +19,10 @@ export class AuthController {
   async register(@Body() body: any) {
     return this.authService.register(body);
   }
+
+  @Post('register-company')
+  async registerCompany(@Body() body: any) {
+    const { token, ...data } = body;
+    return this.authService.registerCompany(token, data);
+  }
 }

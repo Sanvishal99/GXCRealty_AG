@@ -295,8 +295,8 @@ export default function AdminContentEditor() {
                   <div className="border-t border-[var(--border-subtle)] pt-4 space-y-3">
                     <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest">Deals Settings</p>
                     <div className="grid grid-cols-2 gap-3">
-                      <Field label="Commission Pool %" type="number" value={local.deals.commissionPoolPct} onChange={set(['deals', 'commissionPoolPct'])} hint="% of sale price allocated to commissions" />
-                      <Field label="Direct Agent Share %" type="number" value={local.deals.directSharePct} onChange={set(['deals', 'directSharePct'])} hint="% of pool that goes to the direct agent" />
+                      <Field label="Incentive Pool %" type="number" value={local.deals.commissionPoolPct} onChange={set(['deals', 'commissionPoolPct'])} hint="% of sale price allocated to incentives" />
+                      <Field label="Direct Advisor Share %" type="number" value={local.deals.agentSplitPct} onChange={set(['deals', 'agentSplitPct'])} hint="% of pool that goes to the direct advisor" />
                     </div>
                   </div>
                 </div>
@@ -336,15 +336,15 @@ export default function AdminContentEditor() {
                     <p className="text-xs font-bold text-cyan-500 uppercase tracking-wider mb-1">Feature Flags</p>
                     <p className="text-xs text-[var(--text-secondary)]">Enable or disable entire features. Changes apply instantly without redeployment.</p>
                   </div>
-                  <Toggle checked={local.features.enableChat} onChange={setBool(['features', 'enableChat'])} label="Enable Chat" desc="Show the Agent Chat page in navigation" />
+                  <Toggle checked={local.features.enableChat} onChange={setBool(['features', 'enableChat'])} label="Enable Chat" desc="Show the Advisor Chat page in navigation" />
                   <Toggle checked={local.features.enableWallet} onChange={setBool(['features', 'enableWallet'])} label="Enable Wallet" desc="Show Earnings & Wallet page" />
                   <Toggle checked={local.features.enableVisits} onChange={setBool(['features', 'enableVisits'])} label="Enable Visits" desc="Show Visit Scheduler page" />
-                  <Toggle checked={local.features.enableDeals} onChange={setBool(['features', 'enableDeals'])} label="Enable Deals" desc="Show Deals Commission Checker page" />
+                  <Toggle checked={local.features.enableDeals} onChange={setBool(['features', 'enableDeals'])} label="Enable Deals" desc="Show Deals Incentive Checker page" />
                   <div className="border-t border-[var(--border-subtle)] pt-4 mt-2">
-                    <Toggle checked={local.features.maintenanceMode} onChange={setBool(['features', 'maintenanceMode'])} label="Maintenance Mode" desc="Shows a maintenance banner to all agents (admin still has full access)" />
+                    <Toggle checked={local.features.maintenanceMode} onChange={setBool(['features', 'maintenanceMode'])} label="Maintenance Mode" desc="Shows a maintenance banner to all advisors (admin still has full access)" />
                     {local.features.maintenanceMode && (
                       <div className="mt-3">
-                        <Field label="Maintenance Message" value={local.features.maintenanceMessage} onChange={set(['features', 'maintenanceMessage'])} multiline hint="Displayed to agents when they visit the portal" />
+                        <Field label="Maintenance Message" value={local.features.maintenanceMessage} onChange={set(['features', 'maintenanceMessage'])} multiline hint="Displayed to advisors when they visit the portal" />
                       </div>
                     )}
                   </div>
@@ -355,7 +355,7 @@ export default function AdminContentEditor() {
                       </svg>
                       <div>
                         <p className="text-sm font-bold text-amber-500">Maintenance Mode is ON</p>
-                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">Agents will see the maintenance message. Save changes to apply.</p>
+                        <p className="text-xs text-[var(--text-secondary)] mt-0.5">Advisors will see the maintenance message. Save changes to apply.</p>
                       </div>
                     </div>
                   )}

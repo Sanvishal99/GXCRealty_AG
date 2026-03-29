@@ -68,7 +68,7 @@ export default function AdminCommissionsPage() {
   const saveConfig = () => {
     // Basic validation to ensure splits add up to 100
     if (agentSplit + networkSplit + companySplit !== 100) {
-      addNotification({ type: 'error', title: 'Invalid Total Split', message: `Your Agent (${agentSplit}%) + Network (${networkSplit}%) + Company (${companySplit}%) must add up exactly to 100%. Currently: ${agentSplit + networkSplit + companySplit}%`, category: 'system' });
+      addNotification({ type: 'error', title: 'Invalid Total Split', message: `Your Advisor (${agentSplit}%) + Network (${networkSplit}%) + Company (${companySplit}%) must add up exactly to 100%. Currently: ${agentSplit + networkSplit + companySplit}%`, category: 'system' });
       return;
     }
 
@@ -83,8 +83,8 @@ export default function AdminCommissionsPage() {
     });
     addNotification({
       type: 'success',
-      title: 'Commissions Mastered',
-      message: 'New 3-Way split structure (Agent/Network/Company) is now active.',
+      title: 'Incentives Mastered',
+      message: 'New 3-Way split structure (Advisor/Network/Company) is now active.',
       category: 'system'
     });
   };
@@ -108,8 +108,8 @@ export default function AdminCommissionsPage() {
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-panel border-[var(--border-medium)]">
             <span className="text-xs font-semibold text-rose-500 uppercase tracking-widest">Financial Engineering</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Commission <span className="text-gradient">Architect</span></h1>
-          <p className="text-[var(--text-secondary)]">Design how the property commission pool is divided between agents, network, and company.</p>
+          <h1 className="text-4xl font-bold tracking-tight mb-2">Incentive <span className="text-gradient">Architect</span></h1>
+          <p className="text-[var(--text-secondary)]">Design how the property incentive pool is divided between advisors, network, and company.</p>
         </div>
         <button 
           onClick={saveConfig}
@@ -125,14 +125,14 @@ export default function AdminCommissionsPage() {
            <div className="glass-panel-glow rounded-[32px] p-8 border border-white/5">
               <h3 className="text-xl font-black mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-500 flex items-center justify-center text-sm">🏛️</span>
-                The 3-Way Split (The "Pool" = 100%)
+                The 3-Way Split (The "Incentive Pool" = 100%)
               </h3>
               
               <div className="space-y-8">
                  {/* Agent Split */}
                  <div>
                     <div className="flex justify-between mb-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Closing Agent Portion</label>
+                      <label className="text-xs font-black uppercase tracking-widest text-[var(--text-muted)]">Closing Advisor Portion</label>
                       <span className="text-rose-500 font-black">{agentSplit}%</span>
                     </div>
                     <input type="range" min="0" max="100" step="1" value={agentSplit} onChange={e => handleSplitChange('agent', parseInt(e.target.value))} className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-rose-500" />
@@ -196,7 +196,7 @@ export default function AdminCommissionsPage() {
               
               <div className="relative z-10">
                  <h4 className="text-2xl font-black mb-1 tracking-tighter uppercase text-[var(--text-primary)]">Payout Simulator</h4>
-                 <p className="text-xs text-[var(--text-secondary)] mb-8">Visualization based on a property-specific commission.</p>
+                 <p className="text-xs text-[var(--text-secondary)] mb-8">Visualization based on a property-specific incentive.</p>
 
                  <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-4">
@@ -208,7 +208,7 @@ export default function AdminCommissionsPage() {
                           </div>
                        </div>
                        <div>
-                          <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-widest mb-1.5 block">Property Comm. Pct</label>
+                          <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-widest mb-1.5 block">Property Incentive Pct</label>
                           <div className="relative">
                              <input type="number" value={pool} onChange={e => setPool(parseFloat(e.target.value))} className="w-full theme-input rounded-xl px-3 py-3 font-bold text-sm" />
                              <span className="absolute right-3 top-1/2 -translate-y-1/2 font-bold opacity-50 text-xs">%</span>
@@ -218,14 +218,14 @@ export default function AdminCommissionsPage() {
 
                     <div className="p-6 rounded-3xl bg-white/[0.03] border border-white/5 space-y-5">
                        <div className="flex justify-between items-center text-sm border-b border-white/5 pb-4">
-                          <span className="font-bold text-[var(--text-secondary)]">Total Commission Pool</span>
+                          <span className="font-bold text-[var(--text-secondary)]">Total Incentive Pool</span>
                           <span className="font-black text-[var(--text-primary)]">₹{totalCommissionRupees.toLocaleString('en-IN')}</span>
                        </div>
 
                        <div className="space-y-4">
                           <div className="flex justify-between items-center p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 shadow-lg shadow-rose-500/5">
                              <div>
-                                <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Agent Closing Deal ({agentSplit}%)</p>
+                                <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Advisor Closing Deal ({agentSplit}%)</p>
                                 <p className="text-xl font-black text-rose-500">₹{closingAgentRupees.toLocaleString('en-IN')}</p>
                              </div>
                              <div className="w-10 h-10 rounded-xl bg-rose-500 flex items-center justify-center text-white/90">🤝</div>

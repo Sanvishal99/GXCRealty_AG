@@ -27,19 +27,19 @@ export default function PortfolioPage() {
   const isAdmin = profile.role === 'ADMIN' || profile.role === 'Admin';
   const isCompany = profile.role === 'COMPANY' || profile.role === 'Company';
   
-  const filteredProperties = properties.filter(p => {
+  const filteredProperties = properties.filter(() => {
     if (isAdmin) return true;
-    if (isCompany) return (p.companyEmail || '').toLowerCase() === (profile.email || '').toLowerCase();
+    if (isCompany) return true; // company/mine already scoped to this company
     return false;
   });
 
-  const pending = filteredProperties.filter(p => p.status === 'pending');
-  const active = filteredProperties.filter(p => p.status === 'approved');
+  const pending = filteredProperties.filter(p => p.status === 'PENDING_APPROVAL');
+  const active  = filteredProperties.filter(p => p.status === 'AVAILABLE');
 
   const handleApprove = (p: Property) => {
     updateProperty(p.id, { 
       status: 'approved',
-      commissionPct: negotiatedPct || p.commissionPct 
+      pricing: { ...(p.pricing || {} as any), commissionValue: negotiatedPct || p.pricing?.commissionValue }
     });
     setEditingId(null);
     addNotification({ type: 'success', title: 'Listing Approved', message: `${p.name} is now live.`, category: 'system' });
@@ -54,7 +54,7 @@ export default function PortfolioPage() {
             <Building2 className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest leading-none">Developer Suite</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight mb-2">Project <span className="text-gradient">Portfolio</span></h1>
+          <h1 className="text-2xl md:text-4xl font-black tracking-tight mb-2">Project <span className="text-gradient">Portfolio</span></h1>
           <p className="text-[var(--text-secondary)] font-medium">Manage your active listings and track the verification pipeline.</p>
         </div>
         
@@ -96,30 +96,14 @@ export default function PortfolioPage() {
                    <div>
                     <h3 className="text-xl font-black mb-1 group-hover:text-indigo-500 transition-colors uppercase tracking-tight">{p.name}</h3>
                     <p className="text-[10px] font-black opacity-30 flex items-center gap-1.5 leading-none uppercase tracking-widest">
-                       <MapPin className="w-3.5 h-3.5 text-indigo-500" /> {p.location}
+                       <MapPin className="w-3.5 h-3.5 text-indigo-500" /> {typeof p.location === 'string' ? p.location : `${p.location?.area || ''}, ${p.location?.city || ''}`}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-3">
-                       <div className="px-3 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-500 text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">{formatCurrency(p.price)}</div>
-                       <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-500 text-[10px] font-black uppercase tracking-widest border border-purple-500/20">Commission: {p.commissionPct}%</div>
+                       <div className="px-3 py-1.5 rounded-xl bg-indigo-500/10 text-indigo-500 text-[10px] font-black uppercase tracking-widest border border-indigo-500/20">{formatCurrency(p.pricing?.minPrice || 0)}</div>
+                       <div className="px-3 py-1.5 rounded-xl bg-purple-500/10 text-purple-500 text-[10px] font-black uppercase tracking-widest border border-purple-500/20">Incentive: {p.pricing?.commissionValue || 2}%</div>
                     </div>
 
-                    {/* Proximity HUD */}
-                    {p.proximity && (
-                      <div className="flex gap-4 p-3 rounded-2xl bg-white/5 border border-white/5 max-w-md">
-                         <div className="flex items-center gap-1.5 opacity-40 hover:opacity-100 transition-opacity">
-                            <Train className="w-3.5 h-3.5 text-indigo-500" />
-                            <span className="text-[10px] font-black">{p.proximity.station || 'N/A'}</span>
-                         </div>
-                         <div className="flex items-center gap-1.5 opacity-40 hover:opacity-100 transition-opacity">
-                            <Plane className="w-3.5 h-3.5 text-indigo-500" />
-                            <span className="text-[10px] font-black">{p.proximity.airport || 'N/A'}</span>
-                         </div>
-                         <div className="flex items-center gap-1.5 opacity-40 hover:opacity-100 transition-opacity">
-                            <GraduationCap className="w-3.5 h-3.5 text-indigo-500" />
-                            <span className="text-[10px] font-black">{p.proximity.school || 'N/A'}</span>
-                         </div>
-                      </div>
-                    )}
+
                   </div>
                 </div>
 
@@ -170,16 +154,10 @@ export default function PortfolioPage() {
                  <div className="flex-1 min-w-0">
                     <p className="font-black truncate text-lg group-hover:text-indigo-500 transition-colors">{p.name}</p>
                     <div className="flex flex-wrap gap-1 mt-1 mb-2">
-                       {(p.amenities || []).slice(0, 3).map(a => (
-                         <span key={a} className="px-2 py-0.5 rounded-md bg-white/5 text-[8px] font-black uppercase text-indigo-400 group-hover:bg-indigo-500/10 transition-colors">
-                            {a}
-                         </span>
-                       ))}
-                       {(p.amenities || []).length > 3 && <span className="text-[8px] font-black opacity-30">+{p.amenities.length - 3}</span>}
-                    </div>
-                    <div className="flex items-center gap-3 opacity-30 group-hover:opacity-100 transition-opacity scale-90 origin-left">
-                       <div className="flex items-center gap-1"><Train className="w-3 h-3" /> <span className="text-[9px] font-bold">{p.proximity?.station}</span></div>
-                       <div className="flex items-center gap-1"><Plane className="w-3 h-3" /> <span className="text-[9px] font-bold">{p.proximity?.airport}</span></div>
+                       {/* Amenities are now tracked differently, we'll adapt gracefully */}
+                       <span className="px-2 py-0.5 rounded-md bg-white/5 text-[8px] font-black uppercase text-indigo-400 group-hover:bg-indigo-500/10 transition-colors">
+                          {p.units?.length || 0} Units Available
+                       </span>
                     </div>
                  </div>
                  <div className="flex gap-2">

@@ -19,23 +19,23 @@ export class KycService {
     });
   }
 
-  async verifyKyc(userId: string, isVerified: boolean) {
+  async verifyKyc(userId: string, isVerified: boolean, rejectionReason?: string) {
     const userKyc = await this.prisma.kyc.findUnique({ where: { userId } });
     if (!userKyc) throw new NotFoundException('KYC submission not found for this user');
 
-    // Update KYC record
     const updatedKyc = await this.prisma.kyc.update({
       where: { userId },
-      data: { isVerified },
+      data: {
+        isVerified,
+        verifiedAt: isVerified ? new Date() : null,
+        rejectionReason: !isVerified ? (rejectionReason || null) : null,
+      },
     });
 
-    // If verified, update User status to ACTIVE allowing them to close deals
-    if (isVerified) {
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { status: 'ACTIVE' },
-      });
-    }
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { status: isVerified ? 'ACTIVE' : 'PENDING_KYC' },
+    });
 
     return updatedKyc;
   }

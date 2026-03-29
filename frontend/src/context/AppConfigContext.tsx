@@ -1,13 +1,15 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { config as configApi } from '@/lib/api';
+import { STORAGE_KEY } from '@/lib/constants';
 
-// ── Types ──────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 export interface AppConfig {
   branding: {
     appName: string;
     tagline: string;
     logoEmoji: string;
-    logoImage: string; // Base64 or URL
+    logoImage: string;
     primaryColor: string;
     footerText: string;
   };
@@ -27,53 +29,26 @@ export interface AppConfig {
     ctaSubtitle: string;
   };
   dashboard: {
-    pageTitle: string;
-    pageSubtitle: string;
-    stat1Label: string;
-    stat2Label: string;
-    stat3Label: string;
-    stat4Label: string;
-    networkTitle: string;
-    activityTitle: string;
+    pageTitle: string; pageSubtitle: string;
+    stat1Label: string; stat2Label: string; stat3Label: string; stat4Label: string;
+    networkTitle: string; activityTitle: string;
   };
   deals: {
-    pageTitle: string;
-    pageSubtitle: string;
-    commissionPoolPct: number; // This can be property-level, but here we set a global default
-    agentSplitPct: number; // e.g., 80%
-    networkPoolPct: number; // e.g., 15%
-    companySplitPct: number; // e.g., 5%
-    tierSplits: number[]; // Split of the networkPoolPct across 5 levels
+    pageTitle: string; pageSubtitle: string;
+    commissionPoolPct: number;
+    agentSplitPct: number;
+    networkPoolPct: number;
+    companySplitPct: number;
+    tierSplits: number[];
   };
-  wallet: {
-    pageTitle: string;
-    pageSubtitle: string;
-    upgradeBannerTitle: string;
-    upgradeBannerSubtitle: string;
-  };
-  visits: {
-    pageTitle: string;
-    pageSubtitle: string;
-  };
-  properties: {
-    pageTitle: string;
-    pageSubtitle: string;
-  };
-  chat: {
-    pageTitle: string;
-    pageSubtitle: string;
-  };
-  settings: {
-    pageTitle: string;
-    pageSubtitle: string;
-  };
+  wallet: { pageTitle: string; pageSubtitle: string; upgradeBannerTitle: string; upgradeBannerSubtitle: string };
+  visits: { pageTitle: string; pageSubtitle: string };
+  properties: { pageTitle: string; pageSubtitle: string };
+  chat: { pageTitle: string; pageSubtitle: string };
+  settings: { pageTitle: string; pageSubtitle: string };
   features: {
-    enableChat: boolean;
-    enableWallet: boolean;
-    enableVisits: boolean;
-    enableDeals: boolean;
-    maintenanceMode: boolean;
-    maintenanceMessage: string;
+    enableChat: boolean; enableWallet: boolean; enableVisits: boolean;
+    enableDeals: boolean; maintenanceMode: boolean; maintenanceMessage: string;
   };
 }
 
@@ -82,132 +57,139 @@ const DEFAULT_CONFIG: AppConfig = {
     appName: 'GXCRealty',
     tagline: 'Exclusive Invite-Only Network',
     logoEmoji: '🏛️',
-    logoImage: '', 
+    logoImage: '',
     primaryColor: '#818cf8',
     footerText: '© 2026 GXCRealty. All rights reserved.',
   },
   landing: {
     heroTitle: 'The Future of Real Estate Investment',
-    heroSubtitle: 'Join our exclusive invite-only network of premium agents and unlock industry-leading commission structures.',
-    heroCta: 'Request an Invite',
-    heroSecondary: 'Agent Login →',
-    stat1Label: 'Active Agents', stat1Value: '1,200+',
-    stat2Label: 'Properties Listed', stat2Value: '340+',
-    stat3Label: 'Revenue Generated', stat3Value: '₹480Cr+',
-    feature1Title: 'MLM Commission Engine', feature1Desc: 'Earn passive income from your entire downline network with our transparent multi-tier commission system.',
-    feature2Title: 'KYC Verified Network', feature2Desc: 'Every agent is fully verified ensuring a trustworthy and compliant network for everyone.',
-    feature3Title: 'Exclusive Properties', feature3Desc: 'Access premium off-market listings not available on public platforms.',
-    feature4Title: 'Real-Time Analytics', feature4Desc: 'Track your network growth, earnings, and performance with live dashboards.',
+    heroSubtitle: 'Join our exclusive invite-only network of premium advisors.',
+    heroCta: 'Request an Invite', heroSecondary: 'Advisor Login →',
+    stat1Label: 'Active Advisors', stat1Value: '—',
+    stat2Label: 'Properties Listed', stat2Value: '—',
+    stat3Label: 'Revenue Generated', stat3Value: '—',
+    feature1Title: 'MLM Incentive Engine', feature1Desc: 'Multi-tier incentive distribution from your downline.',
+    feature2Title: 'KYC Verified Network', feature2Desc: 'Every advisor fully verified for compliance.',
+    feature3Title: 'Exclusive Properties', feature3Desc: 'Premium off-market listings.',
+    feature4Title: 'Real-Time Analytics', feature4Desc: 'Live performance dashboards.',
     ctaTitle: 'Ready to Join the Network?',
-    ctaSubtitle: 'GXCRealty is invite only. Request access from an existing agent or administrator.',
+    ctaSubtitle: 'GXCRealty is invite only. Request access from an existing advisor.',
   },
   dashboard: {
-    pageTitle: 'Welcome Back',
-    pageSubtitle: "Here's your network overview and recent activity.",
-    stat1Label: 'Total Earnings',
-    stat2Label: 'Network Size',
-    stat3Label: 'Deals Closed',
-    stat4Label: 'Active Visits',
-    networkTitle: 'Downline Tree View',
-    activityTitle: 'Recent Activity',
+    pageTitle: 'Welcome Back', pageSubtitle: "Here's your network overview.",
+    stat1Label: 'Total Earnings', stat2Label: 'Network Size',
+    stat3Label: 'Deals Closed', stat4Label: 'Active Visits',
+    networkTitle: 'Downline Tree', activityTitle: 'Recent Activity',
   },
   deals: {
-    pageTitle: 'Close a Deal & Verify Incentive',
-    pageSubtitle: 'See your exact commission payout before finalizing the transaction.',
-    commissionPoolPct: 2, // Default 2% pool
+    pageTitle: 'Deal Settlements', pageSubtitle: 'Submit and verify incentive payouts.',
+    commissionPoolPct: 2,
     agentSplitPct: 80,
     networkPoolPct: 15,
     companySplitPct: 5,
-    tierSplits: [40, 25, 15, 10, 10], // Split of the 15% pool across levels
+    tierSplits: [40, 25, 15, 10, 10],
   },
   wallet: {
-    pageTitle: 'Earnings & Wallet',
-    pageSubtitle: 'Manage your commissions and network payouts.',
-    upgradeBannerTitle: 'Upgrade to Elite Agent Status',
-    upgradeBannerSubtitle: 'Earn 15% more on all tier commissions and unlock priority listings.',
+    pageTitle: 'Earnings & Wallet', pageSubtitle: 'Manage your incentives.',
+    upgradeBannerTitle: 'Upgrade to Elite Advisor', upgradeBannerSubtitle: 'Earn more on tier incentives.',
   },
-  visits: {
-    pageTitle: 'Visit Scheduler',
-    pageSubtitle: 'Manage client viewings and property access in real time.',
-  },
-  properties: {
-    pageTitle: 'Exclusive Properties',
-    pageSubtitle: 'Discover premium real estate for your high-net-worth clients.',
-  },
-  chat: {
-    pageTitle: 'Agent Network Chat',
-    pageSubtitle: 'Communicate securely with your upline and downline.',
-  },
-  settings: {
-    pageTitle: 'User Settings',
-    pageSubtitle: 'Manage your profile, preferences, and account security.',
-  },
+  visits: { pageTitle: 'Visit Scheduler', pageSubtitle: 'Manage client viewings.' },
+  properties: { pageTitle: 'Exclusive Properties', pageSubtitle: 'Premium real estate listings.' },
+  chat: { pageTitle: 'Advisor Network Chat', pageSubtitle: 'Secure messaging with your network.' },
+  settings: { pageTitle: 'User Settings', pageSubtitle: 'Manage your profile and preferences.' },
   features: {
-    enableChat: true,
-    enableWallet: true,
-    enableVisits: true,
-    enableDeals: true,
-    maintenanceMode: false,
-    maintenanceMessage: 'We are performing scheduled maintenance. Please check back shortly.',
+    enableChat: true, enableWallet: true, enableVisits: true, enableDeals: true,
+    maintenanceMode: false, maintenanceMessage: 'Scheduled maintenance in progress.',
   },
 };
 
-// ── Context ────────────────────────────────────────────────────────
-interface AppConfigContextType {
-  config: AppConfig;
-  updateConfig: (patch: DeepPartial<AppConfig>) => void;
-  resetConfig: () => void;
+// ── Merge remote GlobalConfig into AppConfig.deals ────────────────────────────
+function mergeRemoteConfig(local: AppConfig, remote: any): AppConfig {
+  if (!remote) return local;
+  return {
+    ...local,
+    branding: {
+      ...local.branding,
+      ...(remote.brandingEmoji && { logoEmoji: remote.brandingEmoji }),
+      ...(remote.brandingLogoUrl && { logoImage: remote.brandingLogoUrl }),
+    },
+    deals: {
+      ...local.deals,
+      ...(remote.commissionPoolPct !== undefined && { commissionPoolPct: remote.commissionPoolPct }),
+      ...(remote.agentSplitPct !== undefined && { agentSplitPct: remote.agentSplitPct }),
+      ...(remote.networkPoolPct !== undefined && { networkPoolPct: remote.networkPoolPct }),
+      ...(remote.companySplitPct !== undefined && { companySplitPct: remote.companySplitPct }),
+      ...(remote.tierSplits !== undefined && { tierSplits: remote.tierSplits }),
+    },
+  };
 }
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
 
-const AppConfigContext = createContext<AppConfigContextType>({
-  config: DEFAULT_CONFIG,
-  updateConfig: () => {},
-  resetConfig: () => {},
-});
-
 function deepMerge<T>(base: T, patch: DeepPartial<T>): T {
   const result = { ...base };
   for (const key in patch) {
-    const patchVal = patch[key as keyof typeof patch];
-    const baseVal = base[key as keyof T];
-    if (patchVal && typeof patchVal === 'object' && !Array.isArray(patchVal) && typeof baseVal === 'object') {
-      (result as any)[key] = deepMerge(baseVal as any, patchVal as any);
-    } else if (patchVal !== undefined) {
-      (result as any)[key] = patchVal;
+    const pv = patch[key as keyof typeof patch];
+    const bv = base[key as keyof T];
+    if (pv && typeof pv === 'object' && !Array.isArray(pv) && typeof bv === 'object') {
+      (result as any)[key] = deepMerge(bv as any, pv as any);
+    } else if (pv !== undefined) {
+      (result as any)[key] = pv;
     }
   }
   return result;
 }
 
-const STORAGE_KEY = 'gxc-app-config';
+// ── Context ───────────────────────────────────────────────────────────────────
+interface AppConfigContextType {
+  config: AppConfig;
+  isLoading: boolean;
+  updateConfig: (patch: DeepPartial<AppConfig>) => void;
+  resetConfig: () => void;
+}
+
+const AppConfigContext = createContext<AppConfigContextType>({
+  config: DEFAULT_CONFIG,
+  isLoading: true,
+  updateConfig: () => { },
+  resetConfig: () => { },
+});
 
 export function AppConfigProvider({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState<AppConfig>(DEFAULT_CONFIG);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Restore any local admin overrides from previous session
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
+      const saved = localStorage.getItem(STORAGE_KEY.APP_CONFIG);
       if (saved) setConfig(deepMerge(DEFAULT_CONFIG, JSON.parse(saved)));
-    } catch {}
+    } catch { }
+
+    // 2. Fetch live GlobalConfig from backend and merge
+    configApi.get()
+      .then(remote => {
+        setConfig(prev => mergeRemoteConfig(prev, remote));
+      })
+      .catch(() => { /* server unavailable — keep defaults */ })
+      .finally(() => setIsLoading(false));
   }, []);
 
-  const updateConfig = (patch: DeepPartial<AppConfig>) => {
+  const updateConfig = useCallback((patch: DeepPartial<AppConfig>) => {
     setConfig(prev => {
       const next = deepMerge(prev, patch);
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
+      try { localStorage.setItem(STORAGE_KEY.APP_CONFIG, JSON.stringify(next)); } catch { }
       return next;
     });
-  };
+  }, []);
 
-  const resetConfig = () => {
+  const resetConfig = useCallback(() => {
     setConfig(DEFAULT_CONFIG);
-    try { localStorage.removeItem(STORAGE_KEY); } catch {}
-  };
+    try { localStorage.removeItem(STORAGE_KEY.APP_CONFIG); } catch { }
+  }, []);
 
   return (
-    <AppConfigContext.Provider value={{ config, updateConfig, resetConfig }}>
+    <AppConfigContext.Provider value={{ config, isLoading, updateConfig, resetConfig }}>
       {children}
     </AppConfigContext.Provider>
   );

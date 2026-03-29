@@ -38,8 +38,8 @@ const NotificationContext = createContext<NotificationContextType>({
 // Pre-seeded demo notifications
 const SEED: Omit<Notification, "id">[] = [
   { type: "success", title: "Deal Confirmed", message: "Your deal on Luxury Villa #3 has been approved by GXC Builders.", timestamp: new Date(Date.now() - 3600000 * 1), read: false, category: "deal" },
-  { type: "info",    title: "Commission Credited", message: "$4,200 commission from Agent Sarah's deal credited to your wallet.", timestamp: new Date(Date.now() - 3600000 * 3), read: false, category: "commission" },
-  { type: "warning", title: "KYC Pending Review", message: "3 agents in your downline have pending KYC documents.", timestamp: new Date(Date.now() - 3600000 * 5), read: false, category: "kyc" },
+  { type: "info",    title: "Incentive Credited", message: "$4,200 incentive from Advisor Sarah's deal credited to your wallet.", timestamp: new Date(Date.now() - 3600000 * 3), read: false, category: "commission" },
+  { type: "warning", title: "KYC Pending Review", message: "3 advisors in your downline have pending KYC documents.", timestamp: new Date(Date.now() - 3600000 * 5), read: false, category: "kyc" },
   { type: "info",    title: "Visit Approved", message: "Your visit request for Penthouse Suite has been approved for tomorrow.", timestamp: new Date(Date.now() - 3600000 * 8), read: true, category: "visit" },
   { type: "info",    title: "New Message", message: "Alex (Upline) sent you a message: 'Did you check the new listing?'", timestamp: new Date(Date.now() - 3600000 * 12), read: true, category: "chat" },
   { type: "error",   title: "Visit Rejected", message: "Client Mr. Jones' visit request for Commercial Space was rejected.", timestamp: new Date(Date.now() - 3600000 * 24), read: true, category: "visit" },
