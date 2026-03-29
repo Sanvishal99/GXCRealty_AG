@@ -9,7 +9,7 @@ export class WalletController {
 
   @Get()
   async getWallet(@Request() req) {
-    return this.walletService.getWalletForUser(req.user.id);
+    return this.walletService.getWalletForUser(req.user.id || req.user.sub);
   }
 
   @Post('withdraw')
@@ -17,6 +17,6 @@ export class WalletController {
     if (!body.amount || body.amount <= 0) {
       throw new BadRequestException('Withdrawal amount must be greater than zero');
     }
-    return this.walletService.withdraw(req.user.id, body.amount);
+    return this.walletService.withdraw(req.user.id || req.user.sub, body.amount);
   }
 }
