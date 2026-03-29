@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/.env*)",
+      "Bash(npm install:*)",
+      "Bash(grep -i \"google\\\\|maps\\\\|MAPS\\\\|GOOGLE\" c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/.env*)",
+      "Bash(npx tsc:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(findstr LISTENING)",
+      "Bash(taskkill /PID 29188 /F)",
+      "Bash(cmd /c \"taskkill /PID 29188 /F\")",
+      "Bash(cmd /c \"taskkill /F /PID 29188 && echo killed\")",
+      "Bash(cmd /c \"taskkill /F /PID 29188\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node -e \":*)",
+      "Bash(npx prisma:*)",
+      "Bash(taskkill /F /IM node.exe)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep 3; Set-Location ''C:\\\\Users\\\\sagar\\\\OneDrive\\\\Documents\\\\Antigravity\\\\backend''; npx prisma generate 2>&1\")",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 500; Write-Host ''Done''\")",
+      "Bash(ls \"C:\\\\Users\\\\sagar\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-sagar-OneDrive-Documents-Antigravity\\\\3e0f3f1a-5a5e-4dcc-8d89-af5637c0cd65\\\\tasks\"\" 2>/dev/null || echo \"no tasks dir \")",
+      "Bash(find c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/app/admin -name *.tsx)",
+      "Bash(find c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/app -name *.tsx -newer c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/lib/api.ts)"
+    ]
+  }
+}
