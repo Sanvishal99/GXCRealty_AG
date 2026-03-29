@@ -404,6 +404,27 @@ model AuditLog {
   oldValues Json?
   newValues Json?
   ipAddress String?
-  
+
   createdAt DateTime @default(now())
+}
+
+enum AccessRequestStatus {
+  PENDING
+  REVIEWED
+  APPROVED
+  REJECTED
+}
+
+model AccessRequest {
+  id         String              @id @default(uuid())
+  fullName   String
+  email      String
+  phone      String
+  experience String              // e.g. "0-2 Years", "3-5 Years", "5+ Years"
+  status     AccessRequestStatus @default(PENDING)
+  adminNote  String?
+  reviewedAt DateTime?
+  reviewedBy String?             // admin userId
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
 }

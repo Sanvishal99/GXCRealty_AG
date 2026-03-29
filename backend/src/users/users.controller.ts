@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards, Request, Patch, Body } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Request, Patch, Post, Body, NotFoundException, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/roles.guard';
@@ -25,12 +25,45 @@ export class UsersController {
     return this.usersService.findAll({ role, status });
   }
 
+  // Admin — create a user directly
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @Post()
+  async createUser(
+    @Body() body: { email: string; phone: string; password: string; role: Role; status: Status; referralCode?: string },
+  ) {
+    try {
+      return await this.usersService.adminCreateUser(body);
+    } catch (err: any) {
+      throw new BadRequestException(err.message);
+    }
+  }
+
+  // Admin — get full details for a single user
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get(':id')
+  async getOne(@Param('id') id: string) {
+    const user = await this.usersService.findByIdFull(id);
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
   // Admin — update a user's status
   @UseGuards(RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id/status')
   async updateStatus(@Param('id') id: string, @Body() body: { status: Status }) {
     return this.usersService.updateStatus(id, body.status);
+  }
+
+  // Admin — reset a user's password
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch(':id/reset-password')
+  async resetPassword(@Param('id') id: string, @Body() body: { newPassword: string }) {
+    await this.usersService.resetPassword(id, body.newPassword);
+    return { message: 'Password reset successfully' };
   }
 
   @Get(':id/upline')

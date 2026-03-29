@@ -32,6 +32,8 @@ const staggerItem = {
 export default function Home() {
   const { config } = useAppConfig();
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [submitState, setSubmitState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [formData, setFormData] = useState({ fullName: '', email: '', phone: '', experience: '' });
   const [recruits, setRecruits] = useState(10);
   const [avgDealSize, setAvgDealSize] = useState(5000000); // 50L
 
@@ -313,7 +315,7 @@ export default function Home() {
             animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-neutral-900/40"
-            onClick={() => setIsApplyModalOpen(false)}
+            onClick={() => { setIsApplyModalOpen(false); setSubmitState('idle'); setFormData({ fullName: '', email: '', phone: '', experience: '' }); }}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
@@ -324,7 +326,7 @@ export default function Home() {
               className="bg-white rounded-[2rem] p-10 max-w-md w-full relative shadow-2xl border border-neutral-100"
             >
               <button
-                onClick={() => setIsApplyModalOpen(false)}
+                onClick={() => { setIsApplyModalOpen(false); setSubmitState('idle'); setFormData({ fullName: '', email: '', phone: '', experience: '' }); }}
                 className="absolute top-6 right-6 text-neutral-400 hover:text-neutral-800 transition-colors bg-neutral-100 p-2 rounded-full hover:bg-neutral-200"
               >
                 <X className="w-5 h-5" />
@@ -338,32 +340,66 @@ export default function Home() {
                 <p className="text-neutral-500 text-sm leading-relaxed font-medium">Join the exclusive GXCRealty network. We will review your application within 24 hours.</p>
               </div>
 
-              <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Full Name</label>
-                  <input type="text" className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" placeholder="James Bond" />
+              {submitState === 'success' ? (
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <h4 className="text-xl font-extrabold text-neutral-900 mb-2">Application Submitted!</h4>
+                  <p className="text-neutral-500 text-sm">We&apos;ll review your request and get back to you within 24 hours.</p>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Email Address</label>
-                  <input type="email" className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" placeholder="james@secret.com" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Real Estate Experience</label>
-                  <select className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none appearance-none cursor-pointer">
-                    <option>Select experience...</option>
-                    <option>0-2 Years</option>
-                    <option>3-5 Years</option>
-                    <option>5+ Years (Executive/Advisor)</option>
-                  </select>
-                </div>
+              ) : (
+                <form className="space-y-5" onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!formData.fullName || !formData.email || !formData.phone || !formData.experience) return;
+                  setSubmitState('loading');
+                  try {
+                    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+                    const res = await fetch(`${API_BASE}/access-requests`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(formData),
+                    });
+                    if (!res.ok) throw new Error('Failed');
+                    setSubmitState('success');
+                  } catch {
+                    setSubmitState('error');
+                  }
+                }}>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Full Name</label>
+                    <input required type="text" value={formData.fullName} onChange={e => setFormData(f => ({ ...f, fullName: e.target.value }))} className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" placeholder="James Bond" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Email Address</label>
+                    <input required type="email" value={formData.email} onChange={e => setFormData(f => ({ ...f, email: e.target.value }))} className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" placeholder="james@secret.com" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Phone Number</label>
+                    <input required type="tel" value={formData.phone} onChange={e => setFormData(f => ({ ...f, phone: e.target.value }))} className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none" placeholder="+91 98765 43210" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 ml-1">Real Estate Experience</label>
+                    <select required value={formData.experience} onChange={e => setFormData(f => ({ ...f, experience: e.target.value }))} className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-3 text-neutral-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none appearance-none cursor-pointer">
+                      <option value="">Select experience...</option>
+                      <option value="0-2 Years">0-2 Years</option>
+                      <option value="3-5 Years">3-5 Years</option>
+                      <option value="5+ Years">5+ Years (Executive/Advisor)</option>
+                    </select>
+                  </div>
 
-                <div className="pt-4">
-                  <button type="submit" className="w-full relative group overflow-hidden bg-neutral-900 text-white font-bold rounded-xl py-4 transition-all text-lg flex items-center justify-center gap-2 hover:bg-neutral-800 shadow-lg shadow-neutral-900/20">
-                    <span>Submit Application</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </div>
-              </form>
+                  {submitState === 'error' && (
+                    <p className="text-rose-500 text-xs font-semibold text-center">Something went wrong. Please try again.</p>
+                  )}
+
+                  <div className="pt-4">
+                    <button type="submit" disabled={submitState === 'loading'} className="w-full relative group overflow-hidden bg-neutral-900 text-white font-bold rounded-xl py-4 transition-all text-lg flex items-center justify-center gap-2 hover:bg-neutral-800 shadow-lg shadow-neutral-900/20 disabled:opacity-60">
+                      <span>{submitState === 'loading' ? 'Submitting…' : 'Submit Application'}</span>
+                      {submitState !== 'loading' && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                    </button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </motion.div>
         )}

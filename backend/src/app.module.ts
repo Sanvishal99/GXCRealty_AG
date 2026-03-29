@@ -16,6 +16,7 @@ import { AppConfigModule } from './config/config.module';
 import { LeadsModule } from './leads/leads.module';
 import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { CompanyInviteModule } from './company-invite/company-invite.module';
+import { AccessRequestModule } from './access-request/access-request.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -36,6 +37,7 @@ import { HealthModule } from './health/health.module';
     LeadsModule,
     WithdrawalModule,
     CompanyInviteModule,
+    AccessRequestModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

@@ -69,10 +69,15 @@ export const users = {
     const qs = new URLSearchParams(params as any).toString();
     return request<any[]>(`/users${qs ? `?${qs}` : ''}`);
   },
+  getById: (id: string) => request<any>(`/users/${id}`),
   upline: (id: string) => request<any[]>(`/users/${id}/upline`),
   downline: (id: string) => request<any[]>(`/users/${id}/downline`),
   updateStatus: (id: string, status: string) =>
     request<any>(`/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  resetPassword: (id: string, newPassword: string) =>
+    request<any>(`/users/${id}/reset-password`, { method: 'PATCH', body: JSON.stringify({ newPassword }) }),
+  create: (data: { email: string; phone: string; password: string; role: string; status: string; referralCode?: string }) =>
+    request<any>('/users', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 // ── Properties ───────────────────────────────────────────────────────────────
@@ -206,4 +211,15 @@ export const auditLogs = {
 export const bulkImport = {
   properties: (rows: any[]) =>
     request<any>('/properties/bulk-import', { method: 'POST', body: JSON.stringify({ rows }) }),
+};
+
+// ── Access Requests ───────────────────────────────────────────────────────────
+export const accessRequests = {
+  list: (status?: string) => {
+    const qs = status ? `?status=${status}` : '';
+    return request<any[]>(`/access-requests${qs}`);
+  },
+  pendingCount: () => request<{ count: number }>('/access-requests/pending-count'),
+  review: (id: string, status: string, adminNote?: string) =>
+    request<any>(`/access-requests/${id}/review`, { method: 'PATCH', body: JSON.stringify({ status, adminNote }) }),
 };

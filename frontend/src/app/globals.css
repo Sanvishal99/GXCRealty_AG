@@ -369,3 +369,42 @@ html.light .theme-toggle-knob { left: 26px; }
   border: 1px solid currentColor;
   opacity: 0.9;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLLBAR — theme-aware
+═══════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(140, 120, 255, 0.20);
+  border-radius: 9999px;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 120, 255, 0.40);
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: rgba(80, 60, 200, 0.18);
+  border-radius: 9999px;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(80, 60, 200, 0.35);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 120, 255, 0.20) transparent;
+}
+
+html.light * {
+  scrollbar-color: rgba(80, 60, 200, 0.18) transparent;
+}
