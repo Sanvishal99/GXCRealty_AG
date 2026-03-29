@@ -36,7 +36,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const userId = payload.sub;
       
       this.connectedUsers.set(userId, socket.id);
-      console.log(`User online: ${userId} (${socket.id})`);
     } catch (err) {
       socket.disconnect();
     }

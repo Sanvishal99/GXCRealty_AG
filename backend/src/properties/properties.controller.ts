@@ -51,7 +51,7 @@ export class PropertiesController {
     try {
       return await this.propertiesService.createListing(userId, req.user.role, body);
     } catch (err) {
-      console.error('[createProperty] error:', err?.message, '\ndata received:', JSON.stringify(body, null, 2));
+      // Error logged by global exception filter
       const msg = err?.message || 'Failed to create property';
       // Surface Prisma validation errors as 400 so the frontend sees the real problem
       if (err?.name === 'PrismaClientValidationError' || err?.code?.startsWith('P2')) {
