@@ -21,7 +21,14 @@
       "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 500; Write-Host ''Done''\")",
       "Bash(ls \"C:\\\\Users\\\\sagar\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-sagar-OneDrive-Documents-Antigravity\\\\3e0f3f1a-5a5e-4dcc-8d89-af5637c0cd65\\\\tasks\"\" 2>/dev/null || echo \"no tasks dir \")",
       "Bash(find c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/app/admin -name *.tsx)",
-      "Bash(find c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/app -name *.tsx -newer c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/lib/api.ts)"
+      "Bash(find c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/app -name *.tsx -newer c:/Users/sagar/OneDrive/Documents/Antigravity/frontend/src/lib/api.ts)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''scripts:'''', d.get\\(''''scripts'''',{}\\)\\); print\\(''''name:'''', d.get\\(''''name''''\\)\\)\")",
+      "Bash(gcloud config:*)",
+      "Bash(powershell -Command \"gcloud config list\")",
+      "Bash(powershell -Command \"gcloud run deploy gxcrealty-backend --source . --region asia-south1 --env-vars-file env.yaml --allow-unauthenticated --port 3000 --memory 512Mi --cpu 1 --min-instances 0 --max-instances 3 --quiet 2>&1\")",
+      "Bash(powershell -Command \"gcloud run services list --region asia-south1 2>&1\")",
+      "Bash(powershell -Command \"gcloud run revisions list --service gxcrealty-backend --region asia-south1 2>&1\")",
+      "Bash(powershell -Command \"gcloud logging read ''resource.type=cloud_run_revision AND resource.labels.service_name=gxcrealty-backend'' --limit 50 --format=''value\\(textPayload\\)'' --project gxcrealty-ag 2>&1\")"
     ]
   }
 }
