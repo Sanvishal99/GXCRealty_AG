@@ -143,7 +143,7 @@ export default function AdminUsersPage() {
             <Shield className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">User Governance</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Network <span className="text-gradient">Directory</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">Network <span className="text-gradient">Directory</span></h1>
           <p className="text-[var(--text-secondary)]">Manage system access and troubleshoot accounts.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -267,7 +267,7 @@ export default function AdminUsersPage() {
       {/* Create User Modal */}
       {showCreate && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-lg rounded-[32px] p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="glass-panel w-full max-w-lg rounded-[32px] p-5 sm:p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
                 <UserPlus className="w-5 h-5" />

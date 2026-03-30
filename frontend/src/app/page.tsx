@@ -153,7 +153,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-6xl md:text-[5.5rem] font-extrabold tracking-tight mb-8 text-neutral-900 leading-[1.05] relative"
+          className="text-4xl sm:text-6xl md:text-[5.5rem] font-extrabold tracking-tight mb-6 sm:mb-8 text-neutral-900 leading-[1.05] relative"
         >
           {config.landing.heroTitle.split(' ').slice(0, -2).join(' ')} <br className="hidden md:block"/>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-cyan-500 block mt-2 drop-shadow-sm">{config.landing.heroTitle.split(' ').slice(-2).join(' ')}</span>
@@ -190,13 +190,13 @@ export default function Home() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-100px" }}
         transition={{ duration: 0.8 }}
-        className="w-full max-w-5xl mt-40 px-4"
+        className="w-full max-w-5xl mt-16 sm:mt-40 px-4"
       >
-        <div className="bg-white p-8 md:p-14 rounded-[2rem] relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-neutral-200/60">
-          <div className="flex flex-col md:flex-row gap-16 items-center relative z-10">
+        <div className="bg-white p-5 sm:p-8 md:p-14 rounded-[2rem] relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-neutral-200/60">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-center relative z-10">
             <div className="flex-1 space-y-10 w-full">
               <div>
-                <h2 className="text-4xl font-extrabold mb-3 flex items-center gap-4 text-emerald-600">
+                <h2 className="text-2xl sm:text-4xl font-extrabold mb-3 flex items-center gap-4 text-emerald-600">
                   <Calculator className="w-10 h-10 text-emerald-500" />
                   Scale Your Wealth
                 </h2>
@@ -238,7 +238,7 @@ export default function Home() {
             </div>
 
             <motion.div 
-              className="w-full md:w-auto min-w-[360px] p-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-3xl border border-emerald-400 flex flex-col items-center justify-center text-center shadow-2xl shadow-emerald-500/30 relative overflow-hidden"
+              className="w-full md:w-auto md:min-w-[360px] p-8 sm:p-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-3xl border border-emerald-400 flex flex-col items-center justify-center text-center shadow-2xl shadow-emerald-500/30 relative overflow-hidden"
               whileHover={{ scale: 1.02, transition: { type: "spring", stiffness: 300 } }}
             >
               <div className="absolute inset-0 bg-white/5 pointer-events-none" />
@@ -246,7 +246,7 @@ export default function Home() {
                 <span className="w-2 h-2 rounded-full bg-emerald-200 animate-pulse" />
                 Projected Passive Monthly
               </span>
-              <div className="text-5xl md:text-6xl font-extrabold text-white mb-8 flex items-center justify-center gap-2 drop-shadow-md relative z-10">
+              <div className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white mb-8 flex items-center justify-center gap-2 drop-shadow-md relative z-10">
                 <motion.span 
                   key={passiveIncome} 
                   initial={{ opacity: 0.5, y: -10 }} 
@@ -271,7 +271,7 @@ export default function Home() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-50px" }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-40 mb-32 max-w-7xl w-full px-4"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16 sm:mt-40 mb-16 sm:mb-32 max-w-7xl w-full px-4"
       >
         {[
           { icon: Building2, title: config.landing.feature1Title, desc: config.landing.feature1Desc, colorClass: "text-indigo-600", bgClass: "bg-indigo-50", hoverBorder: "hover:border-indigo-300" },

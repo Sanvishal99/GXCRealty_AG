@@ -44,7 +44,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="p-8 relative z-10 w-full">
+    <div className="p-4 sm:p-6 md:p-8 relative z-10 w-full">
       <header className="mb-10">
         <h1 className="text-3xl font-bold tracking-tight mb-1">Platform Overview</h1>
         <p style={{ color: 'var(--text-secondary)' }}>Manage users, KYC, incentives, and system health.</p>
@@ -97,6 +97,7 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-bold">Recent Users</h3>
             <Link href="/admin/users" className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors">View all →</Link>
           </div>
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr style={{ color: 'var(--text-muted)' }} className="text-xs uppercase tracking-wider">
@@ -130,12 +131,13 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
       {/* KYC Viewer Modal */}
       {selectedKyc && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300">
-           <div className="glass-panel w-full max-w-2xl rounded-[40px] p-8 relative overflow-hidden shadow-2xl border border-white/20">
+           <div className="glass-panel w-full max-w-2xl rounded-[40px] p-5 sm:p-8 relative overflow-hidden shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto">
               <div className="absolute top-0 right-0 p-32 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
               
               <div className="flex justify-between items-center mb-8 relative z-10">

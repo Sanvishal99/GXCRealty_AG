@@ -327,13 +327,13 @@ export default function AdminPropertiesPage() {
   const cityLocality = (p: any) => [p.locality, p.city].filter(Boolean).join(', ') || p.address || '—';
 
   if (loading) return (
-    <div className="p-8 w-full max-w-7xl mx-auto space-y-4">
+    <div className="p-4 sm:p-6 md:p-8 w-full max-w-7xl mx-auto space-y-4">
       {[1,2,3].map(i => <div key={i} className="h-28 rounded-3xl glass-panel animate-pulse" />)}
     </div>
   );
 
   return (
-    <div className="p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
+    <div className="p-4 sm:p-6 md:p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
       {reviewing && (
         <ReviewModal
           p={reviewing}

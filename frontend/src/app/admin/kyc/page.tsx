@@ -70,14 +70,14 @@ export default function AdminKycPage() {
   };
 
   return (
-    <div className="p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
+    <div className="p-4 sm:p-6 md:p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
       <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-panel border-[var(--border-medium)]">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             <span className="text-xs font-semibold text-emerald-500 uppercase tracking-widest">Verification Services</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">KYC <span className="text-gradient">Review Queue</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">KYC <span className="text-gradient">Review Queue</span></h1>
           <p className="text-[var(--text-secondary)]">Examine identity documents and verify advisor credentials for the network.</p>
         </div>
         <div className="flex items-center gap-4">
@@ -173,8 +173,8 @@ export default function AdminKycPage() {
 
       {/* Review Modal */}
       {viewingUser && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md" onClick={() => setViewingUser(null)}>
-          <div className="glass-panel-glow w-full max-w-lg rounded-[40px] p-8 relative flex flex-col gap-6" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setViewingUser(null)}>
+          <div className="glass-panel-glow w-full max-w-lg rounded-[40px] p-5 sm:p-8 relative flex flex-col gap-6 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <button onClick={() => setViewingUser(null)}
               className="absolute top-6 right-6 p-2 rounded-full glass-panel hover:bg-white/10 transition-all z-20">
               <X className="w-5 h-5" />

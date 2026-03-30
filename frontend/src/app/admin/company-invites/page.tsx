@@ -100,7 +100,7 @@ export default function CompanyInvitesPage() {
           </svg>
           <span className="text-xs font-semibold text-blue-500 uppercase tracking-widest">Admin</span>
         </div>
-        <h1 className="text-4xl font-black tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">
           Company <span className="text-gradient">Invites</span>
         </h1>
         <p className="text-[var(--text-secondary)]">Generate and manage invite links for onboarding company accounts.</p>

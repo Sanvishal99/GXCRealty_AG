@@ -46,7 +46,7 @@ export default function CompanyDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
         {/* Visitor Intel Section */}
-        <div className="lg:col-span-2 glass-panel rounded-[42px] p-8 border border-white/5 min-h-[500px] flex flex-col">
+        <div className="lg:col-span-2 glass-panel rounded-[42px] p-5 sm:p-8 border border-white/5 min-h-[300px] sm:min-h-[500px] flex flex-col">
            <div className="flex items-center justify-between mb-8">
               <h3 className="text-xl font-bold flex items-center gap-2">
                  <MousePointer2 className="w-5 h-5 text-indigo-500" />
@@ -87,7 +87,7 @@ export default function CompanyDashboard() {
         </div>
 
         {/* Pending Actions for Company */}
-        <div className="glass-panel p-8 rounded-[42px] border border-white/5">
+        <div className="glass-panel p-5 sm:p-8 rounded-[42px] border border-white/5">
            <h3 className="text-xl font-bold mb-6">Approval Queue</h3>
            <div className="space-y-4">
               {[

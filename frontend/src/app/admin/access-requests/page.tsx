@@ -70,7 +70,7 @@ export default function AccessRequestsPage() {
               <span className="ml-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-black text-[10px] font-black">{pendingCount}</span>
             )}
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Network <span className="text-gradient">Applications</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">Network <span className="text-gradient">Applications</span></h1>
           <p className="text-[var(--text-secondary)]">Review and respond to access requests from the landing page.</p>
         </div>
         <button onClick={fetchRequests} className="p-3 rounded-2xl glass-panel hover:bg-[var(--glass-bg-hover)] transition-all self-start sm:self-auto">
@@ -149,7 +149,7 @@ export default function AccessRequestsPage() {
       {/* Review Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-lg rounded-[32px] p-8 border border-white/10 shadow-2xl">
+          <div className="glass-panel w-full max-w-lg rounded-[32px] p-5 sm:p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold mb-1">Review Application</h3>
             <p className="text-[var(--text-muted)] text-sm mb-6">from <span className="font-bold text-[var(--text-primary)]">{selectedRequest.fullName}</span></p>
 

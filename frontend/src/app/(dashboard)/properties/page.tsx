@@ -461,7 +461,7 @@ export default function PropertiesPage() {
             <Building2 className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Premium Portfolio</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight mb-1">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-1">
             Property <span className="text-indigo-600">Marketplace</span>
           </h1>
           <p className="text-neutral-500 font-medium">{config?.properties?.pageSubtitle || 'Browse verified real estate listings.'}</p>

@@ -55,7 +55,7 @@ export default function PropertyAnalyticsPage() {
             <BarChart3 className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">Advanced Telemetry</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight mb-2">Visitor <span className="text-gradient">Intelligence</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">Visitor <span className="text-gradient">Intelligence</span></h1>
           <p className="text-[var(--text-secondary)]">Tracking interaction density and conversion velocity across your portfolio.</p>
         </div>
         

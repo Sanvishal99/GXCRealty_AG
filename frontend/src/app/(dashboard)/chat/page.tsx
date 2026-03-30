@@ -5,7 +5,7 @@ import { useAppConfig } from '@/context/AppConfigContext';
 import { useUserProfile } from '@/context/UserProfileContext';
 import { chat as chatApi } from '@/lib/api';
 import { getToken } from '@/lib/api';
-import { Send, Search, MessageSquare, Circle } from 'lucide-react';
+import { Send, Search, MessageSquare, Circle, ArrowLeft } from 'lucide-react';
 
 interface Contact {
   user: { id: string; email: string; role: string };
@@ -118,6 +118,8 @@ export default function ChatPage() {
     else groupedMessages.push({ date, messages: [msg] });
   }
 
+  const [mobileShowChat, setMobileShowChat] = useState(false);
+
   return (
     <div className="h-screen w-full flex flex-col p-4 md:p-6 pb-0 overflow-hidden relative z-10 text-[var(--text-primary)]">
       <div className="fixed top-1/2 right-0 w-[400px] h-[400px] glow-orb-1 rounded-full blur-[140px] pointer-events-none opacity-30 translate-x-1/2" />
@@ -137,7 +139,7 @@ export default function ChatPage() {
 
       <div className="flex-1 glass-panel rounded-t-3xl border-b-0 overflow-hidden flex flex-col md:flex-row">
         {/* Contacts Sidebar */}
-        <div className="w-full md:w-80 border-r border-[var(--border-subtle)] flex flex-col bg-[var(--glass-bg)]">
+        <div className={`${mobileShowChat ? 'hidden' : 'flex'} md:flex w-full md:w-80 border-r border-[var(--border-subtle)] flex-col bg-[var(--glass-bg)]`}>
           <div className="p-4 border-b border-[var(--border-subtle)]">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
@@ -170,7 +172,7 @@ export default function ChatPage() {
                 filteredContacts.map((c) => {
                   const isActive = selectedContact?.user.id === c.user.id;
                   return (
-                    <div key={c.user.id} onClick={() => setSelectedContact(c)}
+                    <div key={c.user.id} onClick={() => { setSelectedContact(c); setMobileShowChat(true); }}
                       className={`p-3 flex items-center gap-3 cursor-pointer rounded-2xl transition-all mb-1 ${
                         isActive ? 'glass-panel border border-indigo-500/30 bg-indigo-500/10' : 'hover:bg-[var(--glass-bg-hover)]'
                       }`}
@@ -196,7 +198,7 @@ export default function ChatPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col min-w-0" style={{ background: 'var(--bg-primary)' }}>
+        <div className={`${mobileShowChat ? 'flex' : 'hidden'} md:flex flex-1 flex-col min-w-0`} style={{ background: 'var(--bg-primary)' }}>
           {!selectedContact ? (
             <div className="flex-1 flex items-center justify-center flex-col gap-4 opacity-40">
               <MessageSquare className="w-16 h-16" />
@@ -206,6 +208,9 @@ export default function ChatPage() {
             <>
               {/* Chat Header */}
               <div className="p-4 border-b border-[var(--border-subtle)] flex items-center gap-3 bg-[var(--bg-elevated)] shrink-0">
+                <button onClick={() => setMobileShowChat(false)} className="md:hidden p-1.5 rounded-xl hover:bg-[var(--glass-bg-hover)] transition-colors">
+                  <ArrowLeft className="w-5 h-5" />
+                </button>
                 <div className="relative">
                   <div className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${getGradient(selectedContact.user.role)} flex items-center justify-center font-bold text-sm text-white shadow-lg`}>
                     {getInitials(selectedContact.user.email)}

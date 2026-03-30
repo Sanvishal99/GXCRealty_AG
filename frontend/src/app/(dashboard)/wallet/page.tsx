@@ -177,7 +177,7 @@ export default function WalletPage() {
       </header>
 
       {/* ── Balance + Quick Stats ───────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Balance Card */}
         <div
           className="lg:col-span-1 glass-panel rounded-3xl p-8 relative overflow-hidden stat-card-emerald"
@@ -351,7 +351,7 @@ export default function WalletPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <form
             onSubmit={handleSubmitRequest}
-            className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/10 shadow-2xl"
+            className="glass-panel w-full max-w-md rounded-3xl p-5 sm:p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto"
           >
             {/* Modal header */}
             <div className="flex items-center justify-between mb-6">

@@ -222,7 +222,7 @@ export default function AgentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 mb-8">
 
         {/* Pipeline Funnel */}
-        <div className="lg:col-span-2 glass-panel rounded-[42px] p-8 border border-white/5">
+        <div className="lg:col-span-2 glass-panel rounded-[42px] p-5 sm:p-8 border border-white/5">
           <h3 className="text-xl font-bold mb-2">Lead Pipeline</h3>
           <p className="text-xs text-[var(--text-secondary)] mb-6 uppercase tracking-widest font-bold">Funnel by stage</p>
 
@@ -263,7 +263,7 @@ export default function AgentDashboard() {
         </div>
 
         {/* Monthly Performance Chart */}
-        <div className="glass-panel p-8 rounded-[42px] border border-white/5 flex flex-col">
+        <div className="glass-panel p-5 sm:p-8 rounded-[42px] border border-white/5 flex flex-col">
           <h3 className="text-xl font-bold mb-1">Monthly Deals</h3>
           <p className="text-xs text-[var(--text-secondary)] mb-6 uppercase tracking-widest font-bold">Last 6 months</p>
 
@@ -313,7 +313,7 @@ export default function AgentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
 
         {/* Recent Deals */}
-        <div className="glass-panel p-8 rounded-[42px] border border-white/5">
+        <div className="glass-panel p-5 sm:p-8 rounded-[42px] border border-white/5">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
             <Handshake className="w-5 h-5 text-emerald-500" /> Recent Deals
           </h3>
@@ -363,7 +363,7 @@ export default function AgentDashboard() {
         </div>
 
         {/* Upcoming Visits */}
-        <div className="glass-panel p-8 rounded-[42px] border border-white/5">
+        <div className="glass-panel p-5 sm:p-8 rounded-[42px] border border-white/5">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-indigo-400" /> Upcoming Visits
           </h3>

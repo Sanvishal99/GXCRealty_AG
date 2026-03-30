@@ -64,7 +64,7 @@ function CloseDealModal({ visit, onClose, onSuccess }: CloseDealModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <form onSubmit={handleSubmit} className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/10 shadow-2xl">
+      <form onSubmit={handleSubmit} className="glass-panel w-full max-w-md rounded-3xl p-5 sm:p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold">Close Deal</h2>
@@ -263,7 +263,7 @@ export default function VisitsPage() {
             visits.map((visit) => {
               const style = STATUS_STYLE[visit.status] || STATUS_STYLE.PENDING;
               return (
-                <div key={visit.id} className="glass-panel rounded-2xl p-5 flex items-center gap-5 border border-white/5 shadow-sm">
+                <div key={visit.id} className="glass-panel rounded-2xl p-4 sm:p-5 flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-4 sm:gap-5 border border-white/5 shadow-sm">
                   <div className="w-14 h-14 rounded-xl flex-shrink-0 flex items-center justify-center bg-indigo-500/10 text-2xl">🏠</div>
                   <div className="flex-1 min-w-0">
                     <span className="text-[10px] font-bold text-indigo-500 uppercase block mb-1">{formatScheduled(visit.scheduledAt)}</span>
@@ -348,7 +348,7 @@ export default function VisitsPage() {
       {/* Schedule Visit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <form onSubmit={handleSubmit} className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/10 shadow-2xl">
+          <form onSubmit={handleSubmit} className="glass-panel w-full max-w-md rounded-3xl p-5 sm:p-8 border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Schedule Visit</h2>
               <button type="button" onClick={() => { setIsModalOpen(false); setSubmitError(''); }}

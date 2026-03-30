@@ -1,10 +1,11 @@
 "use client";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
 import { useAppConfig } from '@/context/AppConfigContext';
+import { useUserProfile } from '@/context/UserProfileContext';
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogOut } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import { accessRequests as accessRequestsApi } from '@/lib/api';
 
@@ -30,9 +31,20 @@ const MOBILE_MORE    = adminNav.slice(4);
 export default function AdminSidebar() {
   const { theme, toggleTheme } = useTheme();
   const { config } = useAppConfig();
+  const { profile, logout } = useUserProfile();
   const pathname = usePathname();
+  const router = useRouter();
   const [pendingAccessCount, setPendingAccessCount] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
+  const adminInitials = profile?.fullName
+    ? profile.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'SA';
 
   useEffect(() => {
     accessRequestsApi.pendingCount()
@@ -114,15 +126,22 @@ export default function AdminSidebar() {
             style={{ background: 'linear-gradient(135deg, rgba(244,63,94,0.12) 0%, rgba(249,115,22,0.08) 100%)' }}>
             <div className="absolute -right-4 -top-4 w-16 h-16 bg-rose-500/10 rounded-full blur-xl pointer-events-none" />
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0 shadow-lg relative z-10">
-              SA
+              {adminInitials}
             </div>
-            <div className="min-w-0 relative z-10">
-              <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>Super Admin</p>
+            <div className="min-w-0 relative z-10 flex-1">
+              <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile?.fullName || 'Super Admin'}</p>
               <p className="text-[10px] font-semibold text-rose-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block" />
                 Full Access
               </p>
             </div>
+            <button
+              onClick={handleLogout}
+              className="relative z-10 w-8 h-8 rounded-xl flex items-center justify-center hover:bg-rose-500/20 transition-all flex-shrink-0"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4 text-rose-400" />
+            </button>
           </div>
         </div>
       </aside>
@@ -236,12 +255,19 @@ export default function AdminSidebar() {
               <div className="glass-panel rounded-2xl p-3 flex items-center gap-3"
                 style={{ background: 'linear-gradient(135deg, rgba(244,63,94,0.12) 0%, rgba(249,115,22,0.08) 100%)' }}>
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                  SA
+                  {adminInitials}
                 </div>
-                <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Super Admin</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile?.fullName || 'Super Admin'}</p>
                   <p className="text-[10px] font-semibold text-rose-400">Full Access</p>
                 </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-rose-500/20 transition-all flex-shrink-0"
+                  title="Logout"
+                >
+                  <LogOut className="w-4 h-4 text-rose-400" />
+                </button>
               </div>
             </div>
           </div>

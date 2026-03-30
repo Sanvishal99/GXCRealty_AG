@@ -101,7 +101,7 @@ export default function AdminContentEditor() {
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-panel">
             <span className="text-xs font-semibold text-rose-500 uppercase tracking-widest">Admin</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Content <span className="text-gradient">Editor</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">Content <span className="text-gradient">Editor</span></h1>
           <p className="text-[var(--text-secondary)]">Configure every piece of text, branding, and feature across the platform.</p>
         </div>
         <button onClick={handleReset}
@@ -115,23 +115,25 @@ export default function AdminContentEditor() {
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Section Nav */}
-        <div className="lg:col-span-1 space-y-2">
-          <div className="glass-panel rounded-2xl p-4 mb-4 text-center grad-rose">
+        <div className="lg:col-span-1">
+          <div className="glass-panel rounded-2xl p-4 mb-4 text-center grad-rose hidden lg:block">
             <div className="text-4xl mb-2">⚙️</div>
             <p className="text-sm font-bold text-[var(--text-primary)]">Platform Config</p>
             <p className="text-xs text-[var(--text-secondary)] mt-1">Changes are saved to localStorage and apply instantly across the app.</p>
           </div>
+          <div className="flex overflow-x-auto gap-2 pb-1 lg:flex-col lg:overflow-visible lg:pb-0 lg:space-y-2 -mx-1 px-1">
           {SECTIONS.map(s => (
             <button key={s.id} onClick={() => setActive(s.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-semibold text-left ${
+              className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-semibold text-left ${
                 active === s.id ? `bg-gradient-to-r ${s.grad} text-white shadow-lg` : 'glass-panel text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]'
               }`}>
               <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={s.icon} />
               </svg>
-              {s.label}
+              <span className="whitespace-nowrap lg:whitespace-normal">{s.label}</span>
             </button>
           ))}
+          </div>
         </div>
 
         {/* Editor Panel */}

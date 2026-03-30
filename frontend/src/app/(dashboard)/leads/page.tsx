@@ -873,7 +873,7 @@ export default function LeadsPage() {
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full bg-violet-50 border border-violet-100">
             <span className="text-xs font-bold text-violet-600 uppercase tracking-widest">Lead Tracker</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight mb-1">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-1">
             My <span className="text-indigo-600">Pipeline</span>
           </h1>
           <p className="text-neutral-500 font-medium">
@@ -982,8 +982,8 @@ export default function LeadsPage() {
 
       {/* List View */}
       {viewMode === 'list' && filtered.length > 0 && (
-        <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
-          <table className="w-full text-sm">
+        <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
             <thead className="border-b border-neutral-100">
               <tr>
                 {['Buyer', 'Contact', 'Budget', 'Interested In', 'Stage', 'Visit', 'Added', ''].map(h => (

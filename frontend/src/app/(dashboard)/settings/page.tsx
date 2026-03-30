@@ -137,13 +137,13 @@ export default function SettingsPage() {
         <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-panel">
           <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">Account</span>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight mb-2">User <span className="text-gradient">Settings</span></h1>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">User <span className="text-gradient">Settings</span></h1>
         <p className="text-[var(--text-secondary)]">Manage your profile, preferences, and account security.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-2">
+        <div className="lg:col-span-1">
           {/* Avatar Card */}
           <div className="glass-panel rounded-3xl p-5 mb-4 relative overflow-hidden text-center"
             style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%)' }}>
@@ -189,10 +189,11 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Section tabs */}
+          {/* Section tabs — horizontal scroll on mobile, vertical on desktop */}
+          <div className="flex overflow-x-auto gap-2 pb-1 lg:flex-col lg:overflow-visible lg:pb-0 lg:space-y-2 -mx-1 px-1">
           {SECTIONS.map(s => (
             <button key={s.id} onClick={() => setActive(s.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-semibold text-left group ${
+              className={`flex-shrink-0 lg:flex-shrink lg:w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all text-sm font-semibold text-left group ${
                 active === s.id
                   ? `bg-gradient-to-r ${s.grad} text-white shadow-lg`
                   : 'glass-panel text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--glass-bg-hover)]'
@@ -200,14 +201,15 @@ export default function SettingsPage() {
               <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={s.icon} />
               </svg>
-              {s.label}
+              <span className="whitespace-nowrap lg:whitespace-normal">{s.label}</span>
               {active === s.id && (
-                <svg className="w-4 h-4 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 ml-auto hidden lg:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               )}
             </button>
           ))}
+          </div>
         </div>
 
         {/* Main Panel */}

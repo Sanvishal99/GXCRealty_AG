@@ -75,7 +75,7 @@ export default function LoginPage() {
         {/* Login Card */}
         <div className="bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-neutral-200/80">
           <div className="h-1.5 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-          <div className="p-8">
+          <div className="p-5 sm:p-8">
             <h2 className="text-xl font-bold text-neutral-900 mb-6">Sign In to Portal</h2>
             <form className="space-y-5" onSubmit={handleLogin}>
               <div>

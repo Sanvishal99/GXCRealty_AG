@@ -233,6 +233,8 @@ export class PropertiesService {
     if (role !== Role.ADMIN && property.companyId !== companyId) {
       throw new ForbiddenException('You can only edit your own properties.');
     }
-    return this.prisma.property.update({ where: { id: propertyId }, data });
+    const flat = this.flattenPropertyData(data);
+    const { units, ...rest } = flat;
+    return this.prisma.property.update({ where: { id: propertyId }, data: rest });
   }
 }

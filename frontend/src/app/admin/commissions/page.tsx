@@ -102,13 +102,13 @@ export default function AdminCommissionsPage() {
   const companyRupees = totalCommissionRupees * (companySplit / 100);
 
   return (
-    <div className="p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
+    <div className="p-4 sm:p-6 md:p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
        <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full glass-panel border-[var(--border-medium)]">
             <span className="text-xs font-semibold text-rose-500 uppercase tracking-widest">Financial Engineering</span>
           </div>
-          <h1 className="text-4xl font-bold tracking-tight mb-2">Incentive <span className="text-gradient">Architect</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2">Incentive <span className="text-gradient">Architect</span></h1>
           <p className="text-[var(--text-secondary)]">Design how the property incentive pool is divided between advisors, network, and company.</p>
         </div>
         <button 
@@ -122,7 +122,7 @@ export default function AdminCommissionsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left: Configuration */}
         <div className="space-y-6">
-           <div className="glass-panel-glow rounded-[32px] p-8 border border-white/5">
+           <div className="glass-panel-glow rounded-[32px] p-5 sm:p-8 border border-white/5">
               <h3 className="text-xl font-black mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-500 flex items-center justify-center text-sm">🏛️</span>
                 The 3-Way Split (The "Incentive Pool" = 100%)
@@ -163,7 +163,7 @@ export default function AdminCommissionsPage() {
               </div>
            </div>
 
-           <div className="glass-panel-glow rounded-[32px] p-8 border border-white/5">
+           <div className="glass-panel-glow rounded-[32px] p-5 sm:p-8 border border-white/5">
               <h3 className="text-xl font-black mb-6 flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-500 flex items-center justify-center text-sm">📂</span>
                 Downline Tier Splitting (of the {networkSplit}% Network Pool)
@@ -190,8 +190,8 @@ export default function AdminCommissionsPage() {
         </div>
 
         {/* Right: Real-time Simulator */}
-        <div className="sticky top-8">
-           <div className="glass-panel-glow rounded-[40px] p-8 border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="md:sticky md:top-8">
+           <div className="glass-panel-glow rounded-[40px] p-5 sm:p-8 border border-white/10 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 p-32 bg-indigo-500/10 blur-[100px] rounded-full" />
               
               <div className="relative z-10">

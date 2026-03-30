@@ -120,26 +120,25 @@ export default function UserDetailPage() {
   const counts = user._count || {};
 
   return (
-    <div className="p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
+    <div className="p-4 sm:p-6 md:p-8 relative z-10 w-full max-w-7xl mx-auto text-[var(--text-primary)]">
       <button onClick={() => router.back()} className="mb-6 flex items-center gap-2 text-sm font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to User Directory
       </button>
 
       <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div className="flex items-center gap-6">
-          <div className={`w-24 h-24 rounded-[32px] bg-gradient-to-br ${ROLE_GRAD[user.role] || ROLE_GRAD.AGENT} flex items-center justify-center text-4xl font-black text-white shadow-xl`}>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className={`w-16 h-16 sm:w-24 sm:h-24 rounded-[24px] sm:rounded-[32px] bg-gradient-to-br ${ROLE_GRAD[user.role] || ROLE_GRAD.AGENT} flex items-center justify-center text-2xl sm:text-4xl font-black text-white shadow-xl flex-shrink-0`}>
             {displayName[0]?.toUpperCase()}
           </div>
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-4xl font-black tracking-tight">{displayName}</h1>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight">{displayName}</h1>
               <span className={`badge ${statusStyle.color} ${statusStyle.bg}`}>{user.status.replace('_', ' ')}</span>
             </div>
-            <p className="text-[var(--text-secondary)] font-medium flex items-center gap-4">
-              <span>{user.email}</span>
-              <span className="opacity-30">|</span>
-              <span>{user.phone}</span>
-              <span className="opacity-30">|</span>
+            <p className="text-[var(--text-secondary)] font-medium flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
+              <span className="truncate">{user.email}</span>
+              {user.phone && <><span className="opacity-30 hidden sm:inline">|</span><span>{user.phone}</span></>}
+              <span className="opacity-30 hidden sm:inline">|</span>
               <span className="text-indigo-400 font-bold">{user.role}</span>
             </p>
           </div>
@@ -170,12 +169,12 @@ export default function UserDetailPage() {
         {/* Left: General Info + Bank + KYC */}
         <div className="lg:col-span-2 space-y-8">
           {/* Profile */}
-          <section className="glass-panel rounded-[40px] p-8 border border-white/5">
+          <section className="glass-panel rounded-[40px] p-5 sm:p-8 border border-white/5">
             <h3 className="text-xl font-black mb-6 flex items-center gap-3">
               <span className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center text-sm">👤</span>
               Profile
             </h3>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-widest block mb-1.5">Email</label>
                 <p className="font-bold truncate">{user.email}</p>
@@ -211,7 +210,7 @@ export default function UserDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Bank Details */}
             {kyc && (
-              <section className="glass-panel rounded-[40px] p-8 border border-white/5 grad-emerald">
+              <section className="glass-panel rounded-[40px] p-5 sm:p-8 border border-white/5 grad-emerald">
                 <h3 className="text-xl font-black mb-6 flex items-center gap-3">
                   <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center text-sm">🏦</span>
                   Settlement Account
@@ -256,7 +255,7 @@ export default function UserDetailPage() {
             )}
 
             {/* KYC Documents */}
-            <section className="glass-panel rounded-[40px] p-8 border border-white/5 relative overflow-hidden">
+            <section className="glass-panel rounded-[40px] p-5 sm:p-8 border border-white/5 relative overflow-hidden">
               <h3 className="text-xl font-black mb-6 flex items-center gap-3">
                 <span className="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-500 flex items-center justify-center text-sm">📄</span>
                 Compliance Docs
@@ -308,7 +307,7 @@ export default function UserDetailPage() {
 
         {/* Right: Stats */}
         <div className="space-y-6">
-          <section className="glass-panel rounded-[40px] p-8 border border-indigo-500/10 shadow-2xl relative overflow-hidden">
+          <section className="glass-panel rounded-[40px] p-5 sm:p-8 border border-indigo-500/10 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-32 bg-indigo-500/10 blur-[100px] rounded-full" />
             <h3 className="text-xl font-black mb-8 relative z-10">Account Stats</h3>
             <div className="space-y-6 relative z-10">
@@ -334,36 +333,13 @@ export default function UserDetailPage() {
             </div>
           </section>
 
-          <section className="glass-panel rounded-[40px] p-6 border border-white/5">
-            <h3 className="text-sm font-black uppercase text-[var(--text-muted)] tracking-widest mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => setShowResetPwd(true)}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-sm hover:bg-amber-500/20 transition-all"
-              >
-                <Lock className="w-4 h-4" /> Reset Password
-              </button>
-              <button
-                onClick={handleToggleStatus}
-                disabled={togglingStatus}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all ${
-                  user.status === 'ACTIVE'
-                    ? 'bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20'
-                    : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20'
-                }`}
-              >
-                {togglingStatus ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-                {user.status === 'ACTIVE' ? 'Suspend Account' : 'Activate Account'}
-              </button>
-            </div>
-          </section>
         </div>
       </div>
 
       {/* Reset Password Modal */}
       {showResetPwd && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-          <div className="glass-panel w-full max-w-md rounded-[32px] p-8 border border-white/10 shadow-2xl">
+          <div className="glass-panel w-full max-w-md rounded-[32px] p-5 sm:p-8 border border-white/10 shadow-2xl">
             <h3 className="text-xl font-bold mb-2">Reset Password</h3>
             <p className="text-[var(--text-muted)] text-sm mb-6">Set a new password for <span className="font-bold text-[var(--text-primary)]">{user.email}</span></p>
             <div className="space-y-4">

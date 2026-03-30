@@ -94,7 +94,7 @@ export default function AdminAnalyticsPage() {
             <BarChart3 className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-semibold text-indigo-500 uppercase tracking-widest">Platform Intelligence</span>
           </div>
-          <h1 className="text-4xl font-black tracking-tight mb-2">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-2">
             Admin <span className="text-gradient">Analytics</span>
           </h1>
           <p className="text-[var(--text-secondary)]">Real-time platform health, revenue, and network activity.</p>
@@ -142,7 +142,7 @@ export default function AdminAnalyticsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             {/* Revenue Chart */}
-            <div className="lg:col-span-2 glass-panel rounded-3xl p-8 border border-white/5">
+            <div className="lg:col-span-2 glass-panel rounded-3xl p-5 sm:p-8 border border-white/5">
               <div className="flex items-center justify-between mb-8">
                 <h3 className="text-xl font-bold flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-emerald-500" /> Monthly Revenue
@@ -290,7 +290,7 @@ export default function AdminAnalyticsPage() {
           </div>
 
           {/* Property breakdown */}
-          <div className="mt-8 glass-panel rounded-3xl p-8 border border-white/5">
+          <div className="mt-8 glass-panel rounded-3xl p-5 sm:p-8 border border-white/5">
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-purple-500" /> Inventory Status
             </h3>

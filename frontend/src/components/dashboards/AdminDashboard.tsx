@@ -17,7 +17,7 @@ export default function AdminDashboard() {
     <div className="p-6 md:p-8 animate-in slide-in-from-bottom-6 duration-700">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black mb-2 tracking-tight">Admin <span className="text-gradient">Console</span></h1>
+          <h1 className="text-2xl sm:text-4xl font-black mb-2 tracking-tight">Admin <span className="text-gradient">Console</span></h1>
           <p className="text-[var(--text-secondary)] font-medium">System-wide governance and network health monitoring.</p>
         </div>
         <div className="flex gap-3">
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Global Growth Analytics */}
-        <div className="lg:col-span-2 glass-panel rounded-[42px] p-8 border border-white/5 min-h-[500px] flex flex-col relative overflow-hidden bg-gradient-to-br from-indigo-500/5 via-transparent to-transparent">
+        <div className="lg:col-span-2 glass-panel rounded-[42px] p-5 sm:p-8 border border-white/5 min-h-[300px] sm:min-h-[500px] flex flex-col relative overflow-hidden bg-gradient-to-br from-indigo-500/5 via-transparent to-transparent">
            <div className="absolute top-0 right-0 p-12 opacity-[0.02] rotate-12"><ShieldAlert className="w-64 h-64" /></div>
            <h3 className="text-xl font-bold flex items-center gap-2 mb-8">
               <BarChart3 className="w-5 h-5 text-indigo-500" />
@@ -78,7 +78,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Admin Alerts & Security Queue */}
-        <div className="glass-panel p-8 rounded-[42px] border border-white/5">
+        <div className="glass-panel p-5 sm:p-8 rounded-[42px] border border-white/5">
            <h3 className="text-xl font-bold mb-6 flex items-center justify-between">
               Critical Actions
               <span className="p-1 px-3 rounded-xl bg-indigo-500 text-white text-[10px] font-black animate-pulse">LIVE</span>
