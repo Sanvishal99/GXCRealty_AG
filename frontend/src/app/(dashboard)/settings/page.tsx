@@ -452,7 +452,7 @@ export default function SettingsPage() {
                   {(Object.entries(notifPrefs) as [keyof typeof notifPrefs, boolean][]).map(([key, val]) => {
                     const labels: Record<string, { label: string; desc: string }> = {
                       dealAlerts:      { label: 'Deal Alerts',        desc: 'Notify when a deal is closed or updated' },
-                      commissionPay:   { label: 'Commission Payouts', desc: 'Alert when commission is credited to your wallet' },
+                      commissionPay:   { label: 'Incentive Payouts',  desc: 'Alert when an incentive is credited to your wallet' },
                       visitReminders:  { label: 'Visit Reminders',    desc: 'Reminders 1 hour before scheduled property visits' },
                       networkActivity: { label: 'Network Activity',   desc: 'Updates when your downline closes deals' },
                       marketingEmails: { label: 'Marketing Emails',   desc: 'Platform announcements and promotions' },

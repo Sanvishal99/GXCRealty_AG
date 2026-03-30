@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 
 export type CurrencyCode = 'INR' | 'USD' | 'EUR' | 'GBP';
 
@@ -12,18 +12,23 @@ interface CurrencyContextProps {
 const CurrencyContext = createContext<CurrencyContextProps | undefined>(undefined);
 
 export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
-  const [currency, setCurrency] = useState<CurrencyCode>('INR'); // Default to INR
+  const [currency, setCurrency] = useState<CurrencyCode>('INR');
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: currency,
+      currency,
       maximumFractionDigits: 2,
     }).format(amount);
-  };
+  }, [currency]);
+
+  const value = useMemo(
+    () => ({ currency, setCurrency, formatCurrency }),
+    [currency, formatCurrency]
+  );
 
   return (
-    <CurrencyContext.Provider value={{ currency, setCurrency, formatCurrency }}>
+    <CurrencyContext.Provider value={value}>
       {children}
     </CurrencyContext.Provider>
   );

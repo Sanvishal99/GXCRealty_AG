@@ -60,6 +60,8 @@ export const auth = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  validateInvite: (code: string) =>
+    request<{ valid: boolean; referrerEmail: string; referrerName: string; code: string }>(`/auth/invite/${code}`),
 };
 
 // ── Users ────────────────────────────────────────────────────────────────────
@@ -211,6 +213,16 @@ export const auditLogs = {
 export const bulkImport = {
   properties: (rows: any[]) =>
     request<any>('/properties/bulk-import', { method: 'POST', body: JSON.stringify({ rows }) }),
+};
+
+// ── Network / Downline ────────────────────────────────────────────────────────
+export const network = {
+  tree: () => request<any>('/network/tree'),
+  node: (userId: string, depth?: number) =>
+    request<any>(`/network/node/${userId}${depth ? `?depth=${depth}` : ''}`),
+  summary: () => request<any>('/network/summary'),
+  activity: (limit?: number) =>
+    request<any[]>(`/network/activity${limit ? `?limit=${limit}` : ''}`),
 };
 
 // ── Access Requests ───────────────────────────────────────────────────────────

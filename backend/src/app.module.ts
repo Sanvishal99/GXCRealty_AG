@@ -18,6 +18,7 @@ import { WithdrawalModule } from './withdrawal/withdrawal.module';
 import { CompanyInviteModule } from './company-invite/company-invite.module';
 import { AccessRequestModule } from './access-request/access-request.module';
 import { HealthModule } from './health/health.module';
+import { NetworkModule } from './network/network.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { HealthModule } from './health/health.module';
     CompanyInviteModule,
     AccessRequestModule,
     HealthModule,
+    NetworkModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommissionService } from '../commission/commission.service';
+import { ChatGateway } from '../chat/chat.gateway';
+import { NetworkService } from '../network/network.service';
 import { PropertyStatus } from '@prisma/client';
 
 @Injectable()
@@ -8,6 +10,8 @@ export class DealsService {
   constructor(
     private prisma: PrismaService,
     private commissionService: CommissionService,
+    private chatGateway: ChatGateway,
+    private networkService: NetworkService,
   ) {}
 
   async closeDeal(propertyId: string, agentId: string) {
@@ -20,7 +24,6 @@ export class DealsService {
       throw new BadRequestException('Property is not available for deals');
     }
 
-    // Sale price and commission rate are set by the company on the property listing
     const salePrice = property.price;
     if (!salePrice || salePrice <= 0) {
       throw new BadRequestException('Property does not have a sale price set. Ask the company to update the listing.');
@@ -45,6 +48,28 @@ export class DealsService {
       salePrice,
       totalCommissionRate,
     );
+
+    // Notify upline of the deal close
+    try {
+      const agent = await this.prisma.user.findUnique({
+        where: { id: agentId },
+        select: { email: true },
+      });
+      const uplineIds = await this.networkService.getUplineChain(agentId);
+      for (const uplineId of uplineIds) {
+        this.chatGateway.emitToUser(uplineId, 'networkActivity', {
+          type: 'DEAL_CLOSED',
+          agentId,
+          agentEmail: agent?.email ?? agentId,
+          title: 'Deal closed 🎉',
+          detail: `${(agent?.email ?? agentId).split('@')[0]} closed a deal on "${property.title}" for ₹${(salePrice / 100000).toFixed(1)}L`,
+          timestamp: deal.createdAt,
+          meta: { dealId: deal.id, propertyTitle: property.title, salePrice },
+        });
+      }
+    } catch {
+      // Non-blocking
+    }
 
     return { deal, distribution, salePrice, commissionPoolPct: property.commissionPoolPct ?? 2 };
   }

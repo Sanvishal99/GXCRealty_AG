@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCurrency } from '@/context/CurrencyContext';
 import { useAppConfig } from '@/context/AppConfigContext';
 import { useProperties, Property } from '@/context/PropertyContext';
+import { SkeletonPropertiesGrid } from '@/components/Skeleton';
 import {
   Search, SlidersHorizontal, X, Building2, MapPin, ChevronDown,
   LayoutGrid, List, Group, ArrowUpDown, Filter, Bed, Bath, Ruler,
@@ -351,7 +352,7 @@ function CompareOverlay({
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function PropertiesPage() {
-  const { properties } = useProperties();
+  const { properties, isLoading: propertiesLoading } = useProperties();
   const { formatCurrency } = useCurrency();
   const { config } = useAppConfig();
 
@@ -441,6 +442,12 @@ export default function PropertiesPage() {
   }, [filtered, groupMode]);
 
   const totalVolume = approvedProperties.reduce((acc, p) => acc + getMinPrice(p), 0);
+
+  if (propertiesLoading) return (
+    <div className="p-6 md:p-8 w-full max-w-7xl mx-auto">
+      <SkeletonPropertiesGrid />
+    </div>
+  );
 
   return (
     <div className="p-6 md:p-8 w-full text-neutral-900 min-h-screen bg-[#fafafa]">

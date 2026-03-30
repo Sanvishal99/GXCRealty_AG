@@ -7,6 +7,7 @@ import { deals as dealsApi } from '@/lib/api';
 import { useProperties } from '@/context/PropertyContext';
 import { isAdmin, isCompany } from '@/lib/constants';
 import { ShieldCheck, TrendingUp, Calculator, IndianRupee, Users, User, Search, X } from 'lucide-react';
+import { SkeletonDeals } from '@/components/Skeleton';
 
 interface Deal {
   id: string;
@@ -102,8 +103,8 @@ export default function DealsPage() {
             {userIsAdmin ? 'All Deals' : 'Your Project Deals'}
           </h3>
           {isLoadingDeals ? (
-            <div className="glass-panel p-12 text-center opacity-50 rounded-3xl">Loading deals…</div>
-          ) : deals.length === 0 ? (
+            <SkeletonDeals />
+          ) :deals.length === 0 ? (
             <div className="glass-panel p-12 text-center opacity-50 rounded-3xl">No deals found.</div>
           ) : (
             deals.map(deal => (

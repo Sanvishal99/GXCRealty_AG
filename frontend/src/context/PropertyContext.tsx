@@ -119,8 +119,8 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated, profile?.role]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (isAuthenticated) refresh();
+  }, [isAuthenticated, refresh]);
 
   const addProperty = useCallback(async (data: any): Promise<Property> => {
     const created = await propertiesApi.create(data);

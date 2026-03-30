@@ -5,10 +5,17 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
-  async saveMessage(senderId: string, receiverId: string, content: string) {
+  async saveMessage(senderId: string, receiverId: string, content: string, mentionedUserIds?: string[]) {
     return this.prisma.message.create({
-      data: { senderId, receiverId, content },
-      include: { sender: { select: { email: true, phone: true } } }
+      data: {
+        senderId,
+        receiverId,
+        content,
+        ...(mentionedUserIds && mentionedUserIds.length > 0 ? { mentions: mentionedUserIds } : {}),
+      },
+      include: {
+        sender: { select: { id: true, email: true, role: true } },
+      },
     });
   }
 
@@ -17,10 +24,24 @@ export class ChatService {
       where: {
         OR: [
           { senderId: userId1, receiverId: userId2 },
-          { senderId: userId2, receiverId: userId1 }
-        ]
+          { senderId: userId2, receiverId: userId1 },
+        ],
       },
-      orderBy: { createdAt: 'asc' }
+      include: {
+        sender: { select: { id: true, email: true, role: true } },
+      },
+      orderBy: { createdAt: 'asc' },
     });
+  }
+
+  // Parse @handle patterns from message content, return handles (email prefix or full email)
+  parseMentionHandles(content: string): string[] {
+    const regex = /@([\w.+-]+@[\w.-]+\.\w+|[\w.+-]+)/g;
+    const handles: string[] = [];
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(content)) !== null) {
+      handles.push(match[1].toLowerCase());
+    }
+    return [...new Set(handles)];
   }
 }

@@ -7,6 +7,7 @@ import { useProperties } from '@/context/PropertyContext';
 import { visits as visitsApi, deals as dealsApi, ApiError } from '@/lib/api';
 import { isAdmin, isCompany } from '@/lib/constants';
 import { Calendar, Plus, Check, X, RefreshCw, Handshake, IndianRupee } from 'lucide-react';
+import { SkeletonVisits } from '@/components/Skeleton';
 
 interface Visit {
   id: string;
@@ -241,18 +242,7 @@ export default function VisitsPage() {
           <h3 className="text-xl font-bold mb-2">{userIsCompany ? 'Approval Queue' : 'Your Schedule'}</h3>
 
           {isLoading ? (
-            <div className="space-y-3">
-              {[1,2,3].map(i => (
-                <div key={i} className="glass-panel rounded-2xl p-5 flex items-center gap-5 animate-pulse">
-                  <div className="w-14 h-14 rounded-xl bg-white/10 flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-white/10 rounded w-1/3" />
-                    <div className="h-5 bg-white/10 rounded w-2/3" />
-                    <div className="h-3 bg-white/5 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SkeletonVisits />
           ) : visits.length === 0 ? (
             <div className="glass-panel rounded-3xl p-12 text-center opacity-50">
               <Calendar className="w-10 h-10 mx-auto mb-3" />

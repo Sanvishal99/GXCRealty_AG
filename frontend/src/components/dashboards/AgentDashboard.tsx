@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUserProfile } from '@/context/UserProfileContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useCurrency } from '@/context/CurrencyContext';
@@ -115,20 +115,26 @@ export default function AgentDashboard() {
   const totalDeals = stats?.deals?.total ?? 0;
 
   // Monthly chart
-  const monthly = stats?.deals?.monthly?.slice(-6) ?? [];
-  const maxDeals = Math.max(...monthly.map(m => m.deals), 1);
+  const monthly = useMemo(() => stats?.deals?.monthly?.slice(-6) ?? [], [stats?.deals?.monthly]);
+  const maxDeals = useMemo(() => Math.max(...monthly.map(m => m.deals), 1), [monthly]);
 
   // Pipeline funnel
-  const byStage = stats?.leads?.byStage ?? {};
-  const maxStageCount = Math.max(...PIPELINE_STAGES.map(s => byStage[s] ?? 0), 1);
+  const byStage = useMemo(() => stats?.leads?.byStage ?? {}, [stats?.leads?.byStage]);
+  const maxStageCount = useMemo(
+    () => Math.max(...PIPELINE_STAGES.map(s => byStage[s] ?? 0), 1),
+    [byStage]
+  );
 
   // Upcoming visits (APPROVED or PENDING, sorted by date)
-  const upcomingVisits = [...(stats?.visits?.recent ?? [])]
-    .filter(v => v.status === 'APPROVED' || v.status === 'PENDING')
-    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
-    .slice(0, 3);
+  const upcomingVisits = useMemo(() =>
+    [...(stats?.visits?.recent ?? [])]
+      .filter(v => v.status === 'APPROVED' || v.status === 'PENDING')
+      .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+      .slice(0, 3),
+    [stats?.visits?.recent]
+  );
 
-  const recentDeals = stats?.deals?.recent?.slice(0, 5) ?? [];
+  const recentDeals = useMemo(() => stats?.deals?.recent?.slice(0, 5) ?? [], [stats?.deals?.recent]);
 
   return (
     <div className="p-6 md:p-8 animate-in slide-in-from-bottom-6 duration-700">

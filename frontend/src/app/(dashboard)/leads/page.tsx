@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
 import { leads as leadsApi, properties as propertiesApi } from '@/lib/api';
+import { SkeletonLeads } from '@/components/Skeleton';
 import { useNotifications } from '@/context/NotificationContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import {
@@ -834,8 +835,8 @@ export default function LeadsPage() {
   const stats = STAGES.map(s => ({ ...s, count: allLeads.filter(l => l.stage === s.key).length }));
 
   if (loading) return (
-    <div className="p-8 space-y-4 max-w-7xl mx-auto">
-      {[1, 2, 3].map(i => <div key={i} className="h-20 rounded-2xl bg-neutral-100 animate-pulse" />)}
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      <SkeletonLeads />
     </div>
   );
 

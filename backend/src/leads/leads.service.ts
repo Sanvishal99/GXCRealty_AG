@@ -2,6 +2,8 @@ import {
   Injectable, NotFoundException, ForbiddenException, BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ChatGateway } from '../chat/chat.gateway';
+import { NetworkService } from '../network/network.service';
 import { LeadStage, Role, VisitStatus } from '@prisma/client';
 
 const LEAD_INCLUDE = {
@@ -25,7 +27,22 @@ const LEAD_INCLUDE = {
 
 @Injectable()
 export class LeadsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chatGateway: ChatGateway,
+    private networkService: NetworkService,
+  ) {}
+
+  private async notifyUpline(agentId: string, event: string, payload: any) {
+    try {
+      const uplineIds = await this.networkService.getUplineChain(agentId);
+      for (const uplineId of uplineIds) {
+        this.chatGateway.emitToUser(uplineId, 'networkActivity', payload);
+      }
+    } catch {
+      // Non-blocking — don't fail lead operations if notification fails
+    }
+  }
 
   async getLeads(userId: string, role: Role) {
     const where = role === Role.ADMIN ? {} : { agentId: userId };
@@ -49,10 +66,23 @@ export class LeadsService {
       propertyId?: string;
     },
   ) {
-    return this.prisma.lead.create({
+    const lead = await this.prisma.lead.create({
       data: { ...data, agentId },
       include: LEAD_INCLUDE,
     });
+
+    // Notify upline
+    await this.notifyUpline(agentId, 'networkActivity', {
+      type: 'LEAD_CREATED',
+      agentId,
+      agentEmail: lead.agent.email,
+      title: 'New lead added',
+      detail: `${lead.agent.email.split('@')[0]} added ${data.buyerName} as a new lead`,
+      timestamp: lead.createdAt,
+      meta: { leadId: lead.id, buyerName: data.buyerName, stage: lead.stage },
+    });
+
+    return lead;
   }
 
   async updateLead(
@@ -76,11 +106,27 @@ export class LeadsService {
     const lead = await this.prisma.lead.findUnique({ where: { id: leadId } });
     if (!lead) throw new NotFoundException('Lead not found');
     if (role !== Role.ADMIN && lead.agentId !== agentId) throw new ForbiddenException();
-    return this.prisma.lead.update({
+
+    const updated = await this.prisma.lead.update({
       where: { id: leadId },
       data,
       include: LEAD_INCLUDE,
     });
+
+    // Notify upline only on stage changes
+    if (data.stage && data.stage !== lead.stage) {
+      await this.notifyUpline(lead.agentId, 'networkActivity', {
+        type: 'LEAD_STAGE_CHANGED',
+        agentId: lead.agentId,
+        agentEmail: updated.agent.email,
+        title: 'Lead progressed',
+        detail: `${updated.agent.email.split('@')[0]}'s lead "${updated.buyerName}" → ${data.stage.replace(/_/g, ' ')}`,
+        timestamp: updated.updatedAt,
+        meta: { leadId, buyerName: updated.buyerName, oldStage: lead.stage, newStage: data.stage },
+      });
+    }
+
+    return updated;
   }
 
   async deleteLead(leadId: string, agentId: string, role: Role) {
@@ -89,8 +135,6 @@ export class LeadsService {
     if (role !== Role.ADMIN && lead.agentId !== agentId) throw new ForbiddenException();
     return this.prisma.lead.delete({ where: { id: leadId } });
   }
-
-  // ── Interested Properties ─────────────────────────────────────────────────
 
   async addInterestedProperty(leadId: string, agentId: string, role: Role, propertyId: string) {
     const lead = await this.prisma.lead.findUnique({ where: { id: leadId } });
@@ -115,11 +159,8 @@ export class LeadsService {
     const lead = await this.prisma.lead.findUnique({ where: { id: leadId } });
     if (!lead) throw new NotFoundException('Lead not found');
     if (role !== Role.ADMIN && lead.agentId !== agentId) throw new ForbiddenException();
-
     await this.prisma.leadInterestedProperty.deleteMany({ where: { leadId, propertyId } });
   }
-
-  // ── Schedule Visit from Lead ──────────────────────────────────────────────
 
   async scheduleVisitForLead(
     leadId: string,
@@ -157,7 +198,6 @@ export class LeadsService {
       include: { property: { select: { id: true, title: true, city: true } } },
     });
 
-    // Auto-advance lead stage if still in early stages
     if (lead.stage === LeadStage.NEW || lead.stage === LeadStage.CONTACTED) {
       await this.prisma.lead.update({
         where: { id: leadId },

@@ -15,7 +15,7 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' })
 
 export const metadata: Metadata = {
   title: 'GXCRealty | Exclusive Network',
-  description: 'Invite-only real estate platform and premium commission engine',
+  description: 'Invite-only real estate platform and premium incentive engine',
 }
 
 export default function RootLayout({

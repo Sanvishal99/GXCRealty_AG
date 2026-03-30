@@ -9,5 +9,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [JwtModule, PrismaModule],
   controllers: [ChatController],
   providers: [ChatGateway, ChatService],
+  exports: [ChatGateway], // exported so other modules can call emitToUser
 })
 export class ChatModule {}

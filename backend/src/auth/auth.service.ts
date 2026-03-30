@@ -57,6 +57,17 @@ export class AuthService {
     return this.login(newUser);
   }
 
+  async validateInviteCode(code: string) {
+    const referrer = await this.usersService.findByInviteCode(code.toUpperCase());
+    if (!referrer) throw new BadRequestException('Invalid invite code');
+    return {
+      valid: true,
+      referrerEmail: referrer.email,
+      referrerName: referrer.email.split('@')[0],
+      code: referrer.inviteCode,
+    };
+  }
+
   async registerCompany(token: string, data: { email: string; password: string; phone: string; companyName?: string }) {
     await this.companyInviteService.validateInvite(token);
 

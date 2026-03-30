@@ -3,11 +3,16 @@ import { useUserProfile } from '@/context/UserProfileContext';
 import AgentDashboard from '../../../components/dashboards/AgentDashboard';
 import AdminDashboard from '../../../components/dashboards/AdminDashboard';
 import CompanyDashboard from '../../../components/dashboards/CompanyDashboard';
+import { SkeletonDashboard } from '@/components/Skeleton';
 
 export default function DashboardPage() {
   const { profile } = useUserProfile();
 
-  if (!profile.role) return <div className="p-12 animate-pulse text-center font-bold opacity-30">Authenticating Pulse...</div>;
+  if (!profile.role) return (
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
+      <SkeletonDashboard />
+    </div>
+  );
 
   const role = profile.role.toUpperCase();
 

@@ -4,6 +4,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useUserProfile } from '@/context/UserProfileContext';
 import { wallet as walletApi, withdrawals as withdrawalsApi, ApiError } from '@/lib/api';
+import { SkeletonWallet, SkeletonTransaction } from '@/components/Skeleton';
 import {
   Wallet, ArrowDownCircle, ArrowUpCircle, RefreshCw, Plus,
   Clock, CheckCircle2, XCircle, Banknote, X, Check, CreditCard,
@@ -204,7 +205,7 @@ export default function WalletPage() {
             Available Balance
           </p>
           {isLoading ? (
-            <div className="h-10 bg-white/10 rounded-xl animate-pulse mb-1 relative z-10" />
+            <div className="skeleton h-10 rounded-xl mb-1 relative z-10" />
           ) : (
             <h2 className="text-3xl font-extrabold font-mono text-gradient-emerald mb-1 relative z-10 break-all leading-tight">
               {formatCurrency(walletData?.balance ?? 0)}
@@ -216,7 +217,7 @@ export default function WalletPage() {
               <ArrowUpCircle className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
               <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-0.5">Credited</p>
               {isLoading
-                ? <div className="h-4 bg-white/10 rounded animate-pulse" />
+                ? <div className="skeleton h-4 rounded" />
                 : <p className="text-sm font-extrabold text-emerald-400 font-mono">{formatCurrency(totalCredited)}</p>
               }
             </div>
@@ -253,7 +254,7 @@ export default function WalletPage() {
 
           <div className="divide-y divide-[var(--border-subtle)] max-h-72 overflow-y-auto">
             {reqLoading ? (
-              <div className="p-12 text-center opacity-40 animate-pulse">Loading…</div>
+              <div className="p-4 space-y-1">{[0,1,2].map(i => <SkeletonTransaction key={i} />)}</div>
             ) : requests.length === 0 ? (
               <div className="p-10 text-center opacity-40">
                 <Banknote className="w-8 h-8 mx-auto mb-2" />
@@ -307,7 +308,7 @@ export default function WalletPage() {
         </div>
         <div className="divide-y divide-[var(--border-subtle)] max-h-[480px] overflow-y-auto">
           {isLoading ? (
-            <div className="p-12 text-center opacity-40 animate-pulse">Loading…</div>
+            <div className="p-4 space-y-1">{[0,1,2,3,4].map(i => <SkeletonTransaction key={i} />)}</div>
           ) : transactions.length === 0 ? (
             <div className="p-12 text-center opacity-40">
               <TrendingUp className="w-8 h-8 mx-auto mb-2" />

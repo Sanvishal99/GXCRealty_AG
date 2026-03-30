@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useMemo, useCallback, memo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
@@ -27,13 +27,13 @@ function buildNavItems(role: string, features: Record<string, any>): NavItem[] {
       name: 'Dashboard',
       href: '/dashboard',
       icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z',
-      color: 'from-indigo-500 to-purple-600', activeText: 'text-indigo-400', activeBg: 'bg-indigo-500/15 border-indigo-500/25',
+      color: 'from-yellow-500 to-amber-600', activeText: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/25',
     },
     {
       name: admin ? 'Inventory' : company ? 'Portfolio' : 'Properties',
       href: admin ? '/admin/properties' : company ? '/portfolio' : '/properties',
       icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
-      color: 'from-purple-500 to-pink-500', activeText: 'text-purple-400', activeBg: 'bg-purple-500/15 border-purple-500/25',
+      color: 'from-amber-400 to-yellow-600', activeText: 'text-yellow-400', activeBg: 'bg-yellow-500/15 border-yellow-500/25',
     },
     (admin || company) && {
       name: 'Intelligence',
@@ -51,7 +51,13 @@ function buildNavItems(role: string, features: Record<string, any>): NavItem[] {
       name: 'Leads',
       href: '/leads',
       icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z',
-      color: 'from-violet-500 to-purple-600', activeText: 'text-violet-400', activeBg: 'bg-violet-500/15 border-violet-500/25',
+      color: 'from-orange-400 to-amber-500', activeText: 'text-orange-400', activeBg: 'bg-orange-500/15 border-orange-500/25',
+    },
+    !admin && !company && {
+      name: 'My Network',
+      href: '/network',
+      icon: 'M13 10V3L4 14h7v7l9-11h-7z',
+      color: 'from-amber-400 to-orange-500', activeText: 'text-amber-400', activeBg: 'bg-amber-500/15 border-amber-500/25',
     },
     features.enableDeals && {
       name: 'Deals',
@@ -106,14 +112,29 @@ function buildNavItems(role: string, features: Record<string, any>): NavItem[] {
   return items.filter(Boolean) as NavItem[];
 }
 
-// ── Nav icon SVG ──────────────────────────────────────────────────────────────
-function NavIcon({ d, active }: { d: string; active?: boolean }) {
+// ── Nav Link (outside Sidebar so it is never recreated) ──────────────────────
+const NavLink = memo(({ item, pathname }: { item: NavItem; pathname: string }) => {
+  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
   return (
-    <svg className={`w-5 h-5 ${active ? '' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={d} />
-    </svg>
+    <Link href={item.href}
+      className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 font-semibold text-sm group ${isActive
+          ? `${item.activeBg} ${item.activeText} border`
+          : 'hover:bg-[var(--glass-bg-hover)] border border-transparent'
+        }`}
+      style={{ color: isActive ? undefined : 'var(--text-secondary)' }}
+    >
+      <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${isActive ? `bg-gradient-to-br ${item.color} shadow-md` : 'glass-panel group-hover:bg-[var(--glass-bg-hover)]'
+        }`}>
+        <svg className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+        </svg>
+      </div>
+      <span>{item.name}</span>
+      {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-current opacity-70" />}
+    </Link>
   );
-}
+});
+NavLink.displayName = 'NavLink';
 
 // ── Desktop Sidebar ───────────────────────────────────────────────────────────
 export default function Sidebar() {
@@ -124,38 +145,22 @@ export default function Sidebar() {
   const { profile, logout } = useUserProfile();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const initials = profile.name
-    ? profile.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
-    : '?';
+  const initials = useMemo(() =>
+    profile.name
+      ? profile.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
+      : '?',
+    [profile.name]
+  );
 
-  const navItems = buildNavItems(profile.role, config.features);
-  // Bottom nav: first 4 items + "More"
-  const bottomPrimary = navItems.slice(0, 4);
-  const bottomMore = navItems.slice(4);
+  const navItems = useMemo(
+    () => buildNavItems(profile.role, config.features),
+    [profile.role, config.features]
+  );
 
-  const handleLogout = () => { logout(); router.push('/login'); };
+  const bottomPrimary = useMemo(() => navItems.slice(0, 4), [navItems]);
+  const bottomMore    = useMemo(() => navItems.slice(4),    [navItems]);
 
-  const NavLink = ({ item }: { item: NavItem }) => {
-    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-    return (
-      <Link key={item.name} href={item.href}
-        className={`flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-200 font-semibold text-sm group ${isActive
-            ? `${item.activeBg} ${item.activeText} border`
-            : 'hover:bg-[var(--glass-bg-hover)] border border-transparent'
-          }`}
-        style={{ color: isActive ? undefined : 'var(--text-secondary)' }}
-      >
-        <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${isActive ? `bg-gradient-to-br ${item.color} shadow-md` : 'glass-panel group-hover:bg-[var(--glass-bg-hover)]'
-          }`}>
-          <svg className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-          </svg>
-        </div>
-        <span>{item.name}</span>
-        {isActive && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-current opacity-70" />}
-      </Link>
-    );
-  };
+  const handleLogout = useCallback(() => { logout(); router.push('/login'); }, [logout, router]);
 
   return (
     <>
@@ -165,7 +170,7 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="p-6">
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 overflow-hidden">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg overflow-hidden" style={{ background: 'linear-gradient(135deg, #F7E06D, #D4A843, #C8930A)', boxShadow: '0 4px 16px rgba(212,168,67,0.35)' }}>
               {config.branding.logoImage ? (
                 <img src={config.branding.logoImage} alt="Logo" className="w-full h-full object-cover" />
               ) : (
@@ -183,7 +188,7 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 space-y-1 mt-2 overflow-y-auto">
-          {navItems.map(item => <NavLink key={item.name} item={item} />)}
+          {navItems.map(item => <NavLink key={item.name} item={item} pathname={pathname} />)}
         </nav>
 
         {/* Bottom section */}
@@ -200,21 +205,21 @@ export default function Sidebar() {
           </div>
           <Link href="/settings"
             className="glass-panel rounded-2xl p-3 flex items-center gap-3 relative overflow-hidden hover:bg-[var(--glass-bg-hover)] transition-all group"
-            style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.12) 0%, rgba(168,85,247,0.08) 100%)' }}
+            style={{ background: 'linear-gradient(135deg, rgba(212,168,67,0.12) 0%, rgba(245,158,11,0.08) 100%)' }}
           >
-            <div className="absolute -right-4 -top-4 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
-            <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 shadow-lg shadow-indigo-500/25 relative z-10">
+            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full blur-xl pointer-events-none" style={{ background: 'rgba(212,168,67,0.10)' }} />
+            <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 relative z-10" style={{ boxShadow: '0 4px 12px rgba(212,168,67,0.25)' }}>
               {profile.avatarUrl ? (
                 <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
+                <div className="w-full h-full flex items-center justify-center text-white font-bold text-xs" style={{ background: 'linear-gradient(135deg, #D4A843, #C8930A)' }}>
                   {initials}
                 </div>
               )}
             </div>
             <div className="min-w-0 relative z-10 flex-1">
               <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile.name || profile.email}</p>
-              <p className="text-[10px] font-semibold text-indigo-400 flex items-center gap-1">
+              <p className="text-[10px] font-semibold flex items-center gap-1" style={{ color: 'var(--accent-indigo)' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
                 {profile.role}
               </p>
@@ -238,7 +243,7 @@ export default function Sidebar() {
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 border-b"
         style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center overflow-hidden shadow-md">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center overflow-hidden shadow-md" style={{ background: 'linear-gradient(135deg, #F7E06D, #D4A843, #C8930A)' }}>
             {config.branding.logoImage
               ? <img src={config.branding.logoImage} alt="Logo" className="w-full h-full object-cover" />
               : <span className="text-xs">{config.branding.logoEmoji}</span>
@@ -249,7 +254,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-2">
           <NotificationBell />
           <Link href="/settings">
-            <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-md">
+            <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center text-white font-bold text-xs shadow-md" style={{ background: 'linear-gradient(135deg, #D4A843, #C8930A)' }}>
               {profile.avatarUrl
                 ? <img src={profile.avatarUrl} alt="" className="w-full h-full object-cover" />
                 : initials
@@ -271,14 +276,14 @@ export default function Sidebar() {
                 style={{ color: isActive ? undefined : 'var(--text-muted)' }}
               >
                 {isActive && (
-                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-indigo-500" />
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full" style={{ background: 'var(--accent-indigo)' }} />
                 )}
                 <div className={`w-6 h-6 flex items-center justify-center transition-transform ${isActive ? 'scale-110' : ''}`}>
-                  <svg className={`w-5 h-5 ${isActive ? 'text-indigo-500' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" style={{ color: isActive ? 'var(--accent-indigo)' : undefined }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive ? 2.5 : 2} d={item.icon} />
                   </svg>
                 </div>
-                <span className={`text-[9px] font-black uppercase tracking-wide ${isActive ? 'text-indigo-500' : ''}`}>{item.name}</span>
+                <span className="text-[9px] font-black uppercase tracking-wide" style={{ color: isActive ? 'var(--accent-indigo)' : undefined }}>{item.name}</span>
               </Link>
             );
           })}
