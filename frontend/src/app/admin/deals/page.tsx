@@ -70,9 +70,24 @@ function ReviewPanel({ deal, onDone }: { deal: any; onDone: (updated: any) => vo
   );
 }
 
+function parseCommission(deal: any) {
+  const txns: { amount: number; description: string }[] = deal.transactions ?? [];
+  const pool = deal.salePrice * deal.totalCommission;
+  const advisor = txns
+    .filter(t => t.description?.startsWith('Closing Agent Commission'))
+    .reduce((s, t) => s + t.amount, 0);
+  const company = txns
+    .filter(t => t.description?.startsWith('Company Fixed Share') || t.description?.startsWith('Unclaimed Network Residue'))
+    .reduce((s, t) => s + t.amount, 0);
+  const network = txns
+    .filter(t => t.description?.startsWith('Level'))
+    .reduce((s, t) => s + t.amount, 0);
+  return { pool, advisor, company, network };
+}
+
 function DealCard({ deal, onUpdate }: { deal: any; onUpdate: (d: any) => void }) {
   const [expanded, setExpanded] = useState(false);
-  const commission = deal.salePrice * deal.totalCommission;
+  const { pool, advisor, company, network } = parseCommission(deal);
 
   return (
     <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
@@ -100,11 +115,27 @@ function DealCard({ deal, onUpdate }: { deal: any; onUpdate: (d: any) => void })
         </div>
         <div className="px-5 py-3">
           <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Commission Pool</p>
-          <p className="text-sm font-black text-emerald-700">{fmt(commission)}</p>
+          <p className="text-sm font-black text-emerald-700">{fmt(pool)}</p>
         </div>
         <div className="px-5 py-3">
           <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">Closed On</p>
           <p className="text-sm font-black text-neutral-800">{fmtDate(deal.createdAt)}</p>
+        </div>
+      </div>
+
+      {/* Commission breakup row */}
+      <div className="grid grid-cols-3 divide-x divide-neutral-100 border-t border-dashed border-neutral-100 bg-neutral-50/60">
+        <div className="px-5 py-2.5">
+          <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Incentive to Advisor</p>
+          <p className="text-sm font-bold text-indigo-700">{advisor > 0 ? fmt(advisor) : '—'}</p>
+        </div>
+        <div className="px-5 py-2.5">
+          <p className="text-[10px] font-bold text-violet-400 uppercase tracking-widest mb-0.5">Company Part</p>
+          <p className="text-sm font-bold text-violet-700">{company > 0 ? fmt(company) : '—'}</p>
+        </div>
+        <div className="px-5 py-2.5">
+          <p className="text-[10px] font-bold text-sky-400 uppercase tracking-widest mb-0.5">Network Pool</p>
+          <p className="text-sm font-bold text-sky-700">{network > 0 ? fmt(network) : '—'}</p>
         </div>
       </div>
 

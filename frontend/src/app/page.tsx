@@ -107,6 +107,14 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <Link href="/browse"
+              className="hidden sm:block px-4 py-2 text-sm font-semibold transition-colors rounded-xl border"
+              style={{ color: TEXT_MID, borderColor: BORDER }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = GOLD; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = TEXT_MID; }}
+            >
+              Browse Properties
+            </Link>
             <button
               onClick={() => setIsApplyModalOpen(true)}
               className="hidden sm:block px-4 py-2 text-sm font-semibold transition-colors"
