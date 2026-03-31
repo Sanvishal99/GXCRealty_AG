@@ -16,8 +16,21 @@ async function bootstrap() {
 
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+    const allowedOrigins = [
+      'https://www.gxcreality.com',
+      'https://gxcreality.com',
+      process.env.FRONTEND_URL,
+      'http://localhost:3001',
+      'http://localhost:3000',
+    ].filter(Boolean) as string[];
+
     app.enableCors({
-      origin: process.env.FRONTEND_URL || 'http://localhost:3001',
+      origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, server-to-server)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
