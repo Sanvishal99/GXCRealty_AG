@@ -69,8 +69,9 @@ function amenityIcon(name: string) {
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
-export default async function PublicPropertyPage({ params }: { params: { id: string } }) {
-  const property = await getProperty(params.id);
+export default async function PublicPropertyPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const property = await getProperty(id);
   if (!property) notFound();
 
   const images: string[]   = (property.images || []).filter(Boolean);
