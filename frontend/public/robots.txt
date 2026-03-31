@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /browse
+Allow: /p/
+
+# Block authenticated-only routes from crawlers
+Disallow: /dashboard
+Disallow: /dashboard/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /join
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.gxcrealty.com/sitemap.xml

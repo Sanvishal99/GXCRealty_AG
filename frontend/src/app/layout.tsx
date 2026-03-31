@@ -14,6 +14,7 @@ import ImpersonationBanner from '@/components/ImpersonationBanner'
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gxcrealty.com'),
   title: 'GXCRealty | Exclusive Network',
   description: 'Invite-only real estate platform and premium incentive engine',
 }

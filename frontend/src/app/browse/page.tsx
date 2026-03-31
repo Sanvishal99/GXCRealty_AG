@@ -453,7 +453,7 @@ export default function BrowsePage() {
             Premium Real Estate
           </div>
 
-          <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-black leading-[1.1] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[3.5rem] font-black leading-[1.1] tracking-tight">
             <span style={{ color: TEXT_DARK }}>Discover Your</span>
             <br />
             <span
@@ -551,49 +551,51 @@ export default function BrowsePage() {
       ══════════════════════════════════════════ */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 pb-32 space-y-6">
 
-        {/* Type filter chips — unified single source of truth for type */}
-        <div className="flex items-center gap-2 flex-wrap">
+        {/* Type filter chips — horizontally scrollable on mobile */}
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 text-xs font-bold shrink-0" style={{ color: TEXT_SOFT }}>
             <SlidersHorizontal size={13} />
-            Type:
+            <span className="hidden xs:inline">Type:</span>
           </div>
-          {TYPE_CHIPS.map(chip => {
-            const isActive = activeChip === chip;
-            const count = chip === 'ALL'
-              ? properties.length
-              : properties.filter(p => p.projectType === chip).length;
-            return (
-              <button
-                key={chip}
-                onClick={() => handleTypeChip(chip)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-black border transition-all hover:-translate-y-0.5"
-                style={
-                  isActive
-                    ? { ...GOLD_BTN, color: '#fff', border: 'none' }
-                    : { background: 'transparent', color: TEXT_MID, borderColor: BORDER }
-                }
-              >
-                {chip === 'ALL' ? 'All' : TYPE_LABEL[chip]}
-                <span
-                  className="ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-black"
-                  style={{
-                    background: isActive ? 'rgba(255,255,255,0.22)' : 'rgba(180,130,30,0.10)',
-                    color: isActive ? '#fff' : TEXT_SOFT,
-                  }}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 flex-1" style={{ scrollbarWidth: 'none' }}>
+            {TYPE_CHIPS.map(chip => {
+              const isActive = activeChip === chip;
+              const count = chip === 'ALL'
+                ? properties.length
+                : properties.filter(p => p.projectType === chip).length;
+              return (
+                <button
+                  key={chip}
+                  onClick={() => handleTypeChip(chip)}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-black border transition-all hover:-translate-y-0.5 shrink-0"
+                  style={
+                    isActive
+                      ? { ...GOLD_BTN, color: '#fff', border: 'none' }
+                      : { background: 'transparent', color: TEXT_MID, borderColor: BORDER }
+                  }
                 >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+                  {chip === 'ALL' ? 'All' : TYPE_LABEL[chip]}
+                  <span
+                    className="ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-black"
+                    style={{
+                      background: isActive ? 'rgba(255,255,255,0.22)' : 'rgba(180,130,30,0.10)',
+                      color: isActive ? '#fff' : TEXT_SOFT,
+                    }}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
           {hasActiveFilters && (
             <button
               onClick={clearAll}
-              className="ml-auto text-xs font-bold px-3 py-1.5 rounded-xl border transition-colors"
+              className="shrink-0 text-xs font-bold px-3 py-1.5 rounded-xl border transition-colors"
               style={{ borderColor: BORDER, color: TEXT_SOFT }}
             >
-              Clear All
+              Clear
             </button>
           )}
         </div>
@@ -684,32 +686,32 @@ export default function BrowsePage() {
             boxShadow: '0 -8px 40px rgba(180,130,30,0.16)',
           }}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
-            <div className="flex items-center gap-3">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3 min-w-0">
               <div
                 className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                 style={{ background: 'rgba(180,130,30,0.12)', border: `1px solid ${BORDER}` }}
               >
                 <Lock size={18} style={{ color: GOLD }} />
               </div>
-              <div>
-                <p className="text-sm font-black" style={{ color: TEXT_DARK }}>Unlock Full Property Details</p>
-                <p className="text-xs font-medium" style={{ color: TEXT_SOFT }}>
+              <div className="min-w-0">
+                <p className="text-sm font-black truncate" style={{ color: TEXT_DARK }}>Unlock Full Property Details</p>
+                <p className="text-xs font-medium hidden sm:block" style={{ color: TEXT_SOFT }}>
                   Login to view prices, floor plans &amp; builder contacts
                 </p>
               </div>
             </div>
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-2 shrink-0 w-full sm:w-auto">
               <Link
                 href="/login"
-                className="px-5 py-2.5 rounded-xl text-sm font-bold border transition-all"
+                className="flex-1 sm:flex-none text-center px-4 py-2.5 rounded-xl text-sm font-bold border transition-all"
                 style={{ borderColor: BORDER_MED, color: TEXT_MID }}
               >
                 Login
               </Link>
               <Link
                 href="/login"
-                className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                className="flex-1 sm:flex-none text-center px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5"
                 style={GOLD_BTN}
               >
                 Get Started Free

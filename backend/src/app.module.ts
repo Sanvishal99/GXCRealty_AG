@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_GUARD } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -20,10 +21,12 @@ import { AccessRequestModule } from './access-request/access-request.module';
 import { HealthModule } from './health/health.module';
 import { NetworkModule } from './network/network.module';
 import { UploadModule } from './upload/upload.module';
+import { CrawlerModule } from './crawler/crawler.module';
 
 @Module({
   imports: [
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]), // 100 requests per minute per IP
+    ScheduleModule.forRoot(),
     PrismaModule,
     AppConfigModule,
     AnalyticsModule,
@@ -43,6 +46,7 @@ import { UploadModule } from './upload/upload.module';
     HealthModule,
     NetworkModule,
     UploadModule,
+    CrawlerModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

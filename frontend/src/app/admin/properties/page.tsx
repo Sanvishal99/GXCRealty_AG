@@ -85,10 +85,11 @@ function DocRow({ doc, onRenamed }: { doc: any; onRenamed: (id: string, title: s
 }
 
 // ── Review Modal ──────────────────────────────────────────────────────────────
-function ReviewModal({ p, onClose, onApprove, onReject }: {
+function ReviewModal({ p, onClose, onApprove, onReject, onDocRenamed }: {
   p: any; onClose: () => void;
   onApprove: (id: string, pct: number) => Promise<void>;
   onReject: (id: string) => Promise<void>;
+  onDocRenamed: (propId: string, docId: string, title: string) => void;
 }) {
   const [commissionPct, setCommissionPct] = useState<number>(p.commissionPoolPct || 2);
   const [acting, setActing] = useState<'approve' | 'reject' | null>(null);
@@ -276,11 +277,7 @@ function ReviewModal({ p, onClose, onApprove, onReject }: {
               <div className="space-y-2">
                 {p.documents.map((d: any) => (
                   <DocRow key={d.id} doc={d} onRenamed={(id, title) => {
-                    setAllProperties(prev => prev.map(prop =>
-                      prop.id === p.id
-                        ? { ...prop, documents: prop.documents.map((dd: any) => dd.id === id ? { ...dd, title } : dd) }
-                        : prop
-                    ));
+                    onDocRenamed(p.id, id, title);
                   }} />
                 ))}
               </div>
@@ -398,6 +395,13 @@ export default function AdminPropertiesPage() {
           onClose={() => setReviewing(null)}
           onApprove={handleApprove}
           onReject={handleReject}
+          onDocRenamed={(propId, docId, title) => {
+            setAllProperties(prev => prev.map(prop =>
+              prop.id === propId
+                ? { ...prop, documents: prop.documents.map((dd: any) => dd.id === docId ? { ...dd, title } : dd) }
+                : prop
+            ));
+          }}
         />
       )}
 
