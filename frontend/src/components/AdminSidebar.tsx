@@ -42,8 +42,8 @@ export default function AdminSidebar() {
     router.push('/login');
   };
 
-  const adminInitials = profile?.fullName
-    ? profile.fullName.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+  const adminInitials = profile?.name
+    ? profile.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'SA';
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function AdminSidebar() {
               {adminInitials}
             </div>
             <div className="min-w-0 relative z-10 flex-1">
-              <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile?.fullName || 'Super Admin'}</p>
+              <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile?.name || 'Super Admin'}</p>
               <p className="text-[10px] font-semibold text-rose-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block" />
                 Full Access
@@ -258,7 +258,7 @@ export default function AdminSidebar() {
                   {adminInitials}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile?.fullName || 'Super Admin'}</p>
+                  <p className="text-sm font-bold truncate" style={{ color: 'var(--text-primary)' }}>{profile?.name || 'Super Admin'}</p>
                   <p className="text-[10px] font-semibold text-rose-400">Full Access</p>
                 </div>
                 <button

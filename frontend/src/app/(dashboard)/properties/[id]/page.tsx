@@ -14,6 +14,19 @@ import {
   File, FileSpreadsheet, Camera, Users, TrendingUp, Activity,
 } from 'lucide-react';
 
+// ── Gold / Ivory palette ───────────────────────────────────────────────────────
+const GOLD = '#C9A227';
+const GOLD_LIGHT = '#D4A843';
+const GOLD_DARK = '#A07208';
+const IVORY = '#FFFDF5';
+const IVORY_BG = '#FDF8ED';
+const BORDER = 'rgba(180,130,30,0.18)';
+const BORDER_MID = 'rgba(180,130,30,0.30)';
+const TEXT_DARK = '#1a1200';
+const TEXT_MID = '#5a4a28';
+const TEXT_SOFT = '#9a8060';
+const GOLD_BTN: React.CSSProperties = { background: 'linear-gradient(135deg, #D4A843, #C9A227, #A07208)', color: '#fff', boxShadow: '0 4px 14px rgba(180,130,30,0.28)' };
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmtDate(raw: string | undefined | null): string {
   if (!raw) return '—';
@@ -38,7 +51,7 @@ function docBg(url: string, type?: string) {
   const ext = url?.split('.').pop()?.toLowerCase() || '';
   const t = (type || '').toLowerCase();
   if (ext === 'pdf' || t.includes('pdf')) return 'bg-rose-50 border-rose-100';
-  if (['jpg','jpeg','png','webp','gif'].includes(ext) || t.includes('image')) return 'bg-indigo-50 border-indigo-100';
+  if (['jpg','jpeg','png','webp','gif'].includes(ext) || t.includes('image')) return 'bg-amber-50 border-amber-100';
   if (['xls','xlsx','csv'].includes(ext) || t.includes('sheet')) return 'bg-emerald-50 border-emerald-100';
   return 'bg-neutral-50 border-neutral-200';
 }
@@ -54,7 +67,7 @@ const STAGE_COLOR: Record<string, string> = {
   READY_TO_MOVE: 'bg-emerald-100 text-emerald-700 border-emerald-200',
 };
 const TYPE_COLOR: Record<string, string> = {
-  APARTMENT: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  APARTMENT: 'bg-amber-100 text-amber-700 border-amber-200',
   VILLA: 'bg-purple-100 text-purple-700 border-purple-200',
   PLOT: 'bg-amber-100 text-amber-700 border-amber-200',
   COMMERCIAL: 'bg-rose-100 text-rose-700 border-rose-200',
@@ -119,7 +132,10 @@ function PhotoGrid({ images, title, onOpen }: {
 }) {
   if (!images?.length) {
     return (
-      <div className="w-full h-[280px] md:h-[400px] bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center border-b border-neutral-200">
+      <div
+        className="w-full h-[280px] md:h-[400px] flex items-center justify-center border-b"
+        style={{ background: 'rgba(212,168,67,0.08)', borderColor: BORDER }}
+      >
         <div className="text-center text-neutral-400">
           <Camera className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="text-sm font-bold">No photos uploaded yet</p>
@@ -222,7 +238,7 @@ function DocCard({ doc }: { doc: any }) {
         )}
       </div>
       <a href={doc.url} target="_blank" rel="noopener noreferrer"
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-neutral-200 text-xs font-bold text-neutral-600 hover:text-indigo-700 hover:border-indigo-300 transition-all shadow-sm shrink-0">
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-neutral-200 text-xs font-bold text-neutral-600 hover:text-amber-700 hover:border-amber-300 transition-all shadow-sm shrink-0">
         <ExternalLink className="w-3 h-3" /> View
       </a>
     </div>
@@ -251,12 +267,13 @@ export default function PropertyDetailsPage() {
 
   if (!property) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-8 text-center">
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center" style={{ background: IVORY_BG }}>
         <div className="text-6xl mb-4">🏚️</div>
         <h2 className="text-2xl font-black text-neutral-800 mb-2">Property Not Found</h2>
         <p className="text-neutral-500 mb-6">This listing may have been removed.</p>
         <Link href="/properties"
-          className="px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all">
+          className="px-6 py-3 rounded-xl text-white font-bold hover:-translate-y-0.5 transition-all"
+          style={GOLD_BTN}>
           Back to Listings
         </Link>
       </div>
@@ -296,7 +313,7 @@ export default function PropertyDetailsPage() {
     .filter(Boolean).join(', ') || 'Location TBA';
 
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen pb-20" style={{ background: IVORY_BG }}>
 
       {/* Lightbox (portal-like — rendered at root) */}
       {lightboxIndex !== null && (
@@ -304,10 +321,10 @@ export default function PropertyDetailsPage() {
       )}
 
       {/* ── Top Nav ── */}
-      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-neutral-200/80">
+      <div className="sticky top-0 z-40 backdrop-blur-md border-b" style={{ background: 'rgba(255,253,245,0.85)', borderColor: BORDER }}>
         <div className="max-w-6xl mx-auto px-5 md:px-8 h-13 flex items-center justify-between gap-4 py-3">
           <button onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-neutral-900 transition-colors">
+            className="flex items-center gap-1.5 text-xs font-bold text-neutral-600 hover:text-amber-800 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
           <div className="flex items-center gap-2 overflow-hidden">
@@ -341,7 +358,7 @@ export default function PropertyDetailsPage() {
         <div className="pt-6 pb-2">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-xs text-neutral-400 font-semibold mb-5">
-            <Link href="/properties" className="hover:text-indigo-600 transition-colors flex items-center gap-1">
+            <Link href="/properties" className="hover:text-amber-700 transition-colors flex items-center gap-1">
               <Home className="w-3 h-3" /> Properties
             </Link>
             <ChevronRight className="w-3 h-3" />
@@ -386,15 +403,15 @@ export default function PropertyDetailsPage() {
             {/* Quick stat cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: 'Type',        value: projectType || '—',                     icon: <Building2   className="w-4 h-4 text-indigo-400" /> },
+                { label: 'Type',        value: projectType || '—',                     icon: <Building2   className="w-4 h-4 text-amber-400" /> },
                 { label: 'Stage',       value: STAGE_LABEL[projectStage] || projectStage || '—', icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" /> },
                 { label: 'Launch',      value: fmtDate(p.launchDate),                  icon: <CalendarDays className="w-4 h-4 text-amber-400" /> },
-                { label: 'Possession',  value: fmtDate(p.possessionDate),              icon: <Clock       className="w-4 h-4 text-purple-400" /> },
+                { label: 'Possession',  value: fmtDate(p.possessionDate),              icon: <Clock       className="w-4 h-4 text-amber-400" /> },
               ].map(item => (
-                <div key={item.label} className="bg-white border border-neutral-200 rounded-2xl px-4 py-3.5 shadow-sm">
+                <div key={item.label} className="rounded-2xl px-4 py-3.5 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                   <div className="flex items-center gap-2 mb-1.5">
                     {item.icon}
-                    <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest">{item.label}</span>
+                    <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: TEXT_SOFT }}>{item.label}</span>
                   </div>
                   <p className="font-black text-neutral-800 text-sm leading-tight">{item.value}</p>
                 </div>
@@ -403,7 +420,7 @@ export default function PropertyDetailsPage() {
 
             {/* Description */}
             {p.description && (
-              <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+              <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                 <h2 className="font-black text-neutral-900 mb-3 text-base">About this Project</h2>
                 <p className="text-neutral-600 text-sm leading-relaxed">{p.description}</p>
               </div>
@@ -411,24 +428,25 @@ export default function PropertyDetailsPage() {
 
             {/* Photo strip — quick scroll for mobile after main grid */}
             {images.length > 5 && (
-              <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
+              <div className="rounded-2xl overflow-hidden shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
+                <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: BORDER }}>
                   <h2 className="font-black text-neutral-900 text-base flex items-center gap-2">
-                    <Images className="w-4 h-4 text-indigo-500" /> All Photos
+                    <Images className="w-4 h-4" style={{ color: GOLD }} /> All Photos
                     <span className="text-neutral-400 font-semibold text-sm">({images.length})</span>
                   </h2>
                   <button onClick={() => setLightboxIndex(0)}
-                    className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
+                    className="text-xs font-bold transition-colors" style={{ color: GOLD }}>
                     View all →
                   </button>
                 </div>
                 <div className="flex gap-2 overflow-x-auto px-5 py-4 scrollbar-hide">
                   {images.map((img, i) => (
                     <button key={i} onClick={() => setLightboxIndex(i)}
-                      className={`shrink-0 rounded-xl overflow-hidden border-2 transition-all hover:scale-105 ${i === 0 ? 'border-indigo-400' : 'border-transparent hover:border-neutral-300'}`}
-                      style={{ width: 120, height: 80 }}
+                      className={`shrink-0 rounded-xl overflow-hidden border-2 transition-all hover:scale-105 ${i === 0 ? '' : 'border-transparent hover:border-neutral-300'}`}
+                      style={i === 0 ? { borderColor: GOLD } : undefined}
+                      {...(i !== 0 ? {} : {})}
                     >
-                      <img src={img} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                      <img src={img} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" style={{ width: 120, height: 80 }} />
                     </button>
                   ))}
                 </div>
@@ -437,23 +455,23 @@ export default function PropertyDetailsPage() {
 
             {/* Unit Configurations */}
             {p.units?.length > 0 && (
-              <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+              <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                 <h2 className="font-black text-neutral-900 mb-5 text-base flex items-center gap-2">
-                  <Maximize2 className="w-4 h-4 text-indigo-500" /> Unit Configurations
+                  <Maximize2 className="w-4 h-4" style={{ color: GOLD }} /> Unit Configurations
                 </h2>
                 <div className="overflow-x-auto -mx-2">
                   <table className="w-full text-sm min-w-[540px]">
                     <thead>
-                      <tr className="border-b border-neutral-100">
+                      <tr className="border-b" style={{ borderColor: BORDER }}>
                         {['Unit', 'Beds', 'Baths', 'Carpet Area', 'Super Area', 'Price Range'].map(h => (
-                          <th key={h} className="text-left py-2 px-3 text-[9px] font-black uppercase tracking-widest text-neutral-400">{h}</th>
+                          <th key={h} className="text-left py-2 px-3 text-[9px] font-black uppercase tracking-widest" style={{ color: TEXT_SOFT }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {p.units.map((u: any) => (
-                        <tr key={u.id} className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/80 transition-colors">
-                          <td className="py-3.5 px-3 font-black text-neutral-900">{u.name}</td>
+                        <tr key={u.id} className="border-b border-neutral-50 last:border-0 hover:bg-amber-50/30 transition-colors">
+                          <td className="py-3.5 px-3 font-black" style={{ color: TEXT_DARK }}>{u.name}</td>
                           <td className="py-3.5 px-3 text-neutral-600 font-semibold">
                             <span className="flex items-center gap-1"><Bed className="w-3.5 h-3.5 text-neutral-300" />{u.beds}</span>
                           </td>
@@ -463,7 +481,7 @@ export default function PropertyDetailsPage() {
                           <td className="py-3.5 px-3 text-neutral-600 font-semibold">{u.carpetArea ? `${u.carpetArea.toLocaleString()} sqft` : '—'}</td>
                           <td className="py-3.5 px-3 text-neutral-600 font-semibold">{u.superArea ? `${u.superArea.toLocaleString()} sqft` : '—'}</td>
                           <td className="py-3.5 px-3">
-                            <span className="font-black text-indigo-700">{(u.minPrice || u.price) > 0 ? formatCurrency(u.minPrice || u.price) : '—'}</span>
+                            <span className="font-black" style={{ color: GOLD_DARK }}>{(u.minPrice || u.price) > 0 ? formatCurrency(u.minPrice || u.price) : '—'}</span>
                             {u.maxPrice > 0 && u.maxPrice !== (u.minPrice || u.price) && (
                               <span className="text-neutral-400 font-semibold text-xs block">up to {formatCurrency(u.maxPrice)}</span>
                             )}
@@ -478,11 +496,11 @@ export default function PropertyDetailsPage() {
 
             {/* Amenities */}
             {amenities.length > 0 && (
-              <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+              <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                 <h2 className="font-black text-neutral-900 mb-4 text-base">Amenities & Features</h2>
                 <div className="flex flex-wrap gap-2">
                   {amenities.map((a: string) => (
-                    <span key={a} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-50 border border-neutral-200 text-xs font-bold text-neutral-700">
+                    <span key={a} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border" style={{ background: IVORY_BG, borderColor: BORDER, color: TEXT_MID }}>
                       <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
                       {a.replace(/_/g, ' ')}
                     </span>
@@ -492,7 +510,7 @@ export default function PropertyDetailsPage() {
             )}
 
             {/* Location */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+            <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
               <h2 className="font-black text-neutral-900 mb-4 text-base flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-rose-500" /> Location Details
               </h2>
@@ -505,14 +523,15 @@ export default function PropertyDetailsPage() {
                   { label: 'Address',  value: loc.address || p.address },
                 ].filter(i => i.value).map(i => (
                   <div key={i.label}>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-0.5">{i.label}</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest mb-0.5" style={{ color: TEXT_SOFT }}>{i.label}</p>
                     <p className="font-bold text-neutral-800 text-sm">{i.value}</p>
                   </div>
                 ))}
               </div>
               {mapsUrl && (
                 <a href={mapsUrl} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-sm font-bold text-neutral-700 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all">
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-neutral-700 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 transition-all border"
+                  style={{ background: IVORY_BG, borderColor: BORDER }}>
                   <ExternalLink className="w-3.5 h-3.5" /> View on Google Maps
                 </a>
               )}
@@ -520,7 +539,7 @@ export default function PropertyDetailsPage() {
 
             {/* Documents */}
             {documents.length > 0 && (
-              <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+              <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                 <h2 className="font-black text-neutral-900 mb-4 text-base flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-500" /> Documents & Attachments
                   <span className="ml-1 px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-500 text-xs font-black">{documents.length}</span>
@@ -537,9 +556,9 @@ export default function PropertyDetailsPage() {
             <div className="sticky top-[57px] space-y-5">
 
               {/* Price + CTA */}
-              <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
-                <p className="text-[9px] font-black uppercase tracking-widest text-neutral-400 mb-1">Starting from</p>
-                <p className="text-3xl font-black text-indigo-700 mb-1 leading-none">
+              <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
+                <p className="text-[9px] font-black uppercase tracking-widest mb-1" style={{ color: TEXT_SOFT }}>Starting from</p>
+                <p className="text-3xl font-black mb-1 leading-none" style={{ color: GOLD_DARK }}>
                   {minPrice > 0 ? formatCurrency(minPrice) : 'Price on Request'}
                 </p>
                 {maxPrice > 0 && maxPrice !== minPrice && (
@@ -550,7 +569,8 @@ export default function PropertyDetailsPage() {
                 {images.length > 0 && (
                   <button
                     onClick={() => setLightboxIndex(0)}
-                    className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-neutral-50 border border-neutral-200 text-xs font-bold text-neutral-500 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 transition-all"
+                    className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-bold text-neutral-500 hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 transition-all border"
+                    style={{ background: IVORY_BG, borderColor: BORDER }}
                   >
                     <Camera className="w-3.5 h-3.5" /> {images.length} photo{images.length !== 1 ? 's' : ''}
                   </button>
@@ -561,12 +581,14 @@ export default function PropertyDetailsPage() {
                       router.push(`/visits?openModal=true&propertyId=${p.id}`);
                       addNotification({ type: 'info', title: 'Visit Request', message: `Scheduling a visit for ${title}.`, category: 'system' });
                     }}
-                    className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm"
+                    className="w-full font-bold py-3.5 rounded-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-sm"
+                    style={GOLD_BTN}
                   >
                     <CalendarDays className="w-4 h-4" /> Request Site Visit
                   </button>
                   <Link href="/deals"
-                    className="w-full flex items-center justify-center gap-2 bg-neutral-50 border border-neutral-200 text-neutral-700 font-bold py-3.5 rounded-xl hover:bg-neutral-100 transition-all text-sm">
+                    className="w-full flex items-center justify-center gap-2 font-bold py-3.5 rounded-xl transition-all text-sm border"
+                    style={{ background: IVORY_BG, borderColor: BORDER, color: TEXT_MID }}>
                     <FileText className="w-4 h-4" /> Draft a Deal
                   </Link>
                   {/* WhatsApp Share */}
@@ -594,7 +616,7 @@ export default function PropertyDetailsPage() {
               </div>
 
               {/* Interest Tracker */}
-              <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+              <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-black text-neutral-900 flex items-center gap-2 text-sm">
                     <Activity className="w-4 h-4 text-rose-500" /> Interest Tracker
@@ -627,8 +649,8 @@ export default function PropertyDetailsPage() {
                         LOST: 'bg-rose-50 text-rose-500',
                       };
                       return (
-                        <div key={entry.id} className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 hover:bg-neutral-100 transition-colors">
-                          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 text-indigo-700 font-black text-xs">
+                        <div key={entry.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-amber-50 transition-colors" style={{ background: IVORY_BG }}>
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-black text-xs" style={{ background: 'rgba(212,168,67,0.12)', color: GOLD_DARK }}>
                             {(lead?.buyerName || '?')[0].toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -652,12 +674,12 @@ export default function PropertyDetailsPage() {
 
               {/* Builder / Developer */}
               {builderName && (
-                <div className="bg-white border border-neutral-200 rounded-2xl p-6 shadow-sm">
+                <div className="rounded-2xl p-6 shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
                   <h3 className="font-black text-neutral-900 mb-4 flex items-center gap-2 text-sm">
                     <Building2 className="w-4 h-4 text-blue-500" /> Developer
                   </h3>
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-700 font-black text-lg shrink-0 border border-indigo-100">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-lg shrink-0 border" style={{ background: 'rgba(212,168,67,0.12)', borderColor: BORDER, color: GOLD_DARK }}>
                       {builderName.charAt(0).toUpperCase()}
                     </div>
                     <div>
@@ -667,16 +689,16 @@ export default function PropertyDetailsPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="space-y-2 pt-1 border-t border-neutral-100">
+                  <div className="space-y-2 pt-1 border-t" style={{ borderColor: BORDER }}>
                     {builderEmail && (
                       <a href={`mailto:${builderEmail}`}
-                        className="flex items-center gap-2 text-xs text-neutral-600 hover:text-indigo-600 transition-colors font-semibold py-1">
+                        className="flex items-center gap-2 text-xs text-neutral-600 hover:text-amber-700 transition-colors font-semibold py-1">
                         <Mail className="w-3.5 h-3.5 shrink-0 text-neutral-400" /> {builderEmail}
                       </a>
                     )}
                     {builderContact && (
                       <a href={`tel:${builderContact}`}
-                        className="flex items-center gap-2 text-xs text-neutral-600 hover:text-indigo-600 transition-colors font-semibold py-1">
+                        className="flex items-center gap-2 text-xs text-neutral-600 hover:text-amber-700 transition-colors font-semibold py-1">
                         <Phone className="w-3.5 h-3.5 shrink-0 text-neutral-400" /> {builderContact}
                       </a>
                     )}

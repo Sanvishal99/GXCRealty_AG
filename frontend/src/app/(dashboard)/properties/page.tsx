@@ -23,6 +23,23 @@ const STAGE_LABEL: Record<string, string> = {
   READY_TO_MOVE: 'Ready to Move',
 };
 
+// ── Theme constants ────────────────────────────────────────────────────────────
+const GOLD = '#C9A227';
+const GOLD_LIGHT = '#D4A843';
+const GOLD_DARK = '#A07208';
+const IVORY = '#FFFDF5';
+const IVORY_BG = '#FDF8ED';
+const BORDER = 'rgba(180,130,30,0.18)';
+const BORDER_MID = 'rgba(180,130,30,0.30)';
+const TEXT_DARK = '#1a1200';
+const TEXT_MID = '#5a4a28';
+const TEXT_SOFT = '#9a8060';
+const GOLD_BTN_STYLE = {
+  background: 'linear-gradient(135deg, #D4A843, #C9A227, #A07208)',
+  color: '#fff',
+  boxShadow: '0 4px 14px rgba(180,130,30,0.28)',
+} as const;
+
 function getLocationStr(p: Property) {
   if (typeof p.location === 'string') return p.location as string;
   return [p.location?.area, p.location?.city, p.location?.state].filter(Boolean).join(', ');
@@ -59,9 +76,12 @@ interface FilterState {
 
 function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">
+    <span
+      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border"
+      style={{ background: 'rgba(212,168,67,0.12)', color: GOLD_DARK, borderColor: BORDER_MID }}
+    >
       {label}
-      <button onClick={onRemove} className="hover:text-indigo-900 transition-colors">
+      <button onClick={onRemove} className="transition-colors" style={{ color: GOLD_DARK }}>
         <X className="w-3 h-3" />
       </button>
     </span>
@@ -76,12 +96,16 @@ function CompareCheckbox({ checked, onChange, disabled }: { checked: boolean; on
       disabled={disabled && !checked}
       title={disabled && !checked ? 'Max 3 properties' : checked ? 'Remove from compare' : 'Add to compare'}
       className={`absolute top-3 right-3 z-20 p-1 rounded-lg transition-all shadow-sm backdrop-blur-sm ${
-        checked
-          ? 'bg-indigo-600 text-white border border-indigo-500'
-          : disabled
+        disabled && !checked
           ? 'bg-white/30 text-white/40 border border-white/20 cursor-not-allowed'
-          : 'bg-white/80 text-neutral-600 border border-neutral-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300'
+          : !checked
+          ? 'bg-white/80 border border-neutral-200 hover:bg-amber-50'
+          : ''
       }`}
+      style={checked
+        ? { background: GOLD, color: '#fff', borderColor: GOLD, border: `1px solid ${GOLD}` }
+        : (!disabled ? { color: TEXT_SOFT } : undefined)
+      }
     >
       {checked
         ? <CheckSquare className="w-4 h-4" />
@@ -124,9 +148,13 @@ function PropertyCard({
         disabled={compareDisabled}
       />
       <Link href={`/properties/${prop.id}`}
-        className={`bg-white border rounded-2xl overflow-hidden group hover:-translate-y-1 hover:shadow-xl hover:shadow-neutral-200/60 hover:border-indigo-200 transition-all duration-300 flex flex-col ${
-          isSelected ? 'border-indigo-400 ring-2 ring-indigo-500/20' : 'border-neutral-200'
+        className={`border rounded-2xl overflow-hidden group hover:-translate-y-1 hover:shadow-xl hover:shadow-neutral-200/60 hover:border-amber-300 transition-all duration-300 flex flex-col ${
+          isSelected ? '' : 'border-neutral-200'
         }`}
+        style={{
+          background: IVORY,
+          ...(isSelected ? { borderColor: GOLD, boxShadow: '0 0 0 2px rgba(201,162,39,0.20)' } : {}),
+        }}
       >
         {/* Image / Gradient Hero */}
         <div className={`h-48 bg-gradient-to-br ${prop.gradient || 'from-indigo-500 to-purple-600'} relative overflow-hidden shrink-0`}>
@@ -140,7 +168,10 @@ function PropertyCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide border ${prop.projectType === 'Villa' ? 'bg-purple-100 text-purple-700 border-purple-200' : prop.projectType === 'Plot' ? 'bg-amber-100 text-amber-700 border-amber-200' : prop.projectType === 'Commercial' ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-indigo-100 text-indigo-700 border-indigo-200'}`}>
+            <span
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wide border ${prop.projectType === 'Villa' ? 'bg-purple-100 text-purple-700 border-purple-200' : prop.projectType === 'Plot' ? 'bg-amber-100 text-amber-700 border-amber-200' : prop.projectType === 'Commercial' ? 'bg-rose-100 text-rose-700 border-rose-200' : ''}`}
+              style={(!prop.projectType || prop.projectType === 'Apartment') ? { background: 'rgba(212,168,67,0.10)', color: GOLD_DARK, borderColor: BORDER } : undefined}
+            >
               {prop.projectType || 'Apartment'}
             </span>
             {prop.projectStage && (
@@ -164,8 +195,8 @@ function PropertyCard({
 
         {/* Body */}
         <div className="p-5 flex flex-col flex-1">
-          <h3 className="font-black text-neutral-900 text-base group-hover:text-indigo-600 transition-colors leading-tight mb-1 truncate">{prop.name}</h3>
-          <p className="text-xs text-neutral-500 flex items-center gap-1 mb-3 font-medium">
+          <h3 className="font-black text-base group-hover:text-amber-700 transition-colors leading-tight mb-1 truncate" style={{ color: TEXT_DARK }}>{prop.name}</h3>
+          <p className="text-xs flex items-center gap-1 mb-3 font-medium" style={{ color: TEXT_SOFT }}>
             <MapPin className="w-3 h-3 shrink-0" />
             <span className="truncate">{locationStr || 'Location TBA'}</span>
           </p>
@@ -174,17 +205,17 @@ function PropertyCard({
           {firstUnit && (
             <div className="flex gap-3 mb-3">
               {firstUnit.beds > 0 && (
-                <div className="flex items-center gap-1 text-xs text-neutral-500 font-semibold">
+                <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: TEXT_SOFT }}>
                   <Bed className="w-3.5 h-3.5" /> {firstUnit.beds} Beds
                 </div>
               )}
               {firstUnit.baths > 0 && (
-                <div className="flex items-center gap-1 text-xs text-neutral-500 font-semibold">
+                <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: TEXT_SOFT }}>
                   <Bath className="w-3.5 h-3.5" /> {firstUnit.baths} Baths
                 </div>
               )}
               {firstUnit.carpetArea > 0 && (
-                <div className="flex items-center gap-1 text-xs text-neutral-500 font-semibold">
+                <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: TEXT_SOFT }}>
                   <Ruler className="w-3.5 h-3.5" /> {firstUnit.carpetArea} sqft
                 </div>
               )}
@@ -195,20 +226,20 @@ function PropertyCard({
           {prop.units?.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-3">
               {prop.units.slice(0, 3).map(u => (
-                <span key={u.id} className="px-2 py-0.5 rounded-md bg-neutral-50 border border-neutral-200 text-[10px] font-bold text-neutral-600">
+                <span key={u.id} className="px-2 py-0.5 rounded-md text-[10px] font-bold border" style={{ background: IVORY_BG, borderColor: BORDER, color: TEXT_MID }}>
                   {u.name}
                 </span>
               ))}
               {prop.units.length > 3 && (
-                <span className="px-2 py-0.5 rounded-md bg-neutral-50 border border-neutral-200 text-[10px] font-bold text-neutral-400">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold border" style={{ background: IVORY_BG, borderColor: BORDER, color: TEXT_SOFT }}>
                   +{prop.units.length - 3} more
                 </span>
               )}
             </div>
           )}
 
-          <div className="mt-auto pt-3 border-t border-neutral-100 flex items-center justify-between">
-            <div className="text-xs text-neutral-500 font-semibold">
+          <div className="mt-auto pt-3 border-t flex items-center justify-between" style={{ borderColor: BORDER }}>
+            <div className="text-xs font-semibold" style={{ color: TEXT_SOFT }}>
               {prop.builder?.name ? `by ${prop.builder.name}` : prop.companyEmail}
             </div>
             {prop.reraId && (
@@ -263,24 +294,22 @@ function CompareOverlay({
     },
   ];
 
-  const colColors = ['indigo', 'purple', 'emerald'];
-
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-neutral-50/95 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex flex-col backdrop-blur-md" style={{ background: 'rgba(253,248,237,0.97)' }}>
       {/* Header */}
-      <div className="bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between shadow-sm">
+      <div className="px-6 py-4 flex items-center justify-between shadow-sm border-b" style={{ background: IVORY, borderColor: BORDER }}>
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-indigo-50 border border-indigo-100">
-            <GitCompare className="w-5 h-5 text-indigo-600" />
+          <div className="p-2 rounded-xl border" style={{ background: 'rgba(212,168,67,0.10)', borderColor: BORDER }}>
+            <GitCompare className="w-5 h-5" style={{ color: GOLD }} />
           </div>
           <div>
-            <h2 className="text-lg font-black text-neutral-900">Property Comparison</h2>
-            <p className="text-xs text-neutral-500 font-medium">Comparing {properties.length} properties side by side</p>
+            <h2 className="text-lg font-black" style={{ color: TEXT_DARK }}>Property Comparison</h2>
+            <p className="text-xs font-medium" style={{ color: TEXT_SOFT }}>Comparing {properties.length} properties side by side</p>
           </div>
         </div>
         <button
           onClick={onClose}
-          className="p-2.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 transition-all"
+          className="p-2.5 rounded-xl bg-neutral-100 hover:bg-amber-50 text-neutral-600 transition-all"
         >
           <X className="w-5 h-5" />
         </button>
@@ -294,12 +323,15 @@ function CompareOverlay({
           <div className="grid gap-4 mb-2" style={{ gridTemplateColumns: `180px repeat(${properties.length}, 1fr)` }}>
             <div /> {/* spacer */}
             {properties.map((p, i) => (
-              <div key={p.id} className={`bg-white border-2 rounded-2xl p-4 text-center border-${colColors[i]}-200`}>
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${p.gradient || (i === 0 ? 'from-indigo-500 to-purple-600' : i === 1 ? 'from-purple-500 to-pink-600' : 'from-emerald-500 to-teal-600')} mx-auto mb-3 flex items-center justify-center text-white font-black text-xl`}>
+              <div key={p.id} className="rounded-2xl p-4 text-center border-2" style={{ background: IVORY, borderColor: BORDER_MID }}>
+                <div
+                  className="w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center text-white font-black text-xl"
+                  style={{ background: 'linear-gradient(135deg, #D4A843, #A07208)' }}
+                >
                   {(p.name || p.title || 'P').charAt(0).toUpperCase()}
                 </div>
-                <p className="font-black text-neutral-900 text-sm leading-tight">{p.name || p.title}</p>
-                <p className="text-[10px] text-neutral-400 font-semibold mt-1 truncate">{getCityStr(p)}</p>
+                <p className="font-black text-sm leading-tight" style={{ color: TEXT_DARK }}>{p.name || p.title}</p>
+                <p className="text-[10px] font-semibold mt-1 truncate" style={{ color: TEXT_SOFT }}>{getCityStr(p)}</p>
               </div>
             ))}
           </div>
@@ -309,19 +341,25 @@ function CompareOverlay({
             {rows.map((row, ri) => (
               <div
                 key={row.label}
-                className={`grid gap-4 rounded-2xl overflow-hidden ${ri % 2 === 0 ? 'bg-white border border-neutral-100' : 'bg-neutral-50/70'}`}
-                style={{ gridTemplateColumns: `180px repeat(${properties.length}, 1fr)` }}
+                className="grid gap-4 rounded-2xl overflow-hidden"
+                style={{
+                  gridTemplateColumns: `180px repeat(${properties.length}, 1fr)`,
+                  ...(ri % 2 === 0
+                    ? { background: IVORY, border: `1px solid ${BORDER}` }
+                    : { background: 'rgba(212,168,67,0.04)' }),
+                }}
               >
                 {/* Row label */}
                 <div className="px-4 py-4 flex items-center">
-                  <span className="text-xs font-black text-neutral-500 uppercase tracking-widest">{row.label}</span>
+                  <span className="text-xs font-black uppercase tracking-widest" style={{ color: TEXT_SOFT }}>{row.label}</span>
                 </div>
                 {/* Values */}
                 {properties.map((p, i) => (
                   <div key={p.id} className="px-4 py-4 flex items-center">
-                    <span className={`font-bold text-sm ${
-                      row.label === 'Price' ? `text-${colColors[i]}-700` : 'text-neutral-800'
-                    }`}>
+                    <span
+                      className="font-bold text-sm"
+                      style={row.label === 'Price' ? { color: GOLD_DARK } : { color: TEXT_DARK }}
+                    >
                       {row.getValue(p)}
                     </span>
                   </div>
@@ -338,7 +376,8 @@ function CompareOverlay({
                 key={p.id}
                 href={`/properties/${p.id}`}
                 onClick={onClose}
-                className={`flex items-center justify-center gap-1.5 py-3 rounded-xl font-bold text-sm transition-all bg-${colColors[i]}-600 text-white hover:bg-${colColors[i]}-700`}
+                className="flex items-center justify-center gap-1.5 py-3 rounded-xl font-bold text-sm transition-all"
+                style={{ background: 'linear-gradient(135deg, #D4A843, #A07208)', color: '#fff' }}
               >
                 View Details →
               </Link>
@@ -450,7 +489,7 @@ export default function PropertiesPage() {
   );
 
   return (
-    <div className="p-6 md:p-8 w-full text-neutral-900 min-h-screen bg-[#fafafa]">
+    <div className="p-6 md:p-8 w-full min-h-screen" style={{ background: IVORY_BG, color: TEXT_DARK }}>
 
       {/* Compare Overlay */}
       {showCompare && compareProperties.length > 0 && (
@@ -464,25 +503,25 @@ export default function PropertiesPage() {
       {/* Header */}
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100">
-            <Building2 className="w-4 h-4 text-indigo-500" />
-            <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Premium Portfolio</span>
+          <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full border" style={{ background: 'rgba(212,168,67,0.08)', borderColor: BORDER }}>
+            <Building2 className="w-4 h-4" style={{ color: GOLD }} />
+            <span className="text-xs font-bold uppercase tracking-widest" style={{ color: GOLD }}>Premium Portfolio</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-1">
-            Property <span className="text-indigo-600">Marketplace</span>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight mb-1" style={{ color: TEXT_DARK }}>
+            Property <span style={{ color: GOLD }}>Marketplace</span>
           </h1>
-          <p className="text-neutral-500 font-medium">{config?.properties?.pageSubtitle || 'Browse verified real estate listings.'}</p>
+          <p className="font-medium" style={{ color: TEXT_SOFT }}>{config?.properties?.pageSubtitle || 'Browse verified real estate listings.'}</p>
         </div>
         {/* Stats strip */}
         <div className="flex gap-3 shrink-0">
           {[
-            { label: 'Listed', value: approvedProperties.length, color: 'text-indigo-600' },
-            { label: 'Cities', value: allCities.length, color: 'text-emerald-600' },
-            { label: 'Portfolio Vol.', value: totalVolume > 0 ? formatCurrency(totalVolume) : '—', color: 'text-purple-600' },
+            { label: 'Listed', value: approvedProperties.length },
+            { label: 'Cities', value: allCities.length },
+            { label: 'Portfolio Vol.', value: totalVolume > 0 ? formatCurrency(totalVolume) : '—' },
           ].map(s => (
-            <div key={s.label} className="bg-white border border-neutral-200 rounded-2xl px-5 py-3 text-center shadow-sm">
-              <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{s.label}</p>
+            <div key={s.label} className="rounded-2xl px-5 py-3 text-center shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
+              <p className="text-xl font-black" style={{ color: GOLD_DARK }}>{s.value}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: TEXT_SOFT }}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -492,19 +531,24 @@ export default function PropertiesPage() {
       <div className="flex flex-wrap gap-3 mb-6 items-center">
         {/* Search */}
         <div className="relative flex-1 min-w-56">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: TEXT_SOFT }} />
           <input
             type="text" placeholder="Search by name, city, builder, RERA..."
             value={filters.search}
             onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-            className="w-full bg-white border border-neutral-200 rounded-xl pl-10 pr-4 py-2.5 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+            className="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm placeholder-neutral-400 focus:outline-none focus:ring-2 transition-all border"
+            style={{ background: IVORY, borderColor: BORDER, color: TEXT_DARK }}
           />
         </div>
 
         {/* Filter Toggle */}
         <button
           onClick={() => setShowFilters(v => !v)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all ${showFilters ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20' : 'bg-white border-neutral-200 text-neutral-700 hover:border-indigo-300'}`}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold border transition-all"
+          style={showFilters
+            ? { ...GOLD_BTN_STYLE, border: 'none' }
+            : { background: IVORY, borderColor: BORDER, color: TEXT_MID, border: `1px solid ${BORDER}` }
+          }
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filters
@@ -518,14 +562,15 @@ export default function PropertiesPage() {
           <select
             value={groupMode}
             onChange={e => setGroupMode(e.target.value as GroupMode)}
-            className="appearance-none bg-white border border-neutral-200 rounded-xl pl-9 pr-8 py-2.5 text-sm font-bold text-neutral-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+            className="appearance-none rounded-xl pl-9 pr-8 py-2.5 text-sm font-bold cursor-pointer focus:outline-none focus:ring-2 transition-all border"
+            style={{ background: IVORY, borderColor: BORDER, color: TEXT_DARK }}
           >
             <option value="none">No Grouping</option>
             <option value="city">Group by City</option>
             <option value="builder">Group by Builder</option>
           </select>
-          <Group className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" />
+          <Group className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: TEXT_SOFT }} />
+          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: TEXT_SOFT }} />
         </div>
 
         {/* Sort */}
@@ -533,23 +578,32 @@ export default function PropertiesPage() {
           <select
             value={sortMode}
             onChange={e => setSortMode(e.target.value as SortMode)}
-            className="appearance-none bg-white border border-neutral-200 rounded-xl pl-9 pr-8 py-2.5 text-sm font-bold text-neutral-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+            className="appearance-none rounded-xl pl-9 pr-8 py-2.5 text-sm font-bold cursor-pointer focus:outline-none focus:ring-2 transition-all border"
+            style={{ background: IVORY, borderColor: BORDER, color: TEXT_DARK }}
           >
             <option value="newest">Newest First</option>
             <option value="price_asc">Price: Low → High</option>
             <option value="price_desc">Price: High → Low</option>
             <option value="name_asc">Name A–Z</option>
           </select>
-          <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
-          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400 pointer-events-none" />
+          <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: TEXT_SOFT }} />
+          <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none" style={{ color: TEXT_SOFT }} />
         </div>
 
         {/* View Mode */}
-        <div className="flex bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm">
-          <button onClick={() => setViewMode('grid')} className={`p-2.5 transition-all ${viewMode === 'grid' ? 'bg-indigo-600 text-white' : 'text-neutral-400 hover:text-neutral-700'}`}>
+        <div className="flex rounded-xl overflow-hidden shadow-sm border" style={{ background: IVORY, borderColor: BORDER }}>
+          <button
+            onClick={() => setViewMode('grid')}
+            className="p-2.5 transition-all"
+            style={viewMode === 'grid' ? GOLD_BTN_STYLE : { color: TEXT_SOFT }}
+          >
             <LayoutGrid className="w-4 h-4" />
           </button>
-          <button onClick={() => setViewMode('list')} className={`p-2.5 transition-all ${viewMode === 'list' ? 'bg-indigo-600 text-white' : 'text-neutral-400 hover:text-neutral-700'}`}>
+          <button
+            onClick={() => setViewMode('list')}
+            className="p-2.5 transition-all"
+            style={viewMode === 'list' ? GOLD_BTN_STYLE : { color: TEXT_SOFT }}
+          >
             <List className="w-4 h-4" />
           </button>
         </div>
@@ -557,9 +611,11 @@ export default function PropertiesPage() {
 
       {/* Filter Panel */}
       {showFilters && (
-        <div className="bg-white border border-neutral-200 rounded-2xl p-6 mb-6 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="rounded-2xl p-6 mb-6 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 border" style={{ background: IVORY, borderColor: BORDER }}>
           <div className="flex justify-between items-center mb-5">
-            <h3 className="font-black text-neutral-800 flex items-center gap-2"><Filter className="w-4 h-4 text-indigo-500" /> Advanced Filters</h3>
+            <h3 className="font-black flex items-center gap-2" style={{ color: TEXT_DARK }}>
+              <Filter className="w-4 h-4" style={{ color: GOLD }} /> Advanced Filters
+            </h3>
             {activeFilterCount > 0 && (
               <button onClick={clearAll} className="text-xs font-bold text-rose-500 hover:text-rose-700 transition-colors flex items-center gap-1">
                 <X className="w-3 h-3" /> Clear All ({activeFilterCount})
@@ -569,11 +625,16 @@ export default function PropertiesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Project Type */}
             <div>
-              <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">Project Type</label>
+              <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>Project Type</label>
               <div className="flex flex-wrap gap-2">
                 {PROJECT_TYPES.map(t => (
                   <button key={t} onClick={() => toggleFilter('types', t)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${filters.types.includes(t) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-indigo-300'}`}>
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                    style={filters.types.includes(t)
+                      ? GOLD_BTN_STYLE
+                      : { background: IVORY_BG, color: TEXT_MID, borderColor: BORDER }
+                    }
+                  >
                     {t}
                   </button>
                 ))}
@@ -581,11 +642,16 @@ export default function PropertiesPage() {
             </div>
             {/* Status */}
             <div>
-              <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">Project Status</label>
+              <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>Project Status</label>
               <div className="flex flex-wrap gap-2">
                 {PROJECT_STATUSES.map(s => (
                   <button key={s} onClick={() => toggleFilter('statuses', s)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${filters.statuses.includes(s) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-indigo-300'}`}>
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                    style={filters.statuses.includes(s)
+                      ? GOLD_BTN_STYLE
+                      : { background: IVORY_BG, color: TEXT_MID, borderColor: BORDER }
+                    }
+                  >
                     {s}
                   </button>
                 ))}
@@ -593,11 +659,16 @@ export default function PropertiesPage() {
             </div>
             {/* Min Beds */}
             <div>
-              <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">Min. Bedrooms</label>
+              <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>Min. Bedrooms</label>
               <div className="flex gap-2">
                 {['1', '2', '3', '4', '5'].map(n => (
                   <button key={n} onClick={() => setFilters(f => ({ ...f, minBeds: f.minBeds === n ? '' : n }))}
-                    className={`w-10 h-9 rounded-lg text-xs font-black border transition-all ${filters.minBeds === n ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-indigo-300'}`}>
+                    className="w-10 h-9 rounded-lg text-xs font-black border transition-all"
+                    style={filters.minBeds === n
+                      ? GOLD_BTN_STYLE
+                      : { background: IVORY_BG, color: TEXT_MID, borderColor: BORDER }
+                    }
+                  >
                     {n}+
                   </button>
                 ))}
@@ -605,27 +676,34 @@ export default function PropertiesPage() {
             </div>
             {/* Price Range */}
             <div>
-              <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">Min Price (₹)</label>
+              <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>Min Price (₹)</label>
               <input type="number" placeholder="e.g. 5000000" value={filters.minPrice}
                 onChange={e => setFilters(f => ({ ...f, minPrice: e.target.value }))}
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 border"
+                style={{ background: IVORY_BG, borderColor: BORDER, color: TEXT_DARK }}
               />
             </div>
             <div>
-              <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">Max Price (₹)</label>
+              <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>Max Price (₹)</label>
               <input type="number" placeholder="e.g. 50000000" value={filters.maxPrice}
                 onChange={e => setFilters(f => ({ ...f, maxPrice: e.target.value }))}
-                className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 border"
+                style={{ background: IVORY_BG, borderColor: BORDER, color: TEXT_DARK }}
               />
             </div>
             {/* City */}
             {allCities.length > 0 && (
               <div>
-                <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">City</label>
+                <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>City</label>
                 <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
                   {allCities.map(c => (
                     <button key={c} onClick={() => toggleFilter('cities', c)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${filters.cities.includes(c) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-indigo-300'}`}>
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                      style={filters.cities.includes(c)
+                        ? GOLD_BTN_STYLE
+                        : { background: IVORY_BG, color: TEXT_MID, borderColor: BORDER }
+                      }
+                    >
                       {c}
                     </button>
                   ))}
@@ -635,11 +713,16 @@ export default function PropertiesPage() {
             {/* Builder */}
             {allBuilders.length > 0 && (
               <div>
-                <label className="text-xs font-black text-neutral-500 uppercase tracking-widest mb-2 block">Builder / Developer</label>
+                <label className="text-xs font-black uppercase tracking-widest mb-2 block" style={{ color: TEXT_SOFT }}>Builder / Developer</label>
                 <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
                   {allBuilders.map(b => (
                     <button key={b} onClick={() => toggleFilter('builders', b)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${filters.builders.includes(b) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-neutral-600 border-neutral-200 hover:border-indigo-300'}`}>
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold border transition-all"
+                      style={filters.builders.includes(b)
+                        ? GOLD_BTN_STYLE
+                        : { background: IVORY_BG, color: TEXT_MID, borderColor: BORDER }
+                      }
+                    >
                       {b}
                     </button>
                   ))}
@@ -664,11 +747,11 @@ export default function PropertiesPage() {
       )}
 
       {/* Results Summary */}
-      <p className="text-sm text-neutral-500 font-semibold mb-5">
-        Showing <span className="text-neutral-900 font-black">{filtered.length}</span> of {approvedProperties.length} properties
-        {groupMode !== 'none' && <span> · Grouped by <span className="text-indigo-600 font-black">{groupMode === 'city' ? 'City' : 'Builder'}</span></span>}
+      <p className="text-sm font-semibold mb-5" style={{ color: TEXT_SOFT }}>
+        Showing <span className="font-black" style={{ color: TEXT_DARK }}>{filtered.length}</span> of {approvedProperties.length} properties
+        {groupMode !== 'none' && <span> · Grouped by <span className="font-black" style={{ color: GOLD }}>{groupMode === 'city' ? 'City' : 'Builder'}</span></span>}
         {compareIds.length > 0 && (
-          <span className="ml-3 text-indigo-600 font-black">
+          <span className="ml-3 font-black" style={{ color: GOLD }}>
             · {compareIds.length} selected for compare
           </span>
         )}
@@ -676,11 +759,11 @@ export default function PropertiesPage() {
 
       {/* Empty State */}
       {filtered.length === 0 && (
-        <div className="bg-white border border-dashed border-neutral-300 rounded-3xl p-16 text-center">
+        <div className="border border-dashed rounded-3xl p-16 text-center" style={{ background: IVORY, borderColor: BORDER_MID }}>
           <div className="text-5xl mb-4">🏘️</div>
-          <h3 className="text-xl font-black text-neutral-700 mb-2">No Properties Found</h3>
-          <p className="text-neutral-500 font-medium mb-4">Try adjusting your filters or broaden your search.</p>
-          <button onClick={clearAll} className="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-sm hover:bg-indigo-700 transition-all">
+          <h3 className="text-xl font-black mb-2" style={{ color: TEXT_DARK }}>No Properties Found</h3>
+          <p className="font-medium mb-4" style={{ color: TEXT_SOFT }}>Try adjusting your filters or broaden your search.</p>
+          <button onClick={clearAll} className="px-6 py-2.5 rounded-xl font-bold text-sm transition-all" style={GOLD_BTN_STYLE}>
             Clear All Filters
           </button>
         </div>
@@ -691,10 +774,12 @@ export default function PropertiesPage() {
         <div key={groupKey} className="mb-10">
           {groupMode !== 'none' && (
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-2 h-6 bg-indigo-600 rounded-full" />
-              <h2 className="text-lg font-black text-neutral-800">{groupKey}</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-black border border-indigo-100">{props.length}</span>
-              <div className="flex-1 h-px bg-neutral-200" />
+              <div className="w-2 h-6 rounded-full" style={{ background: GOLD }} />
+              <h2 className="text-lg font-black" style={{ color: TEXT_DARK }}>{groupKey}</h2>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-black border" style={{ background: 'rgba(212,168,67,0.10)', color: GOLD_DARK, borderColor: BORDER }}>
+                {props.length}
+              </span>
+              <div className="flex-1 h-px" style={{ background: BORDER }} />
             </div>
           )}
 
@@ -721,38 +806,54 @@ export default function PropertiesPage() {
                     disabled={compareIds.length >= 3 && !compareIds.includes(prop.id)}
                     className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-all ${
                       compareIds.includes(prop.id)
-                        ? 'bg-indigo-600 text-white'
+                        ? ''
                         : compareIds.length >= 3
-                        ? 'opacity-30 cursor-not-allowed bg-white border border-neutral-200 text-neutral-400'
-                        : 'bg-white border border-neutral-200 text-neutral-400 hover:text-indigo-600 hover:border-indigo-300'
+                        ? 'opacity-30 cursor-not-allowed border'
+                        : 'border hover:text-amber-700'
                     }`}
+                    style={compareIds.includes(prop.id)
+                      ? { background: GOLD, color: '#fff' }
+                      : compareIds.length >= 3
+                      ? { background: IVORY, borderColor: BORDER, color: TEXT_SOFT }
+                      : { background: IVORY, borderColor: BORDER, color: TEXT_SOFT }
+                    }
                     title={compareIds.includes(prop.id) ? 'Remove' : compareIds.length >= 3 ? 'Max 3' : 'Compare'}
                   >
                     {compareIds.includes(prop.id) ? <CheckSquare className="w-3.5 h-3.5" /> : <Square className="w-3.5 h-3.5" />}
                   </button>
                   <Link href={`/properties/${prop.id}`}
-                    className={`bg-white border rounded-2xl p-4 flex items-center gap-5 group hover:border-indigo-200 hover:shadow-md transition-all pl-12 ${
-                      compareIds.includes(prop.id) ? 'border-indigo-400 ring-1 ring-indigo-500/20' : 'border-neutral-200'
-                    }`}
+                    className={`rounded-2xl p-4 flex items-center gap-5 group hover:shadow-md transition-all pl-12 border`}
+                    style={{
+                      background: IVORY,
+                      borderColor: compareIds.includes(prop.id) ? GOLD : BORDER,
+                      ...(compareIds.includes(prop.id) ? { boxShadow: '0 0 0 1px rgba(201,162,39,0.20)' } : {}),
+                    }}
                   >
-                    <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${prop.gradient || 'from-indigo-500 to-purple-600'} flex items-center justify-center text-2xl shrink-0`}>
+                    <div
+                      className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl shrink-0"
+                      style={{ background: `linear-gradient(135deg, #D4A843, #A07208)` }}
+                    >
                       {prop.emoji || '🏢'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-black text-neutral-900 group-hover:text-indigo-600 transition-colors truncate">{prop.name}</h3>
-                      <p className="text-xs text-neutral-500 flex items-center gap-1 mt-0.5 font-medium">
+                      <h3 className="font-black group-hover:text-amber-700 transition-colors truncate" style={{ color: TEXT_DARK }}>{prop.name}</h3>
+                      <p className="text-xs flex items-center gap-1 mt-0.5 font-medium" style={{ color: TEXT_SOFT }}>
                         <MapPin className="w-3 h-3 shrink-0" />
                         <span className="truncate">{getLocationStr(prop)}</span>
                       </p>
                       <div className="flex gap-2 mt-1.5">
                         <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-600 text-[10px] font-black">{prop.projectType}</span>
-                        {prop.projectStage && <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-black">{prop.projectStage}</span>}
+                        {prop.projectStage && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black" style={{ background: 'rgba(212,168,67,0.10)', color: GOLD_DARK }}>
+                            {prop.projectStage}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-black text-neutral-900">{getMinPrice(prop) > 0 ? formatCurrency(getMinPrice(prop)) : 'POR'}</p>
-                      {prop.units?.[0]?.beds > 0 && <p className="text-xs text-neutral-500 font-medium">{prop.units[0].beds} BHK</p>}
-                      <p className="text-xs text-neutral-400 font-semibold mt-0.5">{prop.builder?.name || '—'}</p>
+                      <p className="font-black" style={{ color: TEXT_DARK }}>{getMinPrice(prop) > 0 ? formatCurrency(getMinPrice(prop)) : 'POR'}</p>
+                      {prop.units?.[0]?.beds > 0 && <p className="text-xs font-medium" style={{ color: TEXT_SOFT }}>{prop.units[0].beds} BHK</p>}
+                      <p className="text-xs font-semibold mt-0.5" style={{ color: TEXT_SOFT }}>{prop.builder?.name || '—'}</p>
                     </div>
                   </Link>
                 </div>
@@ -765,24 +866,25 @@ export default function PropertiesPage() {
       {/* ── Floating Comparison Bar ── */}
       {compareIds.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[calc(100vw-3rem)] max-w-2xl animate-in slide-in-from-bottom-4 duration-300">
-          <div className="bg-white border border-neutral-200 rounded-2xl shadow-2xl shadow-neutral-900/20 p-4 flex items-center gap-4">
+          <div className="rounded-2xl shadow-2xl shadow-neutral-900/20 p-4 flex items-center gap-4 border" style={{ background: IVORY, borderColor: BORDER }}>
             {/* Selected names */}
             <div className="flex-1 flex items-center gap-2 min-w-0">
-              <GitCompare className="w-5 h-5 text-indigo-600 shrink-0" />
+              <GitCompare className="w-5 h-5 shrink-0" style={{ color: GOLD }} />
               <div className="flex flex-wrap gap-1.5 min-w-0">
                 {compareProperties.map(p => (
-                  <span key={p.id} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold">
+                  <span key={p.id} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border" style={{ background: 'rgba(212,168,67,0.10)', borderColor: BORDER, color: GOLD_DARK }}>
                     <span className="truncate max-w-[100px]">{p.name || p.title}</span>
                     <button
                       onClick={() => toggleCompare(p.id)}
-                      className="ml-0.5 text-indigo-400 hover:text-indigo-700 transition-colors"
+                      className="ml-0.5 transition-colors"
+                      style={{ color: GOLD_DARK }}
                     >
                       <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
                 {compareIds.length < 3 && (
-                  <span className="px-2.5 py-1 rounded-lg border border-dashed border-neutral-300 text-neutral-400 text-xs font-semibold">
+                  <span className="px-2.5 py-1 rounded-lg border border-dashed text-xs font-semibold" style={{ borderColor: BORDER, color: TEXT_SOFT }}>
                     + add more (max 3)
                   </span>
                 )}
@@ -793,14 +895,16 @@ export default function PropertiesPage() {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => setCompareIds([])}
-                className="px-3 py-2 rounded-xl text-xs font-bold text-neutral-500 hover:bg-neutral-100 transition-all"
+                className="px-3 py-2 rounded-xl text-xs font-bold hover:bg-amber-50 transition-all"
+                style={{ color: TEXT_SOFT }}
               >
                 Clear
               </button>
               <button
                 onClick={() => setShowCompare(true)}
                 disabled={compareIds.length < 2}
-                className="px-5 py-2 rounded-xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-indigo-500/25"
+                className="px-5 py-2 rounded-xl text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                style={GOLD_BTN_STYLE}
               >
                 <GitCompare className="w-4 h-4" />
                 Compare Now

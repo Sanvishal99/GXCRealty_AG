@@ -4,6 +4,15 @@ import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
+// Suppress Three.js r168 Clock deprecation warning (used internally by R3F)
+if (typeof window !== "undefined") {
+  const _warn = console.warn.bind(console);
+  console.warn = (...args: any[]) => {
+    if (typeof args[0] === "string" && args[0].includes("THREE.Clock")) return;
+    _warn(...args);
+  };
+}
+
 // ── Instanced buildings (single draw call) ────────────────────────────────────
 function Buildings() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
