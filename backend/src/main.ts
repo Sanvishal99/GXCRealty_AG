@@ -25,9 +25,8 @@ async function bootstrap() {
 
     app.setGlobalPrefix('api');
 
-    //const port = parseInt(process.env.PORT || '3000', 10);
+    const port = parseInt(process.env.PORT || '3000', 10);
     const host = '0.0.0.0';
-    const port = process.env.PORT || 3000;
     await app.listen(port, host);
     console.log(`🚀 GXCRealty Backend is running on: http://${host}:${port}/api`);
   } catch (error) {
