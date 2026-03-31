@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useProperties } from '@/context/PropertyContext';
 import { useNotifications } from '@/context/NotificationContext';
+import { upload as uploadApi } from '@/lib/api';
 import {
   Building2, MapPin, IndianRupee, Percent,
   Compass, Train, Plane, GraduationCap,
@@ -12,7 +13,7 @@ import {
   Waves, Dumbbell, Car, Shield, Wind, Coffee,
   Video, Lock, Flame, Library, Tv, Lamp, TreePine,
   Gamepad2, Activity, Home, ShoppingCart, Scissors, Users,
-  Sun, Droplets, Recycle, PhoneCall, Zap, FileText, Upload, ExternalLink
+  Sun, Droplets, Recycle, PhoneCall, Zap, FileText, Upload, ExternalLink, Pencil, Check
 } from 'lucide-react';
 
 // ── Gold / Ivory palette ──────────────────────────────────────────────────────
@@ -78,6 +79,7 @@ export default function NewProjectPage() {
   const [images, setImages] = useState<string[]>([]);
   const [docs, setDocs] = useState<{type: string, name: string, url: string}[]>([]);
   const [isDecoding, setIsDecoding] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Step 6 – Media
   const [imgUrlInput, setImgUrlInput] = useState('');
@@ -86,6 +88,8 @@ export default function NewProjectPage() {
   const [addingDoc, setAddingDoc] = useState(false);
   const [newDocLabel, setNewDocLabel] = useState('');
   const [newDocType, setNewDocType] = useState('Brochure');
+  const [editingDocIdx, setEditingDocIdx] = useState<number | null>(null);
+  const [editingDocName, setEditingDocName] = useState('');
 
   // ── Location validation state ────────────────────────────────────────────────
   const [locErrors, setLocErrors] = useState<Record<string, string>>({});
@@ -108,8 +112,8 @@ export default function NewProjectPage() {
     return false;
   };
 
-  const validateLocField = (field: string, value: string): string => {
-    const v = value.trim();
+  const validateLocField = (field: string, value: string | null | undefined): string => {
+    const v = (value ?? '').trim();
     switch (field) {
       case 'state':
         if (!v) return 'State is required.';
@@ -366,7 +370,8 @@ export default function NewProjectPage() {
           settings: p.settings || { visitAvailable: 'Weekdays & Weekends', timeSlots: '10 AM - 6 PM', autoApprove: true, tags: '', keywords: '', featured: false }
         } as any);
         setImages(p.images || []);
-        if ((p as any).docs) setDocs((p as any).docs);
+        const existingDocs = (p as any).documents || (p as any).docs || [];
+        setDocs(existingDocs.map((d: any) => ({ type: d.type || 'Other', name: d.title || d.name || d.type, url: d.url })));
       }
     } else {
       const saved = localStorage.getItem(DRAFT_KEY);
@@ -1364,12 +1369,31 @@ export default function NewProjectPage() {
                       <label className="aspect-square rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-colors group"
                         style={{ borderColor: BORDER_MID, background: 'rgba(212,168,67,0.05)' }}>
                         <input type="file" multiple accept="image/*" className="hidden"
-                          onChange={e => {
-                            if (e.target.files) setImages([...images, ...Array.from(e.target.files).map(f => URL.createObjectURL(f))]);
+                          onChange={async e => {
+                            if (!e.target.files?.length) return;
+                            const files = Array.from(e.target.files);
+                            setIsUploading(true);
+                            try {
+                              const urls = await uploadApi.images(files);
+                              setImages(prev => [...prev, ...urls]);
+                            } catch {
+                              // fallback: keep blob URLs for offline preview only
+                              setImages(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+                            } finally {
+                              setIsUploading(false);
+                              e.target.value = '';
+                            }
                           }} />
-                        <ImageIcon className="w-8 h-8 mb-2 group-hover:scale-110 transition-transform" style={{ color: GOLD_LIGHT }} />
-                        <span className="text-xs font-bold" style={{ color: GOLD_DARK }}>Upload Photos</span>
-                        <span className="text-[10px] mt-0.5" style={{ color: TEXT_SOFT }}>Multiple OK</span>
+                        {isUploading ? (
+                          <svg className="animate-spin w-8 h-8 mb-2" style={{ color: GOLD_LIGHT }} fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        ) : (
+                          <ImageIcon className="w-8 h-8 mb-2 group-hover:scale-110 transition-transform" style={{ color: GOLD_LIGHT }} />
+                        )}
+                        <span className="text-xs font-bold" style={{ color: GOLD_DARK }}>{isUploading ? 'Uploading…' : 'Upload Photos'}</span>
+                        <span className="text-[10px] mt-0.5" style={{ color: TEXT_SOFT }}>{isUploading ? 'Please wait' : 'Multiple OK'}</span>
                       </label>
                     </div>
 
@@ -1454,36 +1478,76 @@ export default function NewProjectPage() {
                     {/* Existing docs list */}
                     {docs.length > 0 && (
                       <div className="space-y-2">
-                        {docs.map((doc, i) => (
-                          <div key={i} className="flex items-center gap-3 p-4 rounded-xl border shadow-sm transition-colors group"
-                            style={{ background: IVORY_BG, borderColor: BORDER }}>
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0"
-                              style={{ background: IVORY, border: `1px solid ${BORDER}` }}>
-                              {docIcon2(doc.name)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-bold text-sm truncate" style={{ color: TEXT_DARK }}>{doc.name}</p>
-                              <div className="flex items-center gap-1.5 mt-0.5">
-                                <span className={`px-2 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wide ${docTagColor(doc.type)}`}>
-                                  {doc.type}
-                                </span>
-                                {ext(doc.name) && (
-                                  <span className="text-[10px] font-bold uppercase" style={{ color: TEXT_SOFT }}>.{ext(doc.name)}</span>
-                                )}
+                        {docs.map((doc, i) => {
+                          const isEditingDoc = editingDocIdx === i;
+                          return (
+                            <div key={i} className="flex items-center gap-3 p-4 rounded-xl border shadow-sm transition-colors group"
+                              style={{ background: IVORY_BG, borderColor: isEditingDoc ? GOLD : BORDER }}>
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0"
+                                style={{ background: IVORY, border: `1px solid ${BORDER}` }}>
+                                {docIcon2(doc.name)}
                               </div>
+                              <div className="flex-1 min-w-0">
+                                {isEditingDoc ? (
+                                  <input
+                                    autoFocus
+                                    value={editingDocName}
+                                    onChange={e => setEditingDocName(e.target.value)}
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter') {
+                                        const trimmed = editingDocName.trim();
+                                        if (trimmed) setDocs(docs.map((d, idx) => idx === i ? { ...d, name: trimmed } : d));
+                                        setEditingDocIdx(null);
+                                      }
+                                      if (e.key === 'Escape') setEditingDocIdx(null);
+                                    }}
+                                    className="w-full font-bold text-sm rounded-lg px-2 py-0.5 outline-none border"
+                                    style={{ background: IVORY, borderColor: GOLD, color: TEXT_DARK }}
+                                  />
+                                ) : (
+                                  <p className="font-bold text-sm truncate" style={{ color: TEXT_DARK }}>{doc.name}</p>
+                                )}
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className={`px-2 py-0.5 rounded-md border text-[10px] font-black uppercase tracking-wide ${docTagColor(doc.type)}`}>
+                                    {doc.type}
+                                  </span>
+                                  {ext(doc.name) && (
+                                    <span className="text-[10px] font-bold uppercase" style={{ color: TEXT_SOFT }}>.{ext(doc.name)}</span>
+                                  )}
+                                </div>
+                              </div>
+                              {isEditingDoc ? (
+                                <button type="button"
+                                  onClick={() => {
+                                    const trimmed = editingDocName.trim();
+                                    if (trimmed) setDocs(docs.map((d, idx) => idx === i ? { ...d, name: trimmed } : d));
+                                    setEditingDocIdx(null);
+                                  }}
+                                  className="p-2 rounded-lg transition-colors"
+                                  style={{ background: GOLD, color: '#fff' }}>
+                                  <Check className="w-4 h-4" />
+                                </button>
+                              ) : (
+                                <button type="button"
+                                  onClick={() => { setEditingDocIdx(i); setEditingDocName(doc.name); }}
+                                  className="p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                  style={{ color: TEXT_SOFT }}>
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
+                              <a href={doc.url} target="_blank" rel="noopener noreferrer"
+                                className="p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100 hover:bg-amber-50"
+                                style={{ color: TEXT_SOFT }}>
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                              <button type="button" onClick={() => setDocs(docs.filter((_, idx) => idx !== i))}
+                                className="p-2 rounded-lg hover:bg-rose-50 transition-colors opacity-0 group-hover:opacity-100"
+                                style={{ color: TEXT_SOFT }}>
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
-                            <a href={doc.url} target="_blank" rel="noopener noreferrer"
-                              className="p-2 rounded-lg transition-colors opacity-0 group-hover:opacity-100 hover:bg-amber-50"
-                              style={{ color: TEXT_SOFT }}>
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                            <button type="button" onClick={() => setDocs(docs.filter((_, idx) => idx !== i))}
-                              className="p-2 rounded-lg hover:bg-rose-50 transition-colors opacity-0 group-hover:opacity-100"
-                              style={{ color: TEXT_SOFT }}>
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 
@@ -1522,17 +1586,31 @@ export default function NewProjectPage() {
                             accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.webp"
                             multiple
                             className="hidden"
-                            onChange={e => {
-                              if (e.target.files) {
-                                const newDocs = Array.from(e.target.files).map((f, idx) => ({
+                            onChange={async e => {
+                              if (!e.target.files?.length) return;
+                              const files = Array.from(e.target.files);
+                              setIsUploading(true);
+                              try {
+                                const urls = await uploadApi.documents(files);
+                                const newDocs = files.map((f, idx) => ({
                                   type: newDocType,
-                                  name: newDocLabel && e.target.files!.length === 1 ? (newDocLabel + '.' + f.name.split('.').pop()) : f.name,
-                                  url: URL.createObjectURL(f)
+                                  name: newDocLabel && files.length === 1 ? (newDocLabel + '.' + f.name.split('.').pop()) : f.name,
+                                  url: urls[idx],
                                 }));
-                                setDocs([...docs, ...newDocs]);
+                                setDocs(prev => [...prev, ...newDocs]);
+                              } catch {
+                                const newDocs = files.map(f => ({
+                                  type: newDocType,
+                                  name: newDocLabel && files.length === 1 ? (newDocLabel + '.' + f.name.split('.').pop()) : f.name,
+                                  url: URL.createObjectURL(f),
+                                }));
+                                setDocs(prev => [...prev, ...newDocs]);
+                              } finally {
+                                setIsUploading(false);
                                 setAddingDoc(false);
                                 setNewDocLabel('');
                                 setNewDocType('Brochure');
+                                e.target.value = '';
                               }
                             }}
                           />

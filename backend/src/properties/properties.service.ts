@@ -53,7 +53,11 @@ export class PropertiesService {
   async findByCompany(companyId: string) {
     return this.prisma.property.findMany({
       where: { companyId },
-      include: { units: true, _count: { select: { visits: true, deals: true } } },
+      include: {
+        units: true,
+        documents: { select: { id: true, type: true, title: true, url: true } },
+        _count: { select: { visits: true, deals: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -65,7 +69,7 @@ export class PropertiesService {
 
     const status = role === Role.ADMIN ? PropertyStatus.AVAILABLE : PropertyStatus.PENDING_APPROVAL;
     const flat = this.flattenPropertyData(data);
-    const { units, ...rest } = flat;
+    const { units, docs, ...rest } = flat;
 
     return this.prisma.property.create({
       data: {
@@ -88,8 +92,17 @@ export class PropertiesService {
             })),
           },
         }),
+        ...(docs?.length && {
+          documents: {
+            create: docs.map((d: any) => ({
+              type:  d.type  || 'Other',
+              title: d.name  || d.title || d.type || 'Document',
+              url:   d.url,
+            })),
+          },
+        }),
       },
-      include: { units: true },
+      include: { units: true, documents: true },
     });
   }
 
@@ -199,8 +212,9 @@ export class PropertiesService {
       images:           Array.isArray(data.images) ? data.images : undefined,
       amenities,
 
-      // Pass units through for caller to handle
+      // Pass units and docs through for caller to handle
       units: data.units,
+      docs:  Array.isArray(data.docs) ? data.docs : undefined,
     };
 
     // Strip undefined, empty strings, and NaN — Prisma rejects all three
@@ -227,6 +241,18 @@ export class PropertiesService {
     return { total: rows.length, succeeded, failed: rows.length - succeeded, results };
   }
 
+  async renameDocument(docId: string, title: string, userId: string, role: Role) {
+    const doc = await this.prisma.propertyDocument.findUnique({
+      where: { id: docId },
+      include: { property: { select: { companyId: true } } },
+    });
+    if (!doc) throw new NotFoundException('Document not found');
+    if (role !== Role.ADMIN && doc.property.companyId !== userId) {
+      throw new ForbiddenException('You can only edit your own property documents.');
+    }
+    return this.prisma.propertyDocument.update({ where: { id: docId }, data: { title } });
+  }
+
   async updateListing(propertyId: string, companyId: string, role: Role, data: any) {
     const property = await this.prisma.property.findUnique({ where: { id: propertyId } });
     if (!property) throw new NotFoundException('Property not found');
@@ -234,7 +260,21 @@ export class PropertiesService {
       throw new ForbiddenException('You can only edit your own properties.');
     }
     const flat = this.flattenPropertyData(data);
-    const { units, ...rest } = flat;
-    return this.prisma.property.update({ where: { id: propertyId }, data: rest });
+    const { units, docs, ...rest } = flat;
+    return this.prisma.property.update({
+      where: { id: propertyId },
+      data: {
+        ...rest,
+        ...(docs?.length && {
+          documents: {
+            create: docs.map((d: any) => ({
+              type:  d.type  || 'Other',
+              title: d.name  || d.title || d.type || 'Document',
+              url:   d.url,
+            })),
+          },
+        }),
+      },
+    });
   }
 }

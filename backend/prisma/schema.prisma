@@ -182,6 +182,10 @@ model Deal {
   salePrice       Float
   totalCommission Float
   currency        Currency      @default(INR)
+  status          DealStatus    @default(PENDING_VERIFICATION)
+  adminNote       String?
+  reviewedAt      DateTime?
+  reviewedBy      String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   agent           User          @relation("ClosingAgent", fields: [agentId], references: [id])
@@ -310,6 +314,12 @@ enum Currency {
   USD
   EUR
   GBP
+}
+
+enum DealStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
 }
 
 enum PropertyStatus {

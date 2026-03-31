@@ -83,6 +83,12 @@ export class PropertiesController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Patch('documents/:docId')
+  async renameDocument(@Request() req, @Param('docId') docId: string, @Body() body: { title: string }) {
+    return this.propertiesService.renameDocument(docId, body.title, req.user.id || req.user.sub, req.user.role);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Post('bulk-import')
   async bulkImport(@Request() req, @Body() body: { rows: any[] }) {
     const userId = req.user.id || req.user.sub;

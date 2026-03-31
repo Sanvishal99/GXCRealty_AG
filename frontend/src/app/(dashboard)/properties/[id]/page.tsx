@@ -174,20 +174,21 @@ function PhotoGrid({ images, title, onOpen }: {
           />
         </div>
 
-        {/* Right 2×2 grid — 42% */}
+        {/* Right side — adapts to available image count */}
         {grid.length > 0 && (
-          <div className="flex-[42] grid grid-cols-2 grid-rows-2 gap-0.5">
-            {Array.from({ length: 4 }).map((_, i) => {
-              const img = grid[i];
-              const showOverlay = i === 3 && hidden > 0;
-
-              if (!img) {
-                return <div key={i} className="bg-neutral-800/80" />;
-              }
+          <div className={`flex-[42] gap-0.5 ${
+            grid.length === 1 ? 'flex' :
+            grid.length === 2 ? 'grid grid-cols-1 grid-rows-2' :
+            grid.length === 3 ? 'grid grid-cols-2 grid-rows-2' :
+            'grid grid-cols-2 grid-rows-2'
+          }`}>
+            {grid.map((img, i) => {
+              const showOverlay = i === grid.length - 1 && hidden > 0;
+              const spanFull = grid.length === 3 && i === 0;
               return (
                 <div
                   key={i}
-                  className="relative cursor-pointer overflow-hidden group"
+                  className={`relative cursor-pointer overflow-hidden group ${spanFull ? 'col-span-2' : ''}`}
                   onClick={() => onOpen(i + 1)}
                 >
                   <img
@@ -205,9 +206,6 @@ function PhotoGrid({ images, title, onOpen }: {
             })}
           </div>
         )}
-
-        {/* If only 1 image, right side is empty */}
-        {grid.length === 0 && <div className="flex-[42] bg-neutral-800/60" />}
       </div>
 
       {/* View all button (bottom-right) */}

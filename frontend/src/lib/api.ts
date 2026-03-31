@@ -98,6 +98,8 @@ export const properties = {
   updateStatus: (id: string, status: string) =>
     request<any>(`/properties/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   interests: (id: string, days = 30) => request<any[]>(`/properties/${id}/interests?days=${days}`),
+  renameDocument: (docId: string, title: string) =>
+    request<any>(`/properties/documents/${docId}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
 };
 
 // ── Leads ─────────────────────────────────────────────────────────────────────
@@ -122,6 +124,8 @@ export const deals = {
   },
   close: (data: { propertyId: string }) =>
     request<any>('/deals/close', { method: 'POST', body: JSON.stringify(data) }),
+  updateStatus: (id: string, status: string, adminNote?: string) =>
+    request<any>(`/deals/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status, adminNote }) }),
 };
 
 // ── Visits ───────────────────────────────────────────────────────────────────
@@ -213,6 +217,42 @@ export const auditLogs = {
 export const bulkImport = {
   properties: (rows: any[]) =>
     request<any>('/properties/bulk-import', { method: 'POST', body: JSON.stringify({ rows }) }),
+};
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+export const upload = {
+  images: async (files: File[]): Promise<string[]> => {
+    const token = getToken();
+    const form = new FormData();
+    files.forEach(f => form.append('files', f));
+    const res = await fetch(`${API_BASE}/upload/images`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new ApiError(body.message || `Upload failed (${res.status})`, res.status);
+    }
+    const data = await res.json();
+    return data.urls as string[];
+  },
+  documents: async (files: File[]): Promise<string[]> => {
+    const token = getToken();
+    const form = new FormData();
+    files.forEach(f => form.append('files', f));
+    const res = await fetch(`${API_BASE}/upload/documents`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new ApiError(body.message || `Upload failed (${res.status})`, res.status);
+    }
+    const data = await res.json();
+    return data.urls as string[];
+  },
 };
 
 // ── Network / Downline ────────────────────────────────────────────────────────

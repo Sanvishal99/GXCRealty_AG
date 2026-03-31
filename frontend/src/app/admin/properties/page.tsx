@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNotifications } from '@/context/NotificationContext';
 import { useUserProfile } from '@/context/UserProfileContext';
 import { properties as propertiesApi } from '@/lib/api';
 import {
   X, CheckCircle2, XCircle, Eye, Building2, MapPin, IndianRupee,
   Users, FileText, Image as ImageIcon, Layers, Phone, Mail,
-  Calendar, Tag, BarChart2, RefreshCw, ChevronDown, ChevronUp
+  Calendar, Tag, BarChart2, RefreshCw, ChevronDown, ChevronUp, Pencil, Check
 } from 'lucide-react';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -16,6 +16,73 @@ const fmt = (n: number | null | undefined) =>
 const badge = (label: string, color: string) => (
   <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${color}`}>{label}</span>
 );
+
+// ── Doc Row ───────────────────────────────────────────────────────────────────
+function DocRow({ doc, onRenamed }: { doc: any; onRenamed: (id: string, title: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(doc.title || doc.type);
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setEditing(true);
+    setTimeout(() => inputRef.current?.select(), 0);
+  };
+
+  const save = async () => {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === (doc.title || doc.type)) { setEditing(false); return; }
+    setSaving(true);
+    try {
+      await propertiesApi.renameDocument(doc.id, trimmed);
+      onRenamed(doc.id, trimmed);
+    } catch {}
+    setSaving(false);
+    setEditing(false);
+  };
+
+  return (
+    <div className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 border border-neutral-100 group">
+      <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
+        <FileText className="w-4 h-4 text-indigo-600" />
+      </div>
+      <div className="flex-1 min-w-0">
+        {editing ? (
+          <input
+            ref={inputRef}
+            value={value}
+            onChange={e => setValue(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') setEditing(false); }}
+            className="w-full text-sm font-bold text-neutral-800 bg-white border border-indigo-300 rounded-lg px-2 py-0.5 outline-none focus:ring-2 focus:ring-indigo-300/40"
+            disabled={saving}
+            autoFocus
+          />
+        ) : (
+          <p className="text-sm font-bold text-neutral-800 truncate">{value}</p>
+        )}
+        <p className="text-xs text-neutral-400 font-medium uppercase">{doc.type}</p>
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        {editing ? (
+          <button onClick={save} disabled={saving}
+            className="p-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:opacity-50">
+            <Check className="w-3.5 h-3.5" />
+          </button>
+        ) : (
+          <button onClick={startEdit}
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-indigo-600 hover:bg-indigo-50 opacity-0 group-hover:opacity-100 transition-all">
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+        )}
+        <a href={doc.url} target="_blank" rel="noopener noreferrer"
+          className="text-xs text-indigo-600 font-bold hover:underline">
+          View →
+        </a>
+      </div>
+    </div>
+  );
+}
 
 // ── Review Modal ──────────────────────────────────────────────────────────────
 function ReviewModal({ p, onClose, onApprove, onReject }: {
@@ -208,22 +275,13 @@ function ReviewModal({ p, onClose, onApprove, onReject }: {
             ) : (
               <div className="space-y-2">
                 {p.documents.map((d: any) => (
-                  <a
-                    key={d.id}
-                    href={d.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 rounded-xl bg-neutral-50 hover:bg-indigo-50 border border-neutral-100 hover:border-indigo-200 transition-all"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center shrink-0">
-                      <FileText className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-neutral-800 truncate">{d.title || d.type}</p>
-                      <p className="text-xs text-neutral-400 font-medium uppercase">{d.type}</p>
-                    </div>
-                    <span className="text-xs text-indigo-600 font-bold shrink-0">View →</span>
-                  </a>
+                  <DocRow key={d.id} doc={d} onRenamed={(id, title) => {
+                    setAllProperties(prev => prev.map(prop =>
+                      prop.id === p.id
+                        ? { ...prop, documents: prop.documents.map((dd: any) => dd.id === id ? { ...dd, title } : dd) }
+                        : prop
+                    ));
+                  }} />
                 ))}
               </div>
             )}

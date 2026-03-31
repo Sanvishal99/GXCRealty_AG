@@ -19,6 +19,7 @@ import { CompanyInviteModule } from './company-invite/company-invite.module';
 import { AccessRequestModule } from './access-request/access-request.module';
 import { HealthModule } from './health/health.module';
 import { NetworkModule } from './network/network.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { NetworkModule } from './network/network.module';
     AccessRequestModule,
     HealthModule,
     NetworkModule,
+    UploadModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

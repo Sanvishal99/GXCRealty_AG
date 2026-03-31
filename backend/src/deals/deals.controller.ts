@@ -1,6 +1,9 @@
-import { Controller, Post, Get, Body, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Query, Param, UseGuards, Request } from '@nestjs/common';
 import { DealsService } from './deals.service';
 import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role, DealStatus } from '@prisma/client';
 
 @Controller('deals')
 @UseGuards(AuthGuard('jwt'))
@@ -20,11 +23,20 @@ export class DealsController {
   }
 
   @Post('close')
-  async closeDeal(
-    @Request() req,
-    @Body() body: { propertyId: string },
-  ) {
+  async closeDeal(@Request() req, @Body() body: { propertyId: string }) {
     const agentId = req.user.id || req.user.sub;
     return this.dealsService.closeDeal(body.propertyId, agentId);
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @Patch(':id/status')
+  async updateStatus(
+    @Request() req,
+    @Param('id') id: string,
+    @Body() body: { status: DealStatus; adminNote?: string },
+  ) {
+    const adminId = req.user.id || req.user.sub;
+    return this.dealsService.updateDealStatus(id, body.status, adminId, body.adminNote);
   }
 }

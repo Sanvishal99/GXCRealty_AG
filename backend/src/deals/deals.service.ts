@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CommissionService } from '../commission/commission.service';
 import { ChatGateway } from '../chat/chat.gateway';
 import { NetworkService } from '../network/network.service';
-import { PropertyStatus } from '@prisma/client';
+import { PropertyStatus, DealStatus } from '@prisma/client';
 
 @Injectable()
 export class DealsService {
@@ -72,6 +72,37 @@ export class DealsService {
     }
 
     return { deal, distribution, salePrice, commissionPoolPct: property.commissionPoolPct ?? 2 };
+  }
+
+  async updateDealStatus(dealId: string, status: DealStatus, adminId: string, adminNote?: string) {
+    const deal = await this.prisma.deal.findUnique({ where: { id: dealId } });
+    if (!deal) throw new NotFoundException('Deal not found');
+
+    const updated = await this.prisma.deal.update({
+      where: { id: dealId },
+      data: { status, adminNote: adminNote ?? null, reviewedAt: new Date(), reviewedBy: adminId },
+      include: {
+        property: { select: { id: true, title: true, city: true } },
+        agent: { select: { id: true, email: true } },
+      },
+    });
+
+    // Notify agent of the status change
+    try {
+      this.chatGateway.emitToUser(deal.agentId, 'networkActivity', {
+        type: `DEAL_${status}`,
+        title: status === DealStatus.VERIFIED ? 'Deal Verified ✅' : 'Deal Rejected ❌',
+        detail: status === DealStatus.VERIFIED
+          ? `Your deal has been verified by admin.${adminNote ? ' Note: ' + adminNote : ''}`
+          : `Your deal was rejected.${adminNote ? ' Reason: ' + adminNote : ''}`,
+        timestamp: updated.reviewedAt,
+        meta: { dealId },
+      });
+    } catch {
+      // Non-blocking
+    }
+
+    return updated;
   }
 
   async getDeals(filters?: { agentId?: string; companyId?: string }) {
