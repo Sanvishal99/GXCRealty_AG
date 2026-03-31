@@ -1,5 +1,5 @@
 import { Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { CrawlerService } from './crawler.service';
+import { CrawlerService, CrawlerStatus } from './crawler.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -16,7 +16,7 @@ export class CrawlerController {
    * Returns the last run info without triggering a scrape.
    */
   @Get('status')
-  getStatus() {
+  getStatus(): CrawlerStatus {
     return this.crawlerService.getStatus();
   }
 
@@ -25,7 +25,7 @@ export class CrawlerController {
    * Manually trigger a scrape job immediately (admin only).
    */
   @Post('run')
-  async runNow() {
+  async runNow(): Promise<CrawlerStatus> {
     return this.crawlerService.runScrape();
   }
 }

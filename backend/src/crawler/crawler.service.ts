@@ -9,7 +9,7 @@ import * as cheerio from 'cheerio';
 import { PropertiesService } from '../properties/properties.service';
 import { Role } from '@prisma/client';
 
-interface ScrapedProperty {
+export interface ScrapedProperty {
   title: string;
   city: string;
   locality?: string;
@@ -22,7 +22,7 @@ interface ScrapedProperty {
   sourceUrl?: string;
 }
 
-interface CrawlerStatus {
+export interface CrawlerStatus {
   lastRunAt: Date | null;
   lastRunImported: number;
   lastRunFailed: number;
