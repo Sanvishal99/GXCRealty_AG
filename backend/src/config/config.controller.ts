@@ -27,6 +27,7 @@ export class ConfigController {
     tierSplits?: number[];
     brandingLogoUrl?: string;
     brandingEmoji?: string;
+    contentJson?: Record<string, any>;
   }) {
     return this.configService.updateConfig(body);
   }

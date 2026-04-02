@@ -239,6 +239,7 @@ model GlobalConfig {
   tierSplits        Json
   brandingLogoUrl   String?
   brandingEmoji     String   @default("🏢")
+  contentJson       Json?
   updatedAt         DateTime @updatedAt
 }
 

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 const DEFAULT_CONFIG = {
@@ -10,6 +10,7 @@ const DEFAULT_CONFIG = {
   tierSplits: [40, 25, 15, 10, 10],
   brandingLogoUrl: null,
   brandingEmoji: '🏢',
+  contentJson: null,
 };
 
 @Injectable()
@@ -32,6 +33,7 @@ export class ConfigService {
     tierSplits?: number[];
     brandingLogoUrl?: string;
     brandingEmoji?: string;
+    contentJson?: Record<string, any>;
   }) {
     // Validate split percentages sum to 100 if all provided
     if (

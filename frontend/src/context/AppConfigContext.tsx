@@ -103,25 +103,29 @@ const DEFAULT_CONFIG: AppConfig = {
   },
 };
 
-// ── Merge remote GlobalConfig into AppConfig.deals ────────────────────────────
+// ── Merge remote GlobalConfig into AppConfig ──────────────────────────────────
 function mergeRemoteConfig(local: AppConfig, remote: any): AppConfig {
   if (!remote) return local;
-  return {
-    ...local,
-    branding: {
-      ...local.branding,
-      ...(remote.brandingEmoji && { logoEmoji: remote.brandingEmoji }),
-      ...(remote.brandingLogoUrl && { logoImage: remote.brandingLogoUrl }),
-    },
-    deals: {
-      ...local.deals,
-      ...(remote.commissionPoolPct !== undefined && { commissionPoolPct: remote.commissionPoolPct }),
-      ...(remote.agentSplitPct !== undefined && { agentSplitPct: remote.agentSplitPct }),
-      ...(remote.networkPoolPct !== undefined && { networkPoolPct: remote.networkPoolPct }),
-      ...(remote.companySplitPct !== undefined && { companySplitPct: remote.companySplitPct }),
-      ...(remote.tierSplits !== undefined && { tierSplits: remote.tierSplits }),
-    },
-  };
+
+  // Start with local, then overlay saved contentJson (all sections), then deals/branding from DB columns
+  const fromContent: Partial<AppConfig> = remote.contentJson ?? {};
+
+  return deepMerge(
+    deepMerge(local, fromContent as any),
+    {
+      branding: {
+        ...(remote.brandingEmoji && { logoEmoji: remote.brandingEmoji }),
+        ...(remote.brandingLogoUrl && { logoImage: remote.brandingLogoUrl }),
+      },
+      deals: {
+        ...(remote.commissionPoolPct !== undefined && { commissionPoolPct: remote.commissionPoolPct }),
+        ...(remote.agentSplitPct !== undefined && { agentSplitPct: remote.agentSplitPct }),
+        ...(remote.networkPoolPct !== undefined && { networkPoolPct: remote.networkPoolPct }),
+        ...(remote.companySplitPct !== undefined && { companySplitPct: remote.companySplitPct }),
+        ...(remote.tierSplits !== undefined && { tierSplits: remote.tierSplits }),
+      },
+    } as any,
+  );
 }
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
