@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Outfit } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/context/ThemeContext'
@@ -10,13 +10,33 @@ import { PropertyProvider } from '@/context/PropertyContext'
 import { LogProvider } from '@/context/LogContext'
 import ToastContainer from '@/components/ToastContainer'
 import ImpersonationBanner from '@/components/ImpersonationBanner'
+import PWARegister from '@/components/PWARegister'
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' })
 
+export const viewport: Viewport = {
+  themeColor: '#B8860B',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gxcrealty.com'),
-  title: 'GXCRealty | Exclusive Network',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.gxcreality.com'),
+  title: 'GXC Realty | Exclusive Network',
   description: 'Invite-only real estate platform and premium incentive engine',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'GXC Realty',
+  },
+  formatDetection: { telephone: false },
+  icons: {
+    icon: '/favicon.png',
+    apple: '/icons/icon-192x192.png',
+  },
 }
 
 export default function RootLayout({
@@ -34,6 +54,7 @@ export default function RootLayout({
                 <CurrencyProvider>
                   <NotificationProvider>
                     <LogProvider>
+                      <PWARegister />
                       <ImpersonationBanner />
                       {children}
                       <ToastContainer />
