@@ -6,6 +6,8 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './jwt.strategy';
 import { CompanyInviteModule } from '../company-invite/company-invite.module';
+import { MailerService } from './mailer.service';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
   imports: [
@@ -16,8 +18,9 @@ import { CompanyInviteModule } from '../company-invite/company-invite.module';
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '8h' },
     }),
     CompanyInviteModule,
+    PrismaModule,
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, MailerService],
   controllers: [AuthController],
   exports: [AuthService],
 })

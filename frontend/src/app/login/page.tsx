@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/context/UserProfileContext';
 import { auth as authApi, ApiError } from '@/lib/api';
@@ -167,6 +168,15 @@ export default function LoginPage() {
                   {error}
                 </div>
               )}
+
+              {/* Forgot password */}
+              <div className="text-right -mt-1">
+                <Link href="/forgot-password"
+                  className="text-xs font-semibold transition-colors hover:underline"
+                  style={{ color: TEXT_SOFT }}>
+                  Forgot password?
+                </Link>
+              </div>
 
               {/* Submit */}
               <button

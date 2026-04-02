@@ -31,4 +31,18 @@ export class AuthController {
   async validateInvite(@Param('code') code: string) {
     return this.authService.validateInviteCode(code);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    await this.authService.forgotPassword(body.email);
+    return { message: 'If that email is registered, a reset link has been sent.' };
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  async resetPassword(@Body() body: { token: string; newPassword: string }) {
+    await this.authService.resetPassword(body.token, body.newPassword);
+    return { message: 'Password updated successfully.' };
+  }
 }

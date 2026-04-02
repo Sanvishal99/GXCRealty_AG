@@ -2,7 +2,10 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { CompanyInviteService } from '../company-invite/company-invite.service';
+import { MailerService } from './mailer.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { Role, Status } from '@prisma/client';
 
@@ -12,6 +15,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private companyInviteService: CompanyInviteService,
+    private mailerService: MailerService,
+    private prisma: PrismaService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -86,5 +91,43 @@ export class AuthService {
     await this.companyInviteService.markUsed(token, newUser.id);
 
     return this.login(newUser);
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersService.findOne(email.toLowerCase().trim());
+    // Always return success to avoid user enumeration
+    if (!user) return;
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordResetToken: token, passwordResetExpiry: expiry },
+    });
+
+    await this.mailerService.sendPasswordResetEmail(user.email, token);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordResetToken: token,
+        passwordResetExpiry: { gt: new Date() },
+      },
+    });
+
+    if (!user) throw new BadRequestException('Reset link is invalid or has expired.');
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+      },
+    });
   }
 }
