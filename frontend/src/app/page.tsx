@@ -203,8 +203,8 @@ export default function Home() {
             Request Access
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
-          <Link href="/login"
-            className="flex items-center justify-center gap-2 px-10 py-5 font-bold rounded-2xl text-lg transition-all border"
+          <Link href="/browse"
+            className="group flex items-center justify-center gap-2 px-10 py-5 font-bold rounded-2xl text-lg transition-all border"
             style={{
               background: 'rgba(212,168,67,0.07)',
               borderColor: `rgba(180,130,30,0.25)`,
@@ -212,6 +212,19 @@ export default function Home() {
             }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,168,67,0.14)'; }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(212,168,67,0.07)'; }}
+          >
+            <Building2 className="w-5 h-5" />
+            Browse Properties
+          </Link>
+          <Link href="/login"
+            className="flex items-center justify-center gap-2 px-10 py-5 font-bold rounded-2xl text-lg transition-all border"
+            style={{
+              background: 'transparent',
+              borderColor: `rgba(180,130,30,0.18)`,
+              color: TEXT_MID,
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = GOLD; (e.currentTarget as HTMLElement).style.borderColor = `rgba(180,130,30,0.35)`; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = TEXT_MID; (e.currentTarget as HTMLElement).style.borderColor = `rgba(180,130,30,0.18)`; }}
           >
             Advisor Login
           </Link>

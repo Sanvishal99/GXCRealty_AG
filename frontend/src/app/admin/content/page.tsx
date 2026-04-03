@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useAppConfig, AppConfig } from '@/context/AppConfigContext';
+import { useAppConfig, AppConfig, Notice, NoticeType, FestiveTheme } from '@/context/AppConfigContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { config as configApi } from '@/lib/api';
 
@@ -14,7 +14,7 @@ const TEXT_DARK  = '#1a1200';
 const TEXT_MID   = '#5a4a28';
 const TEXT_SOFT  = '#9a8060';
 
-type EditorSection = 'branding' | 'landing' | 'dashboard' | 'pages' | 'features';
+type EditorSection = 'branding' | 'landing' | 'dashboard' | 'pages' | 'features' | 'notices';
 
 const SECTIONS: { id: EditorSection; label: string; icon: string }[] = [
   { id: 'branding',  label: 'Branding',      icon: 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01' },
@@ -22,6 +22,7 @@ const SECTIONS: { id: EditorSection; label: string; icon: string }[] = [
   { id: 'dashboard', label: 'Dashboard',     icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
   { id: 'pages',     label: 'All Pages',     icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
   { id: 'features',  label: 'Feature Flags', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+  { id: 'notices',   label: 'Notices & Themes', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
 ];
 
 function Field({ label, value, onChange, multiline = false, type = 'text', hint }: {
@@ -90,6 +91,212 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
+// ── Notices & Themes editor sub-component ───────────────────────────────────
+
+const NOTICE_TYPES: { id: NoticeType; label: string; color: string }[] = [
+  { id: 'info',    label: 'Info',    color: '#60a5fa' },
+  { id: 'warning', label: 'Warning', color: '#fbbf24' },
+  { id: 'success', label: 'Success', color: '#34d399' },
+  { id: 'error',   label: 'Error',   color: '#f87171' },
+];
+
+const FESTIVE_OPTIONS: { id: FestiveTheme; label: string; emoji: string; desc: string }[] = [
+  { id: 'none',      label: 'None',     emoji: '✕',  desc: 'No festive theme applied' },
+  { id: 'diwali',    label: 'Diwali',   emoji: '🪔', desc: 'Warm saffron & amber glow' },
+  { id: 'christmas', label: 'Christmas',emoji: '🎄', desc: 'Deep red & pine green' },
+  { id: 'newyear',   label: 'New Year', emoji: '🎆', desc: 'Cobalt blue & silver shimmer' },
+  { id: 'holi',      label: 'Holi',     emoji: '🌈', desc: 'Vivid multicolour burst' },
+  { id: 'eid',       label: 'Eid',      emoji: '🌙', desc: 'Emerald green & gold' },
+];
+
+function NoticesAndThemesEditor({
+  notices, festiveTheme, onNoticesChange, onFestiveChange,
+}: {
+  notices: Notice[];
+  festiveTheme: FestiveTheme;
+  onNoticesChange: (n: Notice[]) => void;
+  onFestiveChange: (t: FestiveTheme) => void;
+}) {
+  const addNotice = () => {
+    const newNotice: Notice = {
+      id: `notice_${Date.now()}`,
+      text: 'New notice — click to edit',
+      type: 'info',
+      active: true,
+      dismissible: true,
+    };
+    onNoticesChange([...notices, newNotice]);
+  };
+
+  const updateNotice = (id: string, patch: Partial<Notice>) => {
+    onNoticesChange(notices.map(n => n.id === id ? { ...n, ...patch } : n));
+  };
+
+  const removeNotice = (id: string) => {
+    onNoticesChange(notices.filter(n => n.id !== id));
+  };
+
+  const inputStyle = {
+    background: GOLD_BG,
+    border: `1px solid ${BORDER}`,
+    color: TEXT_DARK,
+    borderRadius: '10px',
+    padding: '8px 12px',
+    fontSize: '14px',
+    width: '100%',
+    outline: 'none',
+  };
+
+  return (
+    <div className="space-y-8">
+
+      {/* ── Active Notices ── */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <SectionLabel>Platform Notices</SectionLabel>
+            <p className="text-xs -mt-2" style={{ color: TEXT_SOFT }}>Banners shown to all users inside the dashboard. Dismissible notices can be hidden by users (resets each session).</p>
+          </div>
+          <button onClick={addNotice}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border"
+            style={{ background: `linear-gradient(135deg, ${GOLD_LIGHT}, ${GOLD})`, color: '#fff', border: 'none', boxShadow: `0 3px 10px rgba(180,130,30,0.3)` }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Add Notice
+          </button>
+        </div>
+
+        {notices.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 rounded-2xl border-dashed border-2 gap-2"
+            style={{ borderColor: BORDER, background: 'rgba(180,130,30,0.02)' }}>
+            <svg className="w-8 h-8 opacity-30" style={{ color: GOLD }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <p className="text-sm font-semibold" style={{ color: TEXT_SOFT }}>No notices yet</p>
+            <p className="text-xs" style={{ color: TEXT_SOFT }}>Click "Add Notice" to create one.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {notices.map(n => {
+              const typeConfig = NOTICE_TYPES.find(t => t.id === n.type)!;
+              return (
+                <div key={n.id} className="rounded-2xl border overflow-hidden"
+                  style={{ background: GOLD_CARD, borderColor: n.active ? BORDER : BORDER_MID, opacity: n.active ? 1 : 0.6 }}>
+                  {/* Color accent bar */}
+                  <div className="h-0.5" style={{ background: typeConfig.color }} />
+                  <div className="p-4 space-y-3">
+                    {/* Text */}
+                    <input
+                      value={n.text}
+                      onChange={e => updateNotice(n.id, { text: e.target.value })}
+                      style={inputStyle}
+                      placeholder="Notice text shown to all users…"
+                    />
+                    {/* Controls row */}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {/* Type picker */}
+                      <div className="flex gap-1.5">
+                        {NOTICE_TYPES.map(t => (
+                          <button key={t.id} onClick={() => updateNotice(n.id, { type: t.id })}
+                            className="px-3 py-1 rounded-lg text-xs font-bold transition-all border"
+                            style={{
+                              background: n.type === t.id ? `${t.color}22` : 'transparent',
+                              color: n.type === t.id ? t.color : TEXT_SOFT,
+                              borderColor: n.type === t.id ? `${t.color}55` : BORDER_MID,
+                            }}>
+                            {t.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-3 ml-auto">
+                        {/* Dismissible toggle */}
+                        <label className="flex items-center gap-1.5 text-xs font-medium cursor-pointer" style={{ color: TEXT_SOFT }}>
+                          <input type="checkbox" checked={n.dismissible} onChange={e => updateNotice(n.id, { dismissible: e.target.checked })}
+                            className="w-3.5 h-3.5 accent-amber-600" />
+                          Dismissible
+                        </label>
+                        {/* Active toggle */}
+                        <button onClick={() => updateNotice(n.id, { active: !n.active })}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-all border"
+                          style={{
+                            background: n.active ? 'rgba(16,185,129,0.1)' : 'rgba(180,130,30,0.04)',
+                            color: n.active ? '#34d399' : TEXT_SOFT,
+                            borderColor: n.active ? 'rgba(16,185,129,0.25)' : BORDER_MID,
+                          }}>
+                          {n.active ? 'Active' : 'Inactive'}
+                        </button>
+                        {/* Delete */}
+                        <button onClick={() => removeNotice(n.id)}
+                          className="p-1.5 rounded-lg transition-all border"
+                          style={{ background: 'rgba(220,38,38,0.06)', borderColor: 'rgba(220,38,38,0.2)', color: '#dc2626' }}
+                          title="Delete notice">
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ── Festive Theme ── */}
+      <div className="border-t pt-6" style={{ borderColor: BORDER_MID }}>
+        <SectionLabel>Festive Theme</SectionLabel>
+        <p className="text-xs mb-4 -mt-2" style={{ color: TEXT_SOFT }}>
+          Apply a festive colour overlay on top of the existing dark/light theme. Affects glow effects and accent colours globally.
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {FESTIVE_OPTIONS.map(opt => {
+            const isSelected = festiveTheme === opt.id;
+            return (
+              <button key={opt.id} onClick={() => onFestiveChange(opt.id)}
+                className="flex items-start gap-3 p-4 rounded-2xl border transition-all text-left"
+                style={{
+                  background: isSelected ? `linear-gradient(135deg, rgba(212,168,67,0.15), rgba(180,130,30,0.08))` : GOLD_BG,
+                  borderColor: isSelected ? GOLD_LIGHT : BORDER,
+                  boxShadow: isSelected ? `0 2px 12px rgba(180,130,30,0.2)` : 'none',
+                }}>
+                <span className="text-2xl leading-none mt-0.5">{opt.emoji}</span>
+                <div>
+                  <p className="text-sm font-bold" style={{ color: isSelected ? GOLD : TEXT_DARK }}>{opt.label}</p>
+                  <p className="text-xs mt-0.5" style={{ color: TEXT_SOFT }}>{opt.desc}</p>
+                </div>
+                {isSelected && (
+                  <svg className="w-4 h-4 ml-auto mt-0.5 flex-shrink-0" style={{ color: GOLD }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {festiveTheme !== 'none' && (
+          <div className="flex items-start gap-3 p-4 rounded-2xl mt-4 border"
+            style={{ background: 'rgba(212,168,67,0.06)', borderColor: BORDER }}>
+            <span className="text-lg">{FESTIVE_OPTIONS.find(o => o.id === festiveTheme)?.emoji}</span>
+            <div>
+              <p className="text-sm font-bold" style={{ color: TEXT_DARK }}>
+                {FESTIVE_OPTIONS.find(o => o.id === festiveTheme)?.label} theme is active
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: TEXT_SOFT }}>Save changes to apply to all users. Select "None" to deactivate.</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main editor ──────────────────────────────────────────────────────────────
+
 export default function AdminContentEditor() {
   const { config, updateConfig, resetConfig } = useAppConfig();
   const { addNotification } = useNotifications();
@@ -132,13 +339,13 @@ export default function AdminContentEditor() {
   const saveSection = async () => {
     setSaving(true);
     try {
-      // Save everything to backend — deals/branding as DB columns, rest as contentJson
+      // Coerce numeric fields to numbers (set() stores strings, which breaks backend validation)
       await configApi.update({
-        commissionPoolPct: local.deals.commissionPoolPct,
-        agentSplitPct: local.deals.agentSplitPct,
-        networkPoolPct: local.deals.networkPoolPct,
-        companySplitPct: local.deals.companySplitPct,
-        tierSplits: local.deals.tierSplits,
+        commissionPoolPct: Number(local.deals.commissionPoolPct),
+        agentSplitPct: Number(local.deals.agentSplitPct),
+        networkPoolPct: Number(local.deals.networkPoolPct),
+        companySplitPct: Number(local.deals.companySplitPct),
+        tierSplits: (local.deals.tierSplits ?? []).map(Number),
         brandingEmoji: local.branding.logoEmoji,
         brandingLogoUrl: local.branding.logoImage,
         contentJson: {
@@ -151,14 +358,16 @@ export default function AdminContentEditor() {
           chat: local.chat,
           settings: local.settings,
           features: local.features,
+          notices: local.notices ?? [],
+          festiveTheme: local.festiveTheme ?? 'none',
         },
       });
-      // Save everything else to localStorage
       updateConfig(local as any);
       setDirty(false);
       addNotification({ type: 'success', title: 'Content Saved', message: 'Platform content updated successfully.', category: 'system' });
-    } catch {
-      addNotification({ type: 'error', title: 'Save Failed', message: 'Could not reach server. Changes saved locally only.', category: 'system' });
+    } catch (err: any) {
+      const msg = err?.message ?? 'Could not reach server.';
+      addNotification({ type: 'error', title: 'Save Failed', message: msg, category: 'system' });
       // Still save locally even if backend fails
       updateConfig(local as any);
       setDirty(false);
@@ -464,6 +673,16 @@ export default function AdminContentEditor() {
                     </div>
                   ))}
                 </div>
+              )}
+
+              {/* ── NOTICES & THEMES ── */}
+              {active === 'notices' && (
+                <NoticesAndThemesEditor
+                  notices={local.notices ?? []}
+                  festiveTheme={local.festiveTheme ?? 'none'}
+                  onNoticesChange={notices => setLocal(prev => ({ ...prev, notices }))}
+                  onFestiveChange={festiveTheme => setLocal(prev => ({ ...prev, festiveTheme }))}
+                />
               )}
 
               {/* ── FEATURE FLAGS ── */}

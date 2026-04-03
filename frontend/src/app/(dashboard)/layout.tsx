@@ -1,13 +1,32 @@
 "use client";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { useAppConfig } from '@/context/AppConfigContext';
+import { useUserProfile } from '@/context/UserProfileContext';
+import NoticeBanner from '@/components/NoticeBanner';
+import FestiveThemeApplier from '@/components/FestiveThemeApplier';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { config } = useAppConfig();
+  const { isLoading, isAuthenticated } = useUserProfile();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading || !isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <Sidebar />
+
+      <FestiveThemeApplier />
 
       <main className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden w-full relative min-h-0
         pt-[56px] pb-[70px]
@@ -22,6 +41,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <p className="text-sm font-semibold text-amber-500">{config.features.maintenanceMessage}</p>
           </div>
         )}
+
+        {/* Active notices */}
+        <NoticeBanner />
 
         {/* Background glow orbs */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] glow-orb-1 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />

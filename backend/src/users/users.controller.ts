@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards, Request, Patch, Post, Body, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Request, Patch, Post, Body, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '../auth/roles.guard';
@@ -10,11 +10,14 @@ import { Role, Status } from '@prisma/client';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // Returns the authenticated user's own profile
+  // Returns the authenticated user's own profile (no sensitive fields)
   @Get('me')
   async getMe(@Request() req) {
     const id = req.user.id || req.user.sub;
-    return this.usersService.findById(id);
+    const user = await this.usersService.findById(id);
+    if (!user) return null;
+    const { passwordHash, passwordResetToken, passwordResetExpiry, ...safe } = user as any;
+    return safe;
   }
 
   // Admin — list all users with optional role/status filter
@@ -66,13 +69,25 @@ export class UsersController {
     return { message: 'Password reset successfully' };
   }
 
+  // Agents can only view their own upline; admins can view any
   @Get(':id/upline')
-  async getUpline(@Param('id') id: string) {
+  async getUpline(@Param('id') id: string, @Request() req) {
+    const callerId = req.user.id || req.user.sub;
+    const callerRole = req.user.role;
+    if (callerRole !== Role.ADMIN && callerId !== id) {
+      throw new ForbiddenException('You can only view your own upline.');
+    }
     return this.usersService.getUpline(id);
   }
 
+  // Agents can only view their own downline; admins can view any
   @Get(':id/downline')
-  async getDownline(@Param('id') id: string) {
+  async getDownline(@Param('id') id: string, @Request() req) {
+    const callerId = req.user.id || req.user.sub;
+    const callerRole = req.user.role;
+    if (callerRole !== Role.ADMIN && callerId !== id) {
+      throw new ForbiddenException('You can only view your own downline.');
+    }
     return this.usersService.getDownline(id);
   }
 }

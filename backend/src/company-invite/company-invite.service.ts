@@ -42,7 +42,12 @@ export class CompanyInviteService {
       throw new BadRequestException('Invite has expired');
     }
 
-    return invite;
+    // Only return the minimum needed by the registration form — no admin metadata
+    return {
+      valid: true,
+      email: invite.email ?? null,
+      expiresAt: invite.expiresAt,
+    };
   }
 
   async markUsed(token: string, userId: string) {

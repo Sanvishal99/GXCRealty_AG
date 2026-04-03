@@ -35,6 +35,13 @@ export class ConfigService {
     brandingEmoji?: string;
     contentJson?: Record<string, any>;
   }) {
+    // Coerce to numbers in case strings slip through (ValidationPipe doesn't transform plain interfaces)
+    if (data.agentSplitPct !== undefined) data.agentSplitPct = Number(data.agentSplitPct);
+    if (data.networkPoolPct !== undefined) data.networkPoolPct = Number(data.networkPoolPct);
+    if (data.companySplitPct !== undefined) data.companySplitPct = Number(data.companySplitPct);
+    if (data.commissionPoolPct !== undefined) data.commissionPoolPct = Number(data.commissionPoolPct);
+    if (data.tierSplits) data.tierSplits = data.tierSplits.map(Number);
+
     // Validate split percentages sum to 100 if all provided
     if (
       data.agentSplitPct !== undefined &&

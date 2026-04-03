@@ -33,30 +33,21 @@ const GOLD_BTN: React.CSSProperties = {
   boxShadow: '0 4px 14px rgba(180,130,30,0.28)',
 };
 
-// ── Amenity options ───────────────────────────────────────────────────────────
-const AMENITY_OPTIONS = {
-  common: [
-    { id: 'parking', label: 'Parking', icon: Car },
-    { id: 'lift', label: 'Lift', icon: Shield },
-    { id: 'power', label: 'Power Backup', icon: Zap },
-    { id: 'security', label: 'Security', icon: Lock },
-    { id: 'cctv', label: 'CCTV', icon: Video },
-    { id: 'water', label: 'Water Supply', icon: Droplets },
-  ],
-  lifestyle: [
-    { id: 'pool', label: 'Swimming Pool', icon: Waves },
-    { id: 'gym', label: 'Gym', icon: Dumbbell },
-    { id: 'club', label: 'Clubhouse', icon: Coffee },
-    { id: 'children', label: 'Kids Area', icon: Users },
-    { id: 'garden', label: 'Garden', icon: TreePine },
-    { id: 'jogging', label: 'Jogging Track', icon: Activity },
-  ],
-  premium: [
-    { id: 'smart', label: 'Smart Home', icon: Lamp },
-    { id: 'ev', label: 'EV Charging', icon: Zap },
-    { id: 'coworking', label: 'Co-working', icon: Layout },
-  ]
-};
+// ── Amenity type ──────────────────────────────────────────────────────────────
+type AmenityItem = { id: string; name: string; image: string };
+
+const DEFAULT_AMENITIES: AmenityItem[] = [
+  { id: 'a1', name: 'Swimming Pool',     image: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&q=80' },
+  { id: 'a2', name: 'Gymnasium',         image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&q=80' },
+  { id: 'a3', name: 'Clubhouse',         image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80' },
+  { id: 'a4', name: 'Kids Play Area',    image: 'https://images.unsplash.com/photo-1575783970733-1aaedde1db74?w=400&q=80' },
+  { id: 'a5', name: 'Jogging Track',     image: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=400&q=80' },
+  { id: 'a6', name: '24/7 Security',     image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80' },
+  { id: 'a7', name: 'Power Backup',      image: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=400&q=80' },
+  { id: 'a8', name: 'Covered Parking',   image: 'https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=400&q=80' },
+  { id: 'a9', name: 'Landscaped Garden', image: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=400&q=80' },
+  { id: 'a10', name: 'CCTV Surveillance', image: 'https://images.unsplash.com/photo-1591453089816-0fbb971b454c?w=400&q=80' },
+];
 
 const INDIAN_STATES = [
   "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
@@ -80,6 +71,12 @@ export default function NewProjectPage() {
   const [docs, setDocs] = useState<{type: string, name: string, url: string}[]>([]);
   const [isDecoding, setIsDecoding] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Step 5 – Amenities
+  const [isAddingAmenity, setIsAddingAmenity] = useState(false);
+  const [amenityDraft, setAmenityDraft] = useState({ name: '', image: '' });
+  const [amenityImgUploading, setAmenityImgUploading] = useState(false);
+  const [amenityImgUrlInput, setAmenityImgUrlInput] = useState('');
 
   // Step 6 – Media
   const [imgUrlInput, setImgUrlInput] = useState('');
@@ -343,7 +340,7 @@ export default function NewProjectPage() {
     location: { country: 'India', state: '', city: '', area: '', address: '', pincode: '', mapUrl: '', lat: '', lng: '' },
     pricing: { minPrice: '', maxPrice: '', pricePerSqFt: '', bookingAmount: '', maintenance: '', commissionValue: '2', requiredApproval: false },
     units: [{ id: Math.random().toString(), name: '3BHK Standard', beds: 3, baths: 3, balconies: 1, superArea: 1450, carpetArea: 1200, price: 15000000, maxPrice: 16000000, total: 20, available: 20 }],
-    amenities: { common: [] as string[], lifestyle: [] as string[], premium: [] as string[] },
+    amenities: { custom: DEFAULT_AMENITIES },
     builder: { name: '', contact: '', email: '', address: '' },
     settings: { visitAvailable: 'Weekdays & Weekends', timeSlots: '10 AM - 6 PM', autoApprove: true, tags: '', keywords: '', featured: false }
   });
@@ -363,11 +360,38 @@ export default function NewProjectPage() {
           launchDate: p.launchDate || '',
           possessionDate: p.possessionDate || '',
           location: typeof p.location === 'object' ? p.location : { country: 'India', state: '', city: '', area: typeof p.location === 'string' ? p.location : '', address: '', pincode: '', mapUrl: '', lat: '', lng: '' },
-          pricing: p.pricing || { minPrice: (p as any).price?.toString() || '', maxPrice: '', pricePerSqFt: '', bookingAmount: '', maintenance: '', commissionValue: (p as any).commissionPct?.toString() || '2', requiredApproval: false },
+          pricing: {
+            minPrice: p.pricing?.minPrice?.toString() ?? (p as any).price?.toString() ?? '',
+            maxPrice: p.pricing?.maxPrice?.toString() ?? '',
+            pricePerSqFt: p.pricing?.pricePerSqFt?.toString() ?? '',
+            bookingAmount: p.pricing?.bookingAmount?.toString() ?? '',
+            maintenance: p.pricing?.maintenance?.toString() ?? '',
+            commissionValue: p.pricing?.commissionValue?.toString() ?? (p as any).commissionPct?.toString() ?? '2',
+            requiredApproval: p.pricing?.requiredApproval ?? false,
+          },
           units: p.units?.length ? p.units : [{ id: Math.random().toString(), name: 'Default Unit', beds: (p as any).beds || 3, baths: (p as any).baths || 3, balconies: 1, superArea: 1450, carpetArea: 1200, price: 0, maxPrice: 0, total: 1, available: 1 }],
-          amenities: p.amenities && !Array.isArray(p.amenities) ? p.amenities : { common: Array.isArray(p.amenities) ? p.amenities : [], lifestyle: [], premium: [] },
-          builder: p.builder || { name: '', contact: '', email: '', address: '' },
-          settings: p.settings || { visitAvailable: 'Weekdays & Weekends', timeSlots: '10 AM - 6 PM', autoApprove: true, tags: '', keywords: '', featured: false }
+          amenities: (() => {
+            if (!p.amenities) return { custom: [] };
+            // New format: already { custom: [...] }
+            if (!Array.isArray(p.amenities) && (p.amenities as any).custom) return p.amenities as any;
+            // Old format: array of strings → convert
+            const arr = Array.isArray(p.amenities) ? p.amenities : [];
+            return { custom: arr.map((a: any) => typeof a === 'string' ? { id: Math.random().toString(), name: a, image: '' } : a) };
+          })(),
+          builder: {
+            name: p.builder?.name ?? '',
+            contact: p.builder?.contact ?? '',
+            email: p.builder?.email ?? '',
+            address: p.builder?.address ?? '',
+          },
+          settings: {
+            visitAvailable: p.settings?.visitAvailable ?? 'Weekdays & Weekends',
+            timeSlots: p.settings?.timeSlots ?? '10 AM - 6 PM',
+            autoApprove: p.settings?.autoApprove ?? true,
+            tags: p.settings?.tags ?? '',
+            keywords: p.settings?.keywords ?? '',
+            featured: p.settings?.featured ?? false,
+          }
         } as any);
         setImages(p.images || []);
         const existingDocs = (p as any).documents || (p as any).docs || [];
@@ -394,14 +418,12 @@ export default function NewProjectPage() {
     if (!editId) localStorage.setItem(DRAFT_KEY, JSON.stringify({ formData, step, images }));
   }, [formData, step, images]);
 
-  const toggleAmenity = (category: 'common'|'lifestyle'|'premium', id: string) => {
-    setFormData(prev => ({
-      ...prev,
-      amenities: {
-        ...prev.amenities,
-        [category]: prev.amenities[category].includes(id) ? prev.amenities[category].filter(a => a !== id) : [...prev.amenities[category], id]
-      }
-    }));
+  const addAmenity = (item: AmenityItem) => {
+    setFormData(prev => ({ ...prev, amenities: { custom: [...prev.amenities.custom, item] } }));
+  };
+
+  const removeAmenity = (id: string) => {
+    setFormData(prev => ({ ...prev, amenities: { custom: prev.amenities.custom.filter(a => a.id !== id) } }));
   };
 
   const addUnit = () => {
@@ -536,9 +558,9 @@ export default function NewProjectPage() {
                   {/* dot + label */}
                   <button
                     type="button"
-                    onClick={() => (isDone || isActive) && setStep(s.id)}
+                    onClick={() => setStep(s.id)}
                     className="flex flex-col items-center gap-1.5 group shrink-0"
-                    style={{ cursor: isDone || isActive ? 'pointer' : 'default' }}
+                    style={{ cursor: 'pointer' }}
                   >
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs transition-all duration-200"
@@ -1093,7 +1115,7 @@ export default function NewProjectPage() {
                       <input
                         required type="number"
                         className={inputBase} style={inputDefault}
-                        value={formData.pricing.minPrice}
+                        value={formData.pricing.minPrice ?? ''}
                         onChange={e => setFormData({ ...formData, pricing: { ...formData.pricing, minPrice: e.target.value } })}
                       />
                     </div>
@@ -1102,7 +1124,7 @@ export default function NewProjectPage() {
                       <input
                         type="number"
                         className={inputBase} style={inputDefault}
-                        value={formData.pricing.maxPrice}
+                        value={formData.pricing.maxPrice ?? ''}
                         onChange={e => setFormData({ ...formData, pricing: { ...formData.pricing, maxPrice: e.target.value } })}
                       />
                     </div>
@@ -1111,7 +1133,7 @@ export default function NewProjectPage() {
                       <input
                         type="number"
                         className={inputBase} style={inputDefault}
-                        value={formData.pricing.pricePerSqFt}
+                        value={formData.pricing.pricePerSqFt ?? ''}
                         onChange={e => setFormData({ ...formData, pricing: { ...formData.pricing, pricePerSqFt: e.target.value } })}
                       />
                     </div>
@@ -1120,7 +1142,7 @@ export default function NewProjectPage() {
                       <input
                         type="number"
                         className={inputBase} style={inputDefault}
-                        value={formData.pricing.bookingAmount}
+                        value={formData.pricing.bookingAmount ?? ''}
                         onChange={e => setFormData({ ...formData, pricing: { ...formData.pricing, bookingAmount: e.target.value } })}
                       />
                     </div>
@@ -1133,7 +1155,7 @@ export default function NewProjectPage() {
                             required type="number" step="0.1"
                             className={inputBase}
                             style={{ background: IVORY, borderColor: BORDER_MID, color: TEXT_DARK, fontWeight: 700 }}
-                            value={formData.pricing.commissionValue}
+                            value={formData.pricing.commissionValue ?? ''}
                             onChange={e => setFormData({ ...formData, pricing: { ...formData.pricing, commissionValue: e.target.value } })}
                           />
                         </div>
@@ -1267,41 +1289,163 @@ export default function NewProjectPage() {
 
               {/* ── STEP 5: AMENITIES ────────────────────────────────────────── */}
               {step === 5 && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
-                  <div className="border-b pb-4" style={{ borderColor: BORDER }}>
-                    <h3 className="text-xl font-black mb-1" style={{ color: TEXT_DARK }}>Curated Amenities</h3>
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                  <div className="border-b pb-4 flex items-end justify-between" style={{ borderColor: BORDER }}>
+                    <div>
+                      <h3 className="text-xl font-black mb-1" style={{ color: TEXT_DARK }}>Amenities</h3>
+                      <p className="text-sm font-medium" style={{ color: TEXT_SOFT }}>Add each amenity with an optional image.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setAmenityDraft({ name: '', image: '' }); setAmenityImgUrlInput(''); setIsAddingAmenity(true); }}
+                      className="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all hover:bg-amber-50"
+                      style={{ border: `1px solid ${BORDER_MID}`, color: GOLD_DARK, background: 'rgba(212,168,67,0.06)' }}>
+                      <PlusCircle className="w-4 h-4" /> Add Amenity
+                    </button>
                   </div>
 
-                  {(['common', 'lifestyle', 'premium'] as const).map(category => (
-                    <div key={category} className="space-y-4">
-                      <h4 className="text-sm font-bold uppercase tracking-widest" style={{ color: TEXT_SOFT }}>
-                        {category} Features
-                      </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {AMENITY_OPTIONS[category].map(opt => {
-                          const Icon = opt.icon;
-                          const isActive = formData.amenities[category].includes(opt.id);
-                          return (
-                            <div
-                              key={opt.id} role="button" tabIndex={0}
-                              onClick={() => toggleAmenity(category, opt.id)}
-                              className="p-3 rounded-xl border transition-all flex items-center gap-3 cursor-pointer select-none"
-                              style={isActive
-                                ? { background: 'rgba(212,168,67,0.12)', borderColor: GOLD, color: TEXT_DARK, boxShadow: '0 0 0 2px rgba(201,162,39,0.15)' }
-                                : { background: IVORY, borderColor: BORDER, color: TEXT_MID }}>
-                              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                                style={isActive
-                                  ? { background: GOLD, color: '#fff' }
-                                  : { background: IVORY_BG, color: TEXT_SOFT }}>
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <span className="text-xs font-bold leading-tight flex-1">{opt.label}</span>
+                  {/* Add amenity inline form */}
+                  {isAddingAmenity && (
+                    <div className="p-5 rounded-2xl border space-y-4" style={{ background: 'rgba(212,168,67,0.06)', borderColor: GOLD }}>
+                      <h4 className="text-sm font-bold uppercase tracking-widest" style={{ color: GOLD_DARK }}>New Amenity</h4>
+
+                      {/* Name */}
+                      <div>
+                        <Label>Amenity Name <span className="text-rose-500">*</span></Label>
+                        <input
+                          placeholder="e.g. Swimming Pool, Gymnasium, Kids Area"
+                          className={inputBase}
+                          style={inputDefault}
+                          value={amenityDraft.name}
+                          onChange={e => setAmenityDraft(d => ({ ...d, name: e.target.value }))}
+                        />
+                      </div>
+
+                      {/* Image – upload */}
+                      <div>
+                        <Label>Amenity Image (optional)</Label>
+                        <div className="flex gap-3 items-start">
+                          {/* File upload */}
+                          <label className="flex-1 flex flex-col items-center justify-center gap-1 p-4 rounded-xl border-2 border-dashed cursor-pointer transition-colors hover:bg-amber-50"
+                            style={{ borderColor: BORDER_MID, background: IVORY }}>
+                            <input type="file" accept="image/*" className="hidden"
+                              onChange={async e => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setAmenityImgUploading(true);
+                                try {
+                                  const urls = await uploadApi.images([file]);
+                                  setAmenityDraft(d => ({ ...d, image: urls[0] }));
+                                  setAmenityImgUrlInput(urls[0]);
+                                } catch {
+                                  const blobUrl = URL.createObjectURL(file);
+                                  setAmenityDraft(d => ({ ...d, image: blobUrl }));
+                                  setAmenityImgUrlInput(blobUrl);
+                                } finally {
+                                  setAmenityImgUploading(false);
+                                  e.target.value = '';
+                                }
+                              }} />
+                            {amenityImgUploading ? (
+                              <svg className="animate-spin w-5 h-5" style={{ color: GOLD }} fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                              </svg>
+                            ) : (
+                              <Upload className="w-5 h-5" style={{ color: GOLD_LIGHT }} />
+                            )}
+                            <span className="text-xs font-bold" style={{ color: GOLD_DARK }}>{amenityImgUploading ? 'Uploading…' : 'Upload Image'}</span>
+                          </label>
+
+                          {/* Or URL */}
+                          <div className="flex-1 space-y-2">
+                            <Label>Or paste image URL</Label>
+                            <div className="flex gap-2">
+                              <input
+                                type="url"
+                                placeholder="https://…"
+                                className={inputBase}
+                                style={inputDefault}
+                                value={amenityImgUrlInput}
+                                onChange={e => { setAmenityImgUrlInput(e.target.value); setAmenityDraft(d => ({ ...d, image: e.target.value })); }}
+                              />
                             </div>
-                          );
-                        })}
+                          </div>
+
+                          {/* Preview */}
+                          {amenityDraft.image && (
+                            <div className="w-16 h-16 rounded-xl overflow-hidden border shrink-0" style={{ borderColor: BORDER_MID }}>
+                              <img src={amenityDraft.image} alt="preview" className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const name = amenityDraft.name.trim();
+                            if (!name) return;
+                            addAmenity({ id: Math.random().toString(), name, image: amenityDraft.image });
+                            setIsAddingAmenity(false);
+                            setAmenityDraft({ name: '', image: '' });
+                            setAmenityImgUrlInput('');
+                          }}
+                          className="px-5 py-2 rounded-xl text-sm font-bold text-white"
+                          style={{ background: amenityDraft.name.trim() ? GOLD : '#ccc', cursor: amenityDraft.name.trim() ? 'pointer' : 'not-allowed' }}>
+                          Add
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setIsAddingAmenity(false); setAmenityDraft({ name: '', image: '' }); setAmenityImgUrlInput(''); }}
+                          className="px-5 py-2 rounded-xl text-sm font-bold transition-all hover:bg-amber-50"
+                          style={{ border: `1px solid ${BORDER}`, color: TEXT_MID }}>
+                          Cancel
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Amenity grid */}
+                  {formData.amenities.custom.length === 0 && !isAddingAmenity && (
+                    <div className="py-14 text-center border-2 border-dashed rounded-2xl" style={{ borderColor: BORDER }}>
+                      <ImageIcon className="w-10 h-10 mx-auto mb-3 opacity-30" style={{ color: TEXT_SOFT }} />
+                      <p className="font-semibold text-sm" style={{ color: TEXT_SOFT }}>No amenities added yet.</p>
+                      <p className="text-xs mt-1" style={{ color: TEXT_SOFT }}>Click "Add Amenity" to get started.</p>
+                    </div>
+                  )}
+
+                  {formData.amenities.custom.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {formData.amenities.custom.map(a => (
+                        <div key={a.id} className="relative group rounded-2xl border overflow-hidden shadow-sm"
+                          style={{ borderColor: BORDER, background: IVORY }}>
+                          {/* Image */}
+                          <div className="aspect-video w-full overflow-hidden" style={{ background: IVORY_BG }}>
+                            {a.image ? (
+                              <img src={a.image} alt={a.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImageIcon className="w-8 h-8 opacity-20" style={{ color: TEXT_SOFT }} />
+                              </div>
+                            )}
+                          </div>
+                          {/* Name */}
+                          <div className="px-3 py-2">
+                            <p className="text-xs font-bold leading-tight truncate" style={{ color: TEXT_DARK }}>{a.name}</p>
+                          </div>
+                          {/* Remove overlay */}
+                          <button
+                            type="button"
+                            onClick={() => removeAmenity(a.id)}
+                            className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/60 text-white text-[10px] font-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-600">
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1664,21 +1808,21 @@ export default function NewProjectPage() {
                         placeholder="Company Name"
                         className="w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all focus:ring-2 focus:ring-amber-300/40"
                         style={{ background: IVORY, borderColor: BORDER_MID, color: TEXT_DARK }}
-                        value={formData.builder.name}
+                        value={formData.builder.name ?? ''}
                         onChange={e => setFormData({ ...formData, builder: { ...formData.builder, name: e.target.value } })}
                       />
                       <input
                         placeholder="Contact Person Email"
                         className="w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all focus:ring-2 focus:ring-amber-300/40"
                         style={{ background: IVORY, borderColor: BORDER_MID, color: TEXT_DARK }}
-                        value={formData.builder.email}
+                        value={formData.builder.email ?? ''}
                         onChange={e => setFormData({ ...formData, builder: { ...formData.builder, email: e.target.value } })}
                       />
                       <input
                         placeholder="Phone / Local Contact"
                         className="w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all focus:ring-2 focus:ring-amber-300/40"
                         style={{ background: IVORY, borderColor: BORDER_MID, color: TEXT_DARK }}
-                        value={formData.builder.contact}
+                        value={formData.builder.contact ?? ''}
                         onChange={e => setFormData({ ...formData, builder: { ...formData.builder, contact: e.target.value } })}
                       />
                     </div>
@@ -1689,7 +1833,7 @@ export default function NewProjectPage() {
                         placeholder="Tags (e.g., Luxury, Affordable, Sea-view)"
                         className="w-full border rounded-xl px-3 py-2 text-sm outline-none transition-all focus:ring-2 focus:ring-amber-300/40"
                         style={{ background: IVORY, borderColor: BORDER_MID, color: TEXT_DARK }}
-                        value={formData.settings.tags}
+                        value={formData.settings.tags ?? ''}
                         onChange={e => setFormData({ ...formData, settings: { ...formData.settings, tags: e.target.value } })}
                       />
                       <div className="flex items-center justify-between p-3 rounded-xl border"

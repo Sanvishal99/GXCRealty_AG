@@ -28,7 +28,16 @@
       "Bash(powershell -Command \"gcloud run deploy gxcrealty-backend --source . --region asia-south1 --env-vars-file env.yaml --allow-unauthenticated --port 3000 --memory 512Mi --cpu 1 --min-instances 0 --max-instances 3 --quiet 2>&1\")",
       "Bash(powershell -Command \"gcloud run services list --region asia-south1 2>&1\")",
       "Bash(powershell -Command \"gcloud run revisions list --service gxcrealty-backend --region asia-south1 2>&1\")",
-      "Bash(powershell -Command \"gcloud logging read ''resource.type=cloud_run_revision AND resource.labels.service_name=gxcrealty-backend'' --limit 50 --format=''value\\(textPayload\\)'' --project gxcrealty-ag 2>&1\")"
+      "Bash(powershell -Command \"gcloud logging read ''resource.type=cloud_run_revision AND resource.labels.service_name=gxcrealty-backend'' --limit 50 --format=''value\\(textPayload\\)'' --project gxcrealty-ag 2>&1\")",
+      "Bash(grep -E \"\\\\.\\(tsx?|js\\)$\")",
+      "WebFetch(domain:images.unsplash.com)",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=400&q=80\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://images.unsplash.com/photo-1573497491765-dccce02b29df?w=400&q=80\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://images.unsplash.com/photo-1608116821116-82c4c82e0da8?w=400&q=80\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://images.unsplash.com/photo-1591453089816-0fbb971b454c?w=400&q=80\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" \"https://images.unsplash.com/photo-1543966888-7c1dc482a810?w=400&q=80\")",
+      "Bash(npx next:*)"
     ]
   }
 }

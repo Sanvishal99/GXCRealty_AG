@@ -26,11 +26,7 @@ export class PropertiesController {
     });
   }
 
-  @Get(':id')
-  async getOne(@Param('id') id: string) {
-    return this.propertiesService.findById(id);
-  }
-
+  // Static routes MUST come before :id to avoid being captured as a param
   @UseGuards(AuthGuard('jwt'))
   @Get('company/mine')
   async getMine(@Request() req) {
@@ -42,6 +38,11 @@ export class PropertiesController {
   @Get('admin/all')
   async getAll2() {
     return this.propertiesService.findAllAdmin();
+  }
+
+  @Get(':id')
+  async getOne(@Param('id') id: string) {
+    return this.propertiesService.findById(id);
   }
 
   @UseGuards(AuthGuard('jwt'))

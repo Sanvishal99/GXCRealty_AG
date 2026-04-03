@@ -1,7 +1,25 @@
 "use client";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/AdminSidebar';
+import { useUserProfile } from '@/context/UserProfileContext';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { profile, isLoading, isAuthenticated } = useUserProfile();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!isAuthenticated || profile.role !== 'ADMIN') {
+      router.replace('/dashboard');
+    }
+  }, [isLoading, isAuthenticated, profile.role, router]);
+
+  // Show nothing while checking auth / redirecting
+  if (isLoading || !isAuthenticated || profile.role !== 'ADMIN') {
+    return null;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <AdminSidebar />

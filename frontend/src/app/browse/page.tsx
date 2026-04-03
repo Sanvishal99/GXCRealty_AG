@@ -90,8 +90,8 @@ function PropertyCard({ property, isLoggedIn }: { property: any; isLoggedIn: boo
         boxShadow: '0 2px 16px rgba(180,130,30,0.06)',
       }}
     >
-      {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden shrink-0" style={{ background: 'rgba(245,230,184,0.3)' }}>
+      {/* Image — clicking navigates to detail page */}
+      <Link href={`/p/${property.id}`} className="relative aspect-[4/3] overflow-hidden shrink-0 block cursor-pointer" style={{ background: 'rgba(245,230,184,0.3)' }}>
         {images[0] ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -99,16 +99,26 @@ function PropertyCard({ property, isLoggedIn }: { property: any; isLoggedIn: boo
             alt={property.title}
             loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={e => {
+              const el = e.currentTarget as HTMLImageElement;
+              el.style.display = 'none';
+              const fallback = el.parentElement?.querySelector('.img-fallback') as HTMLElement | null;
+              if (fallback) fallback.style.display = 'flex';
+            }}
           />
-        ) : (
-          <div
-            className="w-full h-full flex flex-col items-center justify-center gap-2"
-            style={{ background: 'linear-gradient(135deg, #F5E6B8 0%, #FDF8ED 100%)' }}
-          >
-            <Building2 size={36} style={{ color: GOLD, opacity: 0.3 }} />
-            <p className="text-xs font-bold" style={{ color: TEXT_SOFT }}>No photos yet</p>
-          </div>
-        )}
+        ) : null}
+
+        {/* Fallback shown when no image or image fails to load */}
+        <div
+          className="img-fallback w-full h-full flex flex-col items-center justify-center gap-2 absolute inset-0"
+          style={{
+            background: 'linear-gradient(135deg, #F5E6B8 0%, #FDF8ED 100%)',
+            display: images[0] ? 'none' : 'flex',
+          }}
+        >
+          <Building2 size={36} style={{ color: GOLD, opacity: 0.3 }} />
+          <p className="text-xs font-bold" style={{ color: TEXT_SOFT }}>No photos yet</p>
+        </div>
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 max-w-[calc(100%-60px)]">
@@ -151,7 +161,7 @@ function PropertyCard({ property, isLoggedIn }: { property: any; isLoggedIn: boo
             +{images.length - 1} photos
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-5 gap-3">

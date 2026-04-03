@@ -4,6 +4,17 @@ import { config as configApi } from '@/lib/api';
 import { STORAGE_KEY } from '@/lib/constants';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+export type NoticeType = 'info' | 'warning' | 'success' | 'error';
+export type FestiveTheme = 'none' | 'diwali' | 'christmas' | 'newyear' | 'holi' | 'eid';
+
+export interface Notice {
+  id: string;
+  text: string;
+  type: NoticeType;
+  active: boolean;
+  dismissible: boolean;
+}
+
 export interface AppConfig {
   branding: {
     appName: string;
@@ -50,6 +61,8 @@ export interface AppConfig {
     enableChat: boolean; enableWallet: boolean; enableVisits: boolean;
     enableDeals: boolean; maintenanceMode: boolean; maintenanceMessage: string;
   };
+  notices: Notice[];
+  festiveTheme: FestiveTheme;
 }
 
 const DEFAULT_CONFIG: AppConfig = {
@@ -101,6 +114,8 @@ const DEFAULT_CONFIG: AppConfig = {
     enableChat: true, enableWallet: true, enableVisits: true, enableDeals: true,
     maintenanceMode: false, maintenanceMessage: 'Scheduled maintenance in progress.',
   },
+  notices: [],
+  festiveTheme: 'none',
 };
 
 // ── Merge remote GlobalConfig into AppConfig ──────────────────────────────────

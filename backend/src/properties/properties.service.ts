@@ -17,7 +17,8 @@ export class PropertiesService {
         ...(filters?.maxPrice !== undefined && { price: { lte: filters.maxPrice } }),
       },
       include: {
-        company: { select: { id: true, email: true, phone: true } },
+        // Never expose company email/phone to public — only the builder fields on the property itself are public
+        company: { select: { id: true } },
         units: true,
         documents: { select: { id: true, type: true, title: true, url: true } },
       },
@@ -29,9 +30,9 @@ export class PropertiesService {
     const property = await this.prisma.property.findUnique({
       where: { id },
       include: {
-        company: { select: { id: true, email: true, phone: true } },
+        company: { select: { id: true } },
         units: true,
-        documents: true,
+        documents: { select: { id: true, type: true, title: true, url: true } },
       },
     });
     if (!property) throw new NotFoundException('Property not found');

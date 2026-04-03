@@ -30,9 +30,11 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, role: user.role };
+    // Strip ALL sensitive fields before returning to client
+    const { passwordHash, passwordResetToken, passwordResetExpiry, ...safeUser } = user;
     return {
       access_token: this.jwtService.sign(payload),
-      user,
+      user: safeUser,
     };
   }
 

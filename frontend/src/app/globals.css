@@ -82,6 +82,70 @@ html.light {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   FESTIVE THEMES — overlay on top of dark/light
+═══════════════════════════════════════════════════════════════ */
+
+/* Diwali — warm deep orange, amber, saffron */
+html.festive-diwali {
+  --glow-primary:   rgba(255, 140, 0, 0.42);
+  --glow-secondary: rgba(255, 100, 0, 0.32);
+  --glow-accent:    rgba(255, 200, 0, 0.22);
+  --accent-indigo:  #FF8C00;
+  --accent-purple:  #FFB300;
+  --border-medium:  rgba(255, 140, 0, 0.30);
+  --border-subtle:  rgba(255, 140, 0, 0.14);
+  --glass-border:   rgba(255, 140, 0, 0.20);
+}
+
+/* Christmas — deep red & pine green */
+html.festive-christmas {
+  --glow-primary:   rgba(200, 30, 30, 0.38);
+  --glow-secondary: rgba(20, 130, 60, 0.28);
+  --glow-accent:    rgba(220, 50, 50, 0.18);
+  --accent-indigo:  #C41E3A;
+  --accent-purple:  #1A7A3C;
+  --border-medium:  rgba(200, 30, 30, 0.28);
+  --border-subtle:  rgba(200, 30, 30, 0.12);
+  --glass-border:   rgba(200, 30, 30, 0.18);
+}
+
+/* New Year — silver, cobalt blue, gold */
+html.festive-newyear {
+  --glow-primary:   rgba(80, 160, 255, 0.38);
+  --glow-secondary: rgba(200, 200, 255, 0.28);
+  --glow-accent:    rgba(255, 215, 0, 0.22);
+  --accent-indigo:  #4DA6FF;
+  --accent-purple:  #C0C0C0;
+  --border-medium:  rgba(80, 160, 255, 0.28);
+  --border-subtle:  rgba(80, 160, 255, 0.12);
+  --glass-border:   rgba(80, 160, 255, 0.18);
+}
+
+/* Holi — vivid magenta, cyan, lime burst */
+html.festive-holi {
+  --glow-primary:   rgba(255, 0, 180, 0.35);
+  --glow-secondary: rgba(0, 220, 200, 0.28);
+  --glow-accent:    rgba(180, 255, 0, 0.20);
+  --accent-indigo:  #FF00CC;
+  --accent-purple:  #00DDCC;
+  --border-medium:  rgba(255, 0, 180, 0.28);
+  --border-subtle:  rgba(255, 0, 180, 0.12);
+  --glass-border:   rgba(255, 0, 180, 0.18);
+}
+
+/* Eid — emerald green, gold, ivory */
+html.festive-eid {
+  --glow-primary:   rgba(16, 160, 100, 0.40);
+  --glow-secondary: rgba(210, 170, 50, 0.30);
+  --glow-accent:    rgba(16, 160, 100, 0.20);
+  --accent-indigo:  #10A064;
+  --accent-purple:  #D2AA32;
+  --border-medium:  rgba(16, 160, 100, 0.28);
+  --border-subtle:  rgba(16, 160, 100, 0.12);
+  --glass-border:   rgba(16, 160, 100, 0.18);
+}
+
+/* ═══════════════════════════════════════════════════════════════
    BASE
 ═══════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }

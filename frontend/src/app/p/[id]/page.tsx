@@ -157,47 +157,61 @@ export default async function PublicPropertyPage({ params }: { params: Promise<{
         {/* ══════════════════════════════════════════
             IMAGE GALLERY
         ══════════════════════════════════════════ */}
-        {images.length > 0 && (
-          <section className="rounded-3xl overflow-hidden" style={{ background: 'rgba(245,230,184,0.3)' }}>
-            {images.length === 1 && (
-              <div className="aspect-[16/7]">
-                <img src={images[0]} alt={property.title} className="w-full h-full object-cover" />
-              </div>
-            )}
-            {images.length === 2 && (
-              <div className="grid grid-cols-2 gap-1 aspect-[16/7]">
-                <img src={images[0]} alt="" className="w-full h-full object-cover" />
+        <section className="rounded-3xl overflow-hidden" style={{ background: 'rgba(245,230,184,0.3)', minHeight: images.length === 0 ? 0 : undefined }}>
+          {images.length === 0 ? (
+            <div className="aspect-[16/7] flex flex-col items-center justify-center gap-3"
+              style={{ background: 'linear-gradient(135deg, #F5E6B8 0%, #FDF8ED 100%)' }}>
+              <svg className="w-16 h-16 opacity-20" style={{ color: GOLD }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-sm font-bold" style={{ color: GOLD_MID }}>No photos available</p>
+            </div>
+          ) : images.length === 1 ? (
+            <div className="aspect-[16/7]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[0]} alt={property.title} className="w-full h-full object-cover" />
+            </div>
+          ) : images.length === 2 ? (
+            <div className="grid grid-cols-2 gap-1 aspect-[16/7]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[0]} alt="" className="w-full h-full object-cover" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[1]} alt="" className="w-full h-full object-cover" />
+            </div>
+          ) : images.length === 3 ? (
+            <div className="grid grid-cols-3 gap-1 aspect-[16/7]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[0]} alt="" className="w-full h-full object-cover col-span-2" />
+              <div className="grid grid-rows-2 gap-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={images[1]} alt="" className="w-full h-full object-cover" />
-              </div>
-            )}
-            {images.length === 3 && (
-              <div className="grid grid-cols-3 gap-1 aspect-[16/7]">
-                <img src={images[0]} alt="" className="w-full h-full object-cover col-span-2" />
-                <div className="grid grid-rows-2 gap-1">
-                  <img src={images[1]} alt="" className="w-full h-full object-cover" />
-                  <img src={images[2]} alt="" className="w-full h-full object-cover" />
-                </div>
-              </div>
-            )}
-            {images.length >= 4 && (
-              <div className="grid grid-cols-4 gap-1 aspect-[16/7]">
-                <img src={images[0]} alt="" className="w-full h-full object-cover col-span-2 row-span-2" />
-                <img src={images[1]} alt="" className="w-full h-full object-cover" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={images[2]} alt="" className="w-full h-full object-cover" />
-                <img src={images[3]} alt="" className="w-full h-full object-cover" />
-                {images.length > 4 && (
-                  <div className="relative">
-                    <img src={images[4]} alt="" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-sm">
-                      <span className="text-white font-black text-sm">+{images.length - 4} more</span>
-                    </div>
-                  </div>
-                )}
-                {images.length === 4 && <div />}
               </div>
-            )}
-          </section>
-        )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-1 aspect-[16/7]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[0]} alt="" className="w-full h-full object-cover col-span-2 row-span-2" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[1]} alt="" className="w-full h-full object-cover" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={images[2]} alt="" className="w-full h-full object-cover" />
+              {images.length > 4 ? (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={images[4]} alt="" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-sm">
+                    <span className="text-white font-black text-sm">+{images.length - 4} more</span>
+                  </div>
+                </div>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={images[3]} alt="" className="w-full h-full object-cover" />
+              )}
+            </div>
+          )}
+        </section>
 
         {/* ══════════════════════════════════════════
             TITLE + PRICE SECTION
